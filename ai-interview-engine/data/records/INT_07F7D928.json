@@ -1,0 +1,164 @@
+{
+  "interview_id": "INT_07F7D928",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-18T00:26:24.668607",
+  "end_time": "2026-05-18T00:26:44.140091",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术考察",
+        "duration_minutes": 20,
+        "focus_area": "核心技能评估",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请介绍一下您在 Python 方面的主要经验。",
+            "category": "技术",
+            "difficulty": "精通",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "请介绍一下您在 Flask 方面的主要经验。",
+            "category": "技术",
+            "difficulty": "精通",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "请介绍一下您在 MySQL 方面的主要经验。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验",
+        "duration_minutes": 11,
+        "focus_area": "实战能力评估",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请分享您最有成就感的一个项目经历。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "项目中遇到过最大的技术挑战是什么？如何解决的？",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 9,
+        "focus_area": "综合素质评估",
+        "questions": [
+          {
+            "question_id": "Q0006",
+            "question_text": "您如何处理团队中的意见分歧？请举例。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0007",
+            "question_text": "您理想的工作环境是什么样的？",
+            "category": "文化契合",
+            "difficulty": "简单",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "fallback"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-18T00:26:37.922031",
+      "speaker": "候选人",
+      "text": "我有5年Python开发经验，主要用Django和FastAPI构建微服务。最近一个项目是设计了一套高可用的API网关，支持每秒5000+ QPS，用了Redis做缓存、Celery做异步任务。在性能优化方面，我通过SQL索引优化和缓存策略将接口响应时间从800ms降到了50ms以下。",
+      "transcript": "我有5年Python开发经验，主要用Django和FastAPI构建微服务。最近一个项目是设计了一套高可用的API网关，支持每秒5000+ QPS，用了Redis做缓存、Celery做异步任务。在性能优化方面，我通过SQL索引优化和缓存策略将接口响应时间从800ms降到了50ms以下。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:26:39.441298",
+      "speaker": "AI",
+      "text": "从中学到了什么？",
+      "transcript": "从中学到了什么？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 88,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 0,
+      "文化契合": 0
+    },
+    "strengths": [
+      "待面试完成后补充"
+    ],
+    "weaknesses": [
+      "待面试完成后补充"
+    ],
+    "recommendation": "待定",
+    "ai_comment": "面试记录已保存，详细评估待人工审核"
+  },
+  "audio_records": []
+}

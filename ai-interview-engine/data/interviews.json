@@ -1,0 +1,3314 @@
+{
+  "interviews": [
+    {
+      "interview_id": "INT_4FE44FE2",
+      "candidate": {
+        "name": "张三",
+        "profile_ref": "中级前端工程师",
+        "candidate_ref": "张三"
+      },
+      "start_time": "2026-05-17T23:42:18.209556",
+      "end_time": "2026-05-17T23:42:18.224064",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 30,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 15,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请详细介绍一下您在 JavaScript 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在 JavaScript 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "您如何评估自己在 JavaScript 方面的水平？请举例说明。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0004",
+                "question_text": "如果让您设计一个基于 JavaScript 的系统架构，您会考虑哪些关键因素？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "请详细介绍一下您在 React 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "React"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "在 React 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "React"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 10,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0013",
+                "question_text": "请介绍一下您曾在 某科技公司 项目中承担的角色和主要贡献。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0014",
+                "question_text": "在 某科技公司 项目中，最让您自豪的技术决策是什么？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0015",
+                "question_text": "某科技公司 项目中有没有遇到过重大困难？您是如何推动解决的？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0016",
+                "question_text": "如果让您重新做 某科技公司 项目，您会在哪些方面做不同的选择？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 8,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0017",
+                "question_text": "请描述一次您快速适应新环境或新技术的经历。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0018",
+                "question_text": "请描述一个您设定高目标并最终达成的例子。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0019",
+                "question_text": "您如何对待工作中的负面反馈？可以分享一个具体例子。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0020",
+                "question_text": "在带领团队时，您如何激励成员发挥最大潜力？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ]
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-17T23:42:18.210553",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.211556",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.213558",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.214553",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.215554",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0003",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.216554",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.218059",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0013",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.220063",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.221064",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0014",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:42:18.222064",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 75,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_F6681654",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-17T23:42:43.858298",
+      "end_time": null,
+      "status": "进行中",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 20,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请详细介绍一下您在 Python 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在 Python 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "您如何评估自己在 Python 方面的水平？请举例说明。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0004",
+                "question_text": "如果让您设计一个基于 Python 的系统架构，您会考虑哪些关键因素？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "请详细介绍一下您在 Flask 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Flask"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "在 Flask 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Flask"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 11,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0013",
+                "question_text": "请介绍一下您曾在 最近的一个 项目中承担的角色和主要贡献。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0014",
+                "question_text": "在 最近的一个 项目中，最让您自豪的技术决策是什么？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 9,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0015",
+                "question_text": "当项目进度紧张时，您如何平衡质量和效率？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0016",
+                "question_text": "有没有一个决策您后来觉得是错的？您从中学到了什么？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0017",
+                "question_text": "请分享一次您主动发现并解决问题的经历。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0018",
+                "question_text": "请描述一次您快速适应新环境或新技术的经历。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ]
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-17T23:43:02.926371",
+          "speaker": "候选人",
+          "text": "我不会python",
+          "transcript": "我不会python",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:43:04.443731",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:43:16.120472",
+          "speaker": "候选人",
+          "text": "不行，我不会python",
+          "transcript": "不行，我不会python",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:43:17.641316",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:43:28.432301",
+          "speaker": "候选人",
+          "text": "没有，因为我不会python",
+          "transcript": "没有，因为我不会python",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:43:29.954574",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:44:23.019562",
+          "speaker": "候选人",
+          "text": "不是我不会python啊",
+          "transcript": "不是我不会python啊",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:44:24.536804",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:44:33.874607",
+          "speaker": "候选人",
+          "text": "我不会python怎么学",
+          "transcript": "我不会python怎么学",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:44:35.384540",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:45:08.488557",
+          "speaker": "候选人",
+          "text": "傻逼",
+          "transcript": "傻逼",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:45:09.995480",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": null,
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_BB9D5B5B",
+      "candidate": {
+        "name": "张三",
+        "profile_ref": "中级前端工程师",
+        "candidate_ref": "张三"
+      },
+      "start_time": "2026-05-17T23:49:39.368078",
+      "end_time": "2026-05-17T23:49:39.395351",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 30,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 15,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请详细介绍一下您在 JavaScript 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在 JavaScript 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "您如何评估自己在 JavaScript 方面的水平？请举例说明。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0004",
+                "question_text": "如果让您设计一个基于 JavaScript 的系统架构，您会考虑哪些关键因素？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "JavaScript"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "请详细介绍一下您在 React 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "React"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "在 React 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "React"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 10,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0013",
+                "question_text": "请介绍一下您曾在 某科技公司 项目中承担的角色和主要贡献。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0014",
+                "question_text": "在 某科技公司 项目中，最让您自豪的技术决策是什么？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0015",
+                "question_text": "某科技公司 项目中有没有遇到过重大困难？您是如何推动解决的？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0016",
+                "question_text": "如果让您重新做 某科技公司 项目，您会在哪些方面做不同的选择？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "某科技公司"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 8,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0017",
+                "question_text": "请描述一次您快速适应新环境或新技术的经历。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0018",
+                "question_text": "您理想的工作环境是什么样的？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0019",
+                "question_text": "有没有一个决策您后来觉得是错的？您从中学到了什么？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0020",
+                "question_text": "您在选择工作时最看重的三个因素是什么？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "template"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-17T23:49:39.370580",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.372586",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.375587",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.377586",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.380093",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0003",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.383099",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.385098",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0013",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.388097",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.390097",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0014",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:49:39.392352",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 75,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_64FC0051",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-17T23:57:24.037232",
+      "end_time": "2026-05-17T23:57:59.769474",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 20,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请详细介绍一下您在 Python 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在 Python 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "您如何评估自己在 Python 方面的水平？请举例说明。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0004",
+                "question_text": "如果让您设计一个基于 Python 的系统架构，您会考虑哪些关键因素？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Python"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "请详细介绍一下您在 Flask 方面的技术积累和项目实践经验。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Flask"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "在 Flask 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Flask"
+                ],
+                "follow_up_triggers": [
+                  "具体实现",
+                  "遇到过",
+                  "优化",
+                  "方案",
+                  "架构"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 11,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0013",
+                "question_text": "请介绍一下您曾在 最近的一个 项目中承担的角色和主要贡献。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0014",
+                "question_text": "在 最近的一个 项目中，最让您自豪的技术决策是什么？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "细节",
+                  "数据",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 9,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0015",
+                "question_text": "有没有一个决策您后来觉得是错的？您从中学到了什么？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0016",
+                "question_text": "当您与同事意见不一致时，通常怎么处理？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0017",
+                "question_text": "您在选择工作时最看重的三个因素是什么？",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0018",
+                "question_text": "请描述一个您设定高目标并最终达成的例子。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "举例",
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "template"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-17T23:57:36.711594",
+          "speaker": "候选人",
+          "text": "我没学过python",
+          "transcript": "我没学过python",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:38.220666",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:41.843794",
+          "speaker": "候选人",
+          "text": "没有",
+          "transcript": "没有",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:43.353750",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:47.267511",
+          "speaker": "候选人",
+          "text": "没学到",
+          "transcript": "没学到",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:48.776247",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:53.333889",
+          "speaker": "候选人",
+          "text": "没有",
+          "transcript": "没有",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-17T23:57:54.856113",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 60,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_AE911F84",
+      "candidate": {
+        "name": "张三",
+        "profile_ref": "中级前端工程师",
+        "candidate_ref": "张三"
+      },
+      "start_time": "2026-05-18T00:00:41.913436",
+      "end_time": "2026-05-18T00:00:41.950126",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 30,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 15,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请介绍一下您在 JavaScript 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "请介绍一下您在 React 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "请介绍一下您在 TypeScript 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 10,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请分享您最有成就感的一个项目经历。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "项目中遇到过最大的技术挑战是什么？如何解决的？",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 8,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "您如何处理团队中的意见分歧？请举例。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "您理想的工作环境是什么样的？",
+                "category": "文化契合",
+                "difficulty": "简单",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "fallback"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:00:41.916434",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.919946",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.923945",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.926946",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.930102",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0003",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.933102",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.936101",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0004",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.939611",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.942612",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0005",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:00:41.945613",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 75,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_21EB2A9F",
+      "candidate": {
+        "name": "张三",
+        "profile_ref": "中级前端工程师",
+        "candidate_ref": "张三"
+      },
+      "start_time": "2026-05-18T00:09:34.779830",
+      "end_time": "2026-05-18T00:09:34.820988",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 30,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 15,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请介绍一下您在 JavaScript 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "请介绍一下您在 React 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "请介绍一下您在 TypeScript 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 10,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请分享您最有成就感的一个项目经历。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "项目中遇到过最大的技术挑战是什么？如何解决的？",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 8,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "您如何处理团队中的意见分歧？请举例。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "您理想的工作环境是什么样的？",
+                "category": "文化契合",
+                "difficulty": "简单",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "fallback"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:09:34.784334",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.788336",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.792336",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.795846",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.799846",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0003",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.802845",
+          "speaker": "AI",
+          "text": "这个很有意思，能再多聊聊吗？",
+          "transcript": "这个很有意思，能再多聊聊吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.805970",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0004",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.809974",
+          "speaker": "AI",
+          "text": "您对这方面还有什么补充吗？",
+          "transcript": "您对这方面还有什么补充吗？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.813478",
+          "speaker": "候选人",
+          "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+          "question_ref": "Q0005",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:09:34.816986",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 75,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_07F7D928",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-18T00:26:24.668607",
+      "end_time": "2026-05-18T00:26:44.140091",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 20,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请介绍一下您在 Python 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "请介绍一下您在 Flask 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "请介绍一下您在 MySQL 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 11,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请分享您最有成就感的一个项目经历。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "项目中遇到过最大的技术挑战是什么？如何解决的？",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 9,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "您如何处理团队中的意见分歧？请举例。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "您理想的工作环境是什么样的？",
+                "category": "文化契合",
+                "difficulty": "简单",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "fallback"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:26:37.922031",
+          "speaker": "候选人",
+          "text": "我有5年Python开发经验，主要用Django和FastAPI构建微服务。最近一个项目是设计了一套高可用的API网关，支持每秒5000+ QPS，用了Redis做缓存、Celery做异步任务。在性能优化方面，我通过SQL索引优化和缓存策略将接口响应时间从800ms降到了50ms以下。",
+          "transcript": "我有5年Python开发经验，主要用Django和FastAPI构建微服务。最近一个项目是设计了一套高可用的API网关，支持每秒5000+ QPS，用了Redis做缓存、Celery做异步任务。在性能优化方面，我通过SQL索引优化和缓存策略将接口响应时间从800ms降到了50ms以下。",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:26:39.441298",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 88,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [
+          "待面试完成后补充"
+        ],
+        "weaknesses": [
+          "待面试完成后补充"
+        ],
+        "recommendation": "待定",
+        "ai_comment": "面试记录已保存，详细评估待人工审核"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_EF0CAC39",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-18T00:27:19.712891",
+      "end_time": null,
+      "status": "进行中",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 20,
+            "focus_area": "核心技能评估",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请介绍一下您在 Python 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "请介绍一下您在 Flask 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "精通",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "请介绍一下您在 MySQL 方面的主要经验。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 11,
+            "focus_area": "实战能力评估",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请分享您最有成就感的一个项目经历。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "项目中遇到过最大的技术挑战是什么？如何解决的？",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 9,
+            "focus_area": "综合素质评估",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "您如何处理团队中的意见分歧？请举例。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "您理想的工作环境是什么样的？",
+                "category": "文化契合",
+                "difficulty": "简单",
+                "expected_answer_keywords": [],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "fallback"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:27:29.201383",
+          "speaker": "候选人",
+          "text": "我没有经验、",
+          "transcript": "我没有经验、",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:27:30.711531",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:27:44.306592",
+          "speaker": "候选人",
+          "text": "换个问题",
+          "transcript": "换个问题",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:27:45.816774",
+          "speaker": "AI",
+          "text": "从中学到了什么？",
+          "transcript": "从中学到了什么？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": null,
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_13228ED4",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-18T00:33:00.793557",
+      "end_time": "2026-05-18T00:35:00.205422",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术基础与深度考察",
+            "duration_minutes": 20,
+            "focus_area": "Python、Flask、MySQL核心能力验证，从基础到实践再到深度思考",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请解释Python中装饰器的实现原理，并给出一个你在Flask项目中实际使用装饰器的例子（如权限校验或日志记录），说明其设计思路。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "闭包",
+                  "函数作为参数",
+                  "@语法糖",
+                  "Flask路由装饰器",
+                  "自定义装饰器",
+                  "functools.wraps"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在Flask中处理数据库事务时，你如何确保MySQL操作的一致性和隔离性？请结合一个具体场景（如订单创建）描述你的实现方案，并讨论可能遇到的并发问题。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "Flask-SQLAlchemy",
+                  "事务提交与回滚",
+                  "隔离级别",
+                  "悲观锁/乐观锁",
+                  "死锁处理",
+                  "重试机制"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "假设你负责一个高并发的API接口，使用Flask和MySQL，用户请求频繁导致数据库连接池耗尽。请分析可能的原因，并给出至少两种优化方案及其权衡。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "连接池配置",
+                  "SQL慢查询优化",
+                  "索引优化",
+                  "缓存（Redis）",
+                  "异步/协程",
+                  "读写分离",
+                  "限流"
+                ],
+                "follow_up_triggers": [
+                  "为什么",
+                  "结果",
+                  "优化"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验深度挖掘",
+            "duration_minutes": 15,
+            "focus_area": "验证候选人简历中声称的项目能力和实际问题解决能力",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请详细介绍你最有挑战的一个Flask项目，包括项目规模、你的角色、架构设计，以及你如何用MySQL优化数据查询性能。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "项目背景",
+                  "团队协作",
+                  "Flask蓝图",
+                  "ORM优化",
+                  "索引设计",
+                  "慢查询日志",
+                  "性能指标"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果",
+                  "举例"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "在那个项目中，你提到解决了某个性能瓶颈。请具体描述你如何定位问题、设计了哪些方案、为什么选择该方案，以及最终结果如何。",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "性能瓶颈定位",
+                  "profiling工具",
+                  "方案对比",
+                  "权衡取舍",
+                  "优化前后对比",
+                  "数据支撑"
+                ],
+                "follow_up_triggers": [
+                  "为什么",
+                  "结果",
+                  "优化"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 10,
+            "focus_area": "评估团队协作、沟通表达、问题解决能力以及与敏捷开发和技术驱动文化的匹配度",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "在敏捷开发团队中，如果你和产品经理对一个需求的技术实现方案有分歧，你会如何沟通并推动决策？请举例说明。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "主动沟通",
+                  "数据/原型支撑",
+                  "权衡利弊",
+                  "折中方案",
+                  "尊重决策",
+                  "结果导向"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "我们团队强调技术驱动和结果导向。请分享一个你主动引入新技术或工具来提升团队效率或产品质量的例子，以及如何衡量其效果。",
+                "category": "文化契合",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "技术调研",
+                  "推动落地",
+                  "团队培训",
+                  "效率提升",
+                  "量化指标",
+                  "复盘"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "llm"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:33:15.495297",
+          "speaker": "候选人",
+          "text": "我不会",
+          "transcript": "我不会",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:18.841409",
+          "speaker": "AI",
+          "text": "没关系，我们可以从基础开始。装饰器本质上是一个函数，它接受一个函数作为参数并返回一个新函数。你了解Python中函数作为一等公民的概念吗？比如函数可以赋值给变量或作为参数传递。基于这个理解，我们可以一步步分析装饰器的工作原理。如果你愿意，我可以先给你一个简单的例子，比如计时装饰器，然后我们再讨论你在项目中可能遇到的场景。",
+          "transcript": "没关系，我们可以从基础开始。装饰器本质上是一个函数，它接受一个函数作为参数并返回一个新函数。你了解Python中函数作为一等公民的概念吗？比如函数可以赋值给变量或作为参数传递。基于这个理解，我们可以一步步分析装饰器的工作原理。如果你愿意，我可以先给你一个简单的例子，比如计时装饰器，然后我们再讨论你在项目中可能遇到的场景。",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:35.841993",
+          "speaker": "候选人",
+          "text": "我不会python",
+          "transcript": "我不会python",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:44.066337",
+          "speaker": "候选人",
+          "text": "这个也不会",
+          "transcript": "这个也不会",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:47.011873",
+          "speaker": "AI",
+          "text": "虽然您不熟悉Flask和Python，但作为高级后端工程师，您在其他语言或框架中是如何处理数据库事务和并发问题的？比如在订单创建场景中，如何确保数据一致性和隔离性？可以分享一个您熟悉的实现方案。",
+          "transcript": "虽然您不熟悉Flask和Python，但作为高级后端工程师，您在其他语言或框架中是如何处理数据库事务和并发问题的？比如在订单创建场景中，如何确保数据一致性和隔离性？可以分享一个您熟悉的实现方案。",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:54.914179",
+          "speaker": "候选人",
+          "text": "我是二次元",
+          "transcript": "我是二次元",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:33:57.708817",
+          "speaker": "AI",
+          "text": "虽然你提到自己是二次元，但作为高级后端开发工程师，我们还是需要探讨技术问题。能否重新回答一下关于Flask中数据库事务处理的问题？比如，在订单创建场景中，你会如何设计事务来保证数据一致性？",
+          "transcript": "虽然你提到自己是二次元，但作为高级后端开发工程师，我们还是需要探讨技术问题。能否重新回答一下关于Flask中数据库事务处理的问题？比如，在订单创建场景中，你会如何设计事务来保证数据一致性？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:34:10.681627",
+          "speaker": "候选人",
+          "text": "我不设计，我都是用ai做的",
+          "transcript": "我不设计，我都是用ai做的",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:34:14.098667",
+          "speaker": "AI",
+          "text": "我理解你使用AI工具来辅助开发，但作为高级后端工程师，我们需要深入理解事务管理的原理。能具体说说你在使用AI生成的代码时，是如何验证或调整事务隔离级别的吗？比如在订单创建场景中，如何处理库存扣减和订单状态更新的原子性？",
+          "transcript": "我理解你使用AI工具来辅助开发，但作为高级后端工程师，我们需要深入理解事务管理的原理。能具体说说你在使用AI生成的代码时，是如何验证或调整事务隔离级别的吗？比如在订单创建场景中，如何处理库存扣减和订单状态更新的原子性？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:34:25.127892",
+          "speaker": "候选人",
+          "text": "结束面试吧，我啥也不会",
+          "transcript": "结束面试吧，我啥也不会",
+          "question_ref": "Q0002",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:34:58.548369",
+          "speaker": "候选人",
+          "text": "我不会",
+          "transcript": "我不会",
+          "question_ref": "Q0003",
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 15,
+        "dimension_scores": {
+          "技术能力": 10,
+          "项目经验": 5,
+          "沟通表达": 20,
+          "文化契合": 25
+        },
+        "strengths": [
+          "无"
+        ],
+        "weaknesses": [
+          "缺乏基本技术能力，无法回答任何技术问题",
+          "沟通态度消极，多次拒绝回答并提前结束面试",
+          "无实际项目经验，依赖AI且无法验证代码"
+        ],
+        "recommendation": "不推荐",
+        "ai_comment": "候选人在面试中表现出严重的技术能力不足，对Python、Flask及后端核心概念（如事务、并发）完全不了解，且多次以“我不会”“我是二次元”等消极态度回应，缺乏职业素养和沟通意愿。作为高级后端工程师，候选人未能展示任何相关经验或学习能力，依赖AI且无法深入讨论技术原理。整体表现远低于岗位要求，建议不予录用。"
+      },
+      "audio_records": []
+    },
+    {
+      "interview_id": "INT_3E0BF8BB",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-18T00:38:08.820001",
+      "end_time": "2026-05-18T00:38:24.507235",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术基础考察",
+            "duration_minutes": 15,
+            "focus_area": "考察Python和Flask的深入理解，以及MySQL的实践应用",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "在Python中，GIL（全局解释器锁）对多线程性能有何影响？你是如何在实际项目中规避这个问题的？",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "GIL限制CPU密集型多线程",
+                  "使用多进程或协程",
+                  "I/O密集型场景影响小",
+                  "具体项目例子"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "优化",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "请解释Flask中请求上下文和应用上下文的区别，并说明在什么场景下你会自定义上下文处理器？",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "请求上下文是每个请求的临时数据",
+                  "应用上下文是应用实例的全局数据",
+                  "自定义上下文处理器用于模板传递变量",
+                  "用户认证信息或配置"
+                ],
+                "follow_up_triggers": [
+                  "为什么",
+                  "举例"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "在MySQL中，你如何优化一个慢查询？请结合一个你曾遇到的真实案例说明分析过程。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "使用EXPLAIN分析执行计划",
+                  "索引优化",
+                  "减少JOIN或子查询",
+                  "分页优化",
+                  "具体案例描述"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "优化"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验深入",
+            "duration_minutes": 15,
+            "focus_area": "验证候选人声称的项目经验和问题解决能力",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请描述一个你使用Flask开发的最复杂的后端服务，包括它的架构设计、关键模块和你的贡献。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "Flask应用架构",
+                  "模块划分",
+                  "API设计",
+                  "个人角色",
+                  "技术挑战"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "在那个项目中，你如何确保高并发下的数据一致性？比如处理用户并发请求时的库存扣减问题。",
+                "category": "项目经验",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "数据库事务",
+                  "乐观锁或悲观锁",
+                  "Redis分布式锁",
+                  "最终一致性方案",
+                  "具体实现细节"
+                ],
+                "follow_up_triggers": [
+                  "为什么",
+                  "优化",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "你提到使用MySQL作为数据存储，请分享一次你设计数据库表结构时遇到的权衡，比如反规范化的决策。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "规范化与反规范化权衡",
+                  "查询性能与写入性能",
+                  "冗余字段设计",
+                  "索引策略",
+                  "具体案例"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 15,
+            "focus_area": "考察团队协作、沟通表达和结果导向的价值观",
+            "questions": [
+              {
+                "question_id": "Q0007",
+                "question_text": "在敏捷开发团队中，你如何与前端工程师和产品经理协作，确保一个复杂功能按时交付？请举一个具体例子。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "每日站会",
+                  "需求澄清",
+                  "接口文档",
+                  "解决冲突",
+                  "按时交付",
+                  "具体例子"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "举例"
+                ]
+              },
+              {
+                "question_id": "Q0008",
+                "question_text": "当你的技术方案与团队其他成员的意见不一致时，你通常如何处理？请描述一个实际案例。",
+                "category": "文化契合",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "倾听理解",
+                  "数据或原型论证",
+                  "妥协或折中",
+                  "团队目标优先",
+                  "具体案例"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0009",
+                "question_text": "我们团队注重结果导向，请分享一个你推动项目上线后，通过数据验证取得显著业务成效的例子。",
+                "category": "文化契合",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "量化指标",
+                  "性能提升或业务增长",
+                  "A/B测试",
+                  "上线后监控",
+                  "具体数据"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "优化"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "llm"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:38:18.277049",
+          "speaker": "候选人",
+          "text": "操你妈",
+          "transcript": "操你妈",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:38:21.250430",
+          "speaker": "AI",
+          "text": "我理解这个问题可能有些敏感，但作为面试官，我希望我们能保持专业和尊重。关于GIL的影响，你能从技术角度谈谈你的理解吗？比如你在实际项目中是否遇到过相关性能问题，以及你是如何通过多进程、协程或其他方式来解决的？",
+          "transcript": "我理解这个问题可能有些敏感，但作为面试官，我希望我们能保持专业和尊重。关于GIL的影响，你能从技术角度谈谈你的理解吗？比如你在实际项目中是否遇到过相关性能问题，以及你是如何通过多进程、协程或其他方式来解决的？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 0,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [],
+        "weaknesses": [
+          "缺乏基本职业素养和尊重",
+          "无法进行有效技术沟通"
+        ],
+        "recommendation": "不推荐",
+        "ai_comment": "候选人在面试中表现出极不专业的行为，使用侮辱性语言，完全无法进行技术交流。这严重违反了职场基本准则，表明其缺乏团队协作和职业素养。即使有技术能力，也无法胜任任何需要专业沟通的岗位。建议不予录用。"
+      },
+      "audio_records": [],
+      "_profile": {
+        "position": {
+          "title": "高级后端开发工程师",
+          "department": "技术部",
+          "level": "高级",
+          "salary_range": "面议"
+        },
+        "requirements": {
+          "education": {
+            "min_degree": "本科",
+            "preferred_majors": [
+              "计算机科学",
+              "软件工程"
+            ]
+          },
+          "experience": {
+            "min_years": 3,
+            "preferred_industries": [
+              "互联网"
+            ]
+          },
+          "skills": [
+            {
+              "name": "Python",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "Flask",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "MySQL",
+              "level": "熟悉",
+              "weight": 6
+            }
+          ],
+          "soft_skills": [
+            "团队协作",
+            "沟通表达",
+            "问题解决"
+          ]
+        },
+        "qualifications": {
+          "certifications": [],
+          "projects": [],
+          "other": []
+        },
+        "culture_fit": {
+          "team_size": "5-10人",
+          "work_style": "敏捷开发",
+          "values": [
+            "技术驱动",
+            "结果导向"
+          ]
+        }
+      },
+      "_candidate": null,
+      "_duration": 45
+    },
+    {
+      "interview_id": "INT_75BA4C65",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-18T00:38:45.611156",
+      "end_time": "2026-05-18T00:39:24.976758",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术基础与深度考察",
+            "duration_minutes": 20,
+            "focus_area": "考察Python、Flask和MySQL的核心理解与实战能力，侧重深度而非广度",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请解释Python中GIL（全局解释器锁）的工作原理及其对多线程并发的影响。在你的项目中，你是如何绕过GIL限制实现高性能的？",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "GIL",
+                  "多线程",
+                  "CPython",
+                  "I/O密集型",
+                  "计算密集型",
+                  "多进程",
+                  "异步",
+                  "C扩展"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果",
+                  "举例"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在Flask中，你如何处理数据库会话的生命周期管理？请结合一个实际场景，描述你如何避免会话泄漏或连接池耗尽的问题。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "Flask-SQLAlchemy",
+                  "会话",
+                  "请求上下文",
+                  "teardown",
+                  "连接池",
+                  "事务"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "假设有一个MySQL表存储用户订单，每天新增百万级数据。请设计一个查询方案，统计过去7天内每个用户的订单总额，并解释索引策略。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "索引",
+                  "覆盖索引",
+                  "分区表",
+                  "聚合查询",
+                  "GROUP BY",
+                  "EXPLAIN",
+                  "慢查询优化"
+                ],
+                "follow_up_triggers": [
+                  "优化",
+                  "为什么",
+                  "具体"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验与问题解决",
+            "duration_minutes": 15,
+            "focus_area": "验证候选人简历中的项目深度，考察其问题解决能力和系统设计思维",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请描述你最近参与的一个最复杂的后端项目，重点说明你在其中扮演的角色、遇到的最大技术挑战以及你是如何解决的。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "架构设计",
+                  "性能优化",
+                  "并发处理",
+                  "数据库设计",
+                  "问题定位",
+                  "解决方案"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果",
+                  "举例"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "在那个项目中，如果让你重新设计一个关键模块，你会做出哪些不同的决策？为什么？",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "反思",
+                  "权衡",
+                  "可扩展性",
+                  "维护性",
+                  "技术债务"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0006",
+                "question_text": "假设你发现一个Flask接口响应时间从100ms飙升到5秒，且无报错日志。请描述你的排查步骤和可能的原因。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "慢查询",
+                  "死锁",
+                  "连接池耗尽",
+                  "内存泄漏",
+                  "APM工具",
+                  "日志",
+                  "profiling"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 10,
+            "focus_area": "考察团队协作、沟通表达和结果导向的敏捷开发文化适配度",
+            "questions": [
+              {
+                "question_id": "Q0007",
+                "question_text": "在敏捷开发团队中，当遇到一个紧急线上bug需要立即修复，但当前sprint的任务还未完成时，你如何平衡优先级并与团队沟通？请举例。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "优先级",
+                  "沟通",
+                  "团队协作",
+                  "敏捷",
+                  "Scrum",
+                  "任务切换"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0008",
+                "question_text": "你如何看待技术驱动和结果导向这两个价值观？请分享一个你主动引入新技术或优化方案并带来可量化业务收益的例子。",
+                "category": "文化契合",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "技术选型",
+                  "ROI",
+                  "性能提升",
+                  "业务指标",
+                  "创新",
+                  "落地"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "为什么"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "llm"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-18T00:39:16.970169",
+          "speaker": "候选人",
+          "text": "你妈逼",
+          "transcript": "你妈逼",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-18T00:39:19.812050",
+          "speaker": "AI",
+          "text": "我理解这个问题可能让你感到有些冒犯或不适，但作为面试官，我确实想了解你对Python并发编程的深入理解。我们可以换个角度：在实际项目中，你遇到过哪些并发性能挑战？你是如何通过多进程、异步IO或其他技术来优化性能的？",
+          "transcript": "我理解这个问题可能让你感到有些冒犯或不适，但作为面试官，我确实想了解你对Python并发编程的深入理解。我们可以换个角度：在实际项目中，你遇到过哪些并发性能挑战？你是如何通过多进程、异步IO或其他技术来优化性能的？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 0,
+        "dimension_scores": {
+          "技术能力": 0,
+          "项目经验": 0,
+          "沟通表达": 0,
+          "文化契合": 0
+        },
+        "strengths": [],
+        "weaknesses": [
+          "面试过程中出现不文明用语，缺乏职业素养",
+          "未能展示任何技术能力或项目经验"
+        ],
+        "recommendation": "不推荐",
+        "ai_comment": "候选人在面试中使用了不文明用语，表现出极低的职业素养和沟通能力。面试官尝试引导讨论技术问题，但候选人未提供任何有效回应，无法评估其技术能力和项目经验。鉴于其行为严重不符合职场规范，且未展示任何岗位所需能力，建议不予录用。"
+      },
+      "audio_records": [],
+      "_profile": {
+        "position": {
+          "title": "高级后端开发工程师",
+          "department": "技术部",
+          "level": "高级",
+          "salary_range": "面议"
+        },
+        "requirements": {
+          "education": {
+            "min_degree": "本科",
+            "preferred_majors": [
+              "计算机科学",
+              "软件工程"
+            ]
+          },
+          "experience": {
+            "min_years": 3,
+            "preferred_industries": [
+              "互联网"
+            ]
+          },
+          "skills": [
+            {
+              "name": "Python",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "Flask",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "MySQL",
+              "level": "熟悉",
+              "weight": 6
+            }
+          ],
+          "soft_skills": [
+            "团队协作",
+            "沟通表达",
+            "问题解决"
+          ]
+        },
+        "qualifications": {
+          "certifications": [],
+          "projects": [],
+          "other": []
+        },
+        "culture_fit": {
+          "team_size": "5-10人",
+          "work_style": "敏捷开发",
+          "values": [
+            "技术驱动",
+            "结果导向"
+          ]
+        }
+      },
+      "_candidate": null,
+      "_duration": 45
+    },
+    {
+      "interview_id": "INT_AD449788",
+      "candidate": {
+        "name": "未知",
+        "profile_ref": "高级后端开发工程师",
+        "candidate_ref": ""
+      },
+      "start_time": "2026-05-19T12:24:13.957083",
+      "end_time": "2026-05-19T12:25:42.492786",
+      "status": "已完成",
+      "plan": {
+        "total_duration_minutes": 45,
+        "sections": [
+          {
+            "section_name": "技术考察",
+            "duration_minutes": 20,
+            "focus_area": "Python、Flask、MySQL 的深度理解和实践能力",
+            "questions": [
+              {
+                "question_id": "Q0001",
+                "question_text": "请解释 Python 中装饰器的工作原理，并用 Flask 举例说明你在实际项目中如何使用装饰器实现权限控制或日志记录。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "闭包",
+                  "函数作为参数",
+                  "@语法糖",
+                  "Flask路由",
+                  "before_request",
+                  "权限校验"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0002",
+                "question_text": "在 Flask 中，如何处理高并发下的 MySQL 连接池问题？请描述你曾遇到的场景和解决方案。",
+                "category": "技术",
+                "difficulty": "困难",
+                "expected_answer_keywords": [
+                  "连接池",
+                  "SQLAlchemy",
+                  "pool_size",
+                  "线程安全",
+                  "超时处理",
+                  "慢查询优化"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0003",
+                "question_text": "请编写一个 Flask 接口，实现用户注册功能，要求包含输入验证、密码哈希存储、防止 SQL 注入，并说明如何优化该接口的性能。",
+                "category": "技术",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "Flask route",
+                  "POST请求",
+                  "参数校验",
+                  "bcrypt",
+                  "参数化查询",
+                  "索引",
+                  "缓存"
+                ],
+                "follow_up_triggers": [
+                  "为什么",
+                  "优化"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "项目经验",
+            "duration_minutes": 15,
+            "focus_area": "候选人在实际项目中解决问题的能力，验证简历上的技术栈应用",
+            "questions": [
+              {
+                "question_id": "Q0004",
+                "question_text": "请介绍一个你使用 Flask 和 MySQL 开发的最复杂项目，重点描述你如何设计数据库表结构以及如何解决性能瓶颈。",
+                "category": "项目经验",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "ER图",
+                  "索引优化",
+                  "分页",
+                  "缓存策略",
+                  "慢查询日志"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果",
+                  "优化"
+                ]
+              },
+              {
+                "question_id": "Q0005",
+                "question_text": "在这个项目中，你遇到了哪些团队协作上的挑战（比如代码冲突、接口对接）？你是如何沟通解决的？",
+                "category": "项目经验",
+                "difficulty": "简单",
+                "expected_answer_keywords": [
+                  "代码审查",
+                  "API文档",
+                  "沟通协调",
+                  "敏捷迭代"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "举例"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "软技能与文化契合",
+            "duration_minutes": 10,
+            "focus_area": "团队协作、沟通表达、技术驱动文化适应度",
+            "questions": [
+              {
+                "question_id": "Q0006",
+                "question_text": "在敏捷开发中，如果产品经理临时增加一个紧急需求，而团队资源紧张，你会如何处理？请举例说明。",
+                "category": "软技能",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "优先级评估",
+                  "沟通反馈",
+                  "技术折中",
+                  "结果导向"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "为什么",
+                  "结果"
+                ]
+              },
+              {
+                "question_id": "Q0007",
+                "question_text": "你如何看待技术驱动？在以往工作中，你是否主动引入过新技术或优化方案来提升团队效率？请分享一个例子。",
+                "category": "文化契合",
+                "difficulty": "中等",
+                "expected_answer_keywords": [
+                  "主动学习",
+                  "技术选型",
+                  "工具优化",
+                  "团队分享"
+                ],
+                "follow_up_triggers": [
+                  "具体",
+                  "结果",
+                  "举例"
+                ]
+              }
+            ]
+          },
+          {
+            "section_name": "候选人提问",
+            "duration_minutes": 5,
+            "focus_area": "候选人疑问解答",
+            "questions": []
+          }
+        ],
+        "_generated_by": "llm"
+      },
+      "dialogues": [
+        {
+          "timestamp": "2026-05-19T12:24:26.592399",
+          "speaker": "候选人",
+          "text": "这个我不会",
+          "transcript": "这个我不会",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:24:30.000049",
+          "speaker": "AI",
+          "text": "没关系，我们可以从基础开始。你能否先简单说说你对 Python 函数作为一等对象（first-class objects）的理解？比如函数可以像变量一样传递或嵌套定义，这为装饰器提供了基础。另外，你在 Flask 项目中是否用过其他方式实现权限控制或日志记录，比如中间件或手动检查？可以分享一个你熟悉的例子。",
+          "transcript": "没关系，我们可以从基础开始。你能否先简单说说你对 Python 函数作为一等对象（first-class objects）的理解？比如函数可以像变量一样传递或嵌套定义，这为装饰器提供了基础。另外，你在 Flask 项目中是否用过其他方式实现权限控制或日志记录，比如中间件或手动检查？可以分享一个你熟悉的例子。",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:24:42.846141",
+          "speaker": "候选人",
+          "text": "python我不会",
+          "transcript": "python我不会",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:24:45.654562",
+          "speaker": "AI",
+          "text": "您提到不熟悉Python，那能否谈谈您在其他后端语言（如Java或Go）中如何实现类似装饰器模式的AOP（面向切面编程）功能？例如在Spring框架中如何用注解实现权限控制或日志记录？",
+          "transcript": "您提到不熟悉Python，那能否谈谈您在其他后端语言（如Java或Go）中如何实现类似装饰器模式的AOP（面向切面编程）功能？例如在Spring框架中如何用注解实现权限控制或日志记录？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:24:54.076660",
+          "speaker": "候选人",
+          "text": "没有",
+          "transcript": "没有",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:24:56.855293",
+          "speaker": "AI",
+          "text": "虽然您提到不熟悉Python，但作为高级后端开发工程师，您是否在其他语言（如Java、Go或Node.js）中实现过类似装饰器模式的功能？比如在Spring中使用AOP进行权限控制或日志记录，能否分享一个具体的项目案例？",
+          "transcript": "虽然您提到不熟悉Python，但作为高级后端开发工程师，您是否在其他语言（如Java、Go或Node.js）中实现过类似装饰器模式的功能？比如在Spring中使用AOP进行权限控制或日志记录，能否分享一个具体的项目案例？",
+          "question_ref": null,
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:25:30.170343",
+          "speaker": "候选人",
+          "text": "我没有类似项目经验",
+          "transcript": "我没有类似项目经验",
+          "question_ref": "Q0001",
+          "duration_seconds": null
+        },
+        {
+          "timestamp": "2026-05-19T12:25:33.027103",
+          "speaker": "AI",
+          "text": "我理解你可能没有直接使用过装饰器实现权限控制或日志记录，但能否从理论层面谈谈你对装饰器工作原理的理解？比如装饰器如何修改函数行为，或者你了解过哪些常见的装饰器模式？",
+          "transcript": "我理解你可能没有直接使用过装饰器实现权限控制或日志记录，但能否从理论层面谈谈你对装饰器工作原理的理解？比如装饰器如何修改函数行为，或者你了解过哪些常见的装饰器模式？",
+          "question_ref": null,
+          "duration_seconds": null
+        }
+      ],
+      "evaluation": {
+        "overall_score": 25,
+        "dimension_scores": {
+          "技术能力": 10,
+          "项目经验": 10,
+          "沟通表达": 40,
+          "文化契合": 30
+        },
+        "strengths": [
+          "诚实坦率，不掩饰自身不足",
+          "在面试官多次引导下保持冷静，态度端正"
+        ],
+        "weaknesses": [
+          "技术能力严重不足，对核心后端开发语言（Python、Java、Go等）均无实际经验",
+          "缺乏AOP、装饰器模式等基础概念的理解，无法展示任何项目经验或理论认知",
+          "沟通表达被动，仅以简短否定回应，缺乏主动思考和问题拆解能力"
+        ],
+        "recommendation": "不推荐",
+        "ai_comment": "该候选人在面试中表现出严重的技术短板，对Python、Java、Go等后端常用语言均无实际经验，且无法从理论层面阐述装饰器或AOP等基础概念。面试官多次引导和降低问题难度，但候选人仅以“不会”“没有”回应，缺乏主动思考和问题拆解能力。作为高级后端开发工程师岗位，候选人完全不符合基本要求，建议不推荐录用。"
+      },
+      "audio_records": [],
+      "_profile": {
+        "position": {
+          "title": "高级后端开发工程师",
+          "department": "技术部",
+          "level": "高级",
+          "salary_range": "面议"
+        },
+        "requirements": {
+          "education": {
+            "min_degree": "本科",
+            "preferred_majors": [
+              "计算机科学",
+              "软件工程"
+            ]
+          },
+          "experience": {
+            "min_years": 3,
+            "preferred_industries": [
+              "互联网"
+            ]
+          },
+          "skills": [
+            {
+              "name": "Python",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "Flask",
+              "level": "精通",
+              "weight": 9
+            },
+            {
+              "name": "MySQL",
+              "level": "熟悉",
+              "weight": 6
+            }
+          ],
+          "soft_skills": [
+            "团队协作",
+            "沟通表达",
+            "问题解决"
+          ]
+        },
+        "qualifications": {
+          "certifications": [],
+          "projects": [],
+          "other": []
+        },
+        "culture_fit": {
+          "team_size": "5-10人",
+          "work_style": "敏捷开发",
+          "values": [
+            "技术驱动",
+            "结果导向"
+          ]
+        }
+      },
+      "_candidate": null,
+      "_duration": 45
+    }
+  ]
+}

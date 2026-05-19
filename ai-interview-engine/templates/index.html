@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 面试引擎</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">AI 面试引擎</div>
+            <div class="nav-links">
+                <a href="/" class="active">首页</a>
+                <a href="/records">面试记录</a>
+            </div>
+        </nav>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <div class="hero">
+                <h1>AI 驱动的智能面试系统</h1>
+                <p class="subtitle">基于人才画像与候选人档案，自动生成面试方案，支持语音交互与实时追问</p>
+            </div>
+
+            <div class="setup-panel">
+                <h2>开始一场新的面试</h2>
+                <p class="panel-desc">配置面试参数，AI 将自动生成面试方案</p>
+
+                <form id="interview-form">
+                    <!-- 岗位信息 -->
+                    <div class="form-section">
+                        <h3><span class="section-icon">📋</span> 岗位信息</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="position-title">岗位名称</label>
+                                <input type="text" id="position-title" value="高级后端开发工程师" placeholder="例如：高级前端工程师">
+                            </div>
+                            <div class="form-group">
+                                <label for="position-level">职级</label>
+                                <select id="position-level">
+                                    <option value="初级">初级</option>
+                                    <option value="中级">中级</option>
+                                    <option value="高级" selected>高级</option>
+                                    <option value="专家">专家</option>
+                                    <option value="架构师">架构师</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技能要求 -->
+                    <div class="form-section">
+                        <h3><span class="section-icon">🔧</span> 技能要求</h3>
+                        <div id="skills-container">
+                            <div class="skill-row">
+                                <input type="text" class="skill-name" value="Python" placeholder="技能名称">
+                                <select class="skill-level">
+                                    <option value="了解">了解</option>
+                                    <option value="熟悉">熟悉</option>
+                                    <option value="精通" selected>精通</option>
+                                </select>
+                                <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
+                            </div>
+                            <div class="skill-row">
+                                <input type="text" class="skill-name" value="Flask" placeholder="技能名称">
+                                <select class="skill-level">
+                                    <option value="了解">了解</option>
+                                    <option value="熟悉">熟悉</option>
+                                    <option value="精通" selected>精通</option>
+                                </select>
+                                <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
+                            </div>
+                            <div class="skill-row">
+                                <input type="text" class="skill-name" value="MySQL" placeholder="技能名称">
+                                <select class="skill-level">
+                                    <option value="了解">了解</option>
+                                    <option value="熟悉" selected>熟悉</option>
+                                    <option value="精通">精通</option>
+                                </select>
+                                <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-skill" onclick="addSkill()">+ 添加技能</button>
+                    </div>
+
+                    <!-- 面试设置 -->
+                    <div class="form-section">
+                        <h3><span class="section-icon">⚙️</span> 面试设置</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="duration">面试时长（分钟）</label>
+                                <input type="number" id="duration" value="45" min="15" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="enable-voice">
+                                    <input type="checkbox" id="enable-voice" checked>
+                                    启用语音交互
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-start" id="btn-start">
+                        <span class="btn-icon">🎙️</span>
+                        开始 AI 面试
+                    </button>
+
+                    <!-- 已选数据提示 -->
+                    <div id="selected-data-hint" class="selected-hint" style="display:none;"></div>
+                </form>
+            </div>
+
+            <!-- 人才画像管理面板（对接方向一） -->
+            <div class="llm-config-panel" style="margin-top:16px;">
+                <div class="llm-config-header" onclick="togglePanel('profile-panel-body')">
+                    <h3><span class="section-icon">📋</span> 人才画像管理 <span class="badge-count" id="profile-count">0</span></h3>
+                    <span style="color:var(--text-secondary);font-size:13px;">对接方向一</span>
+                </div>
+                <div class="llm-config-body" id="profile-panel-body" style="display:none;">
+                    <p class="panel-desc">已保存的人才画像可在开始面试时直接选用</p>
+                    <div class="saved-list" id="profile-list">
+                        <div class="empty-hint">暂无已保存的画像</div>
+                    </div>
+                    <div class="panel-actions">
+                        <button type="button" class="btn-save-config" onclick="showProfileForm()">➕ 新建画像</button>
+                        <button type="button" class="btn-test" onclick="loadProfiles()">🔄 刷新</button>
+                    </div>
+                    <!-- 新建/编辑画像表单 -->
+                    <div id="profile-form" class="inline-form" style="display:none;">
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>岗位名称</label>
+                                    <input type="text" id="pf-title" value="高级后端开发工程师">
+                                </div>
+                                <div class="form-group">
+                                    <label>职级</label>
+                                    <select id="pf-level">
+                                        <option>初级</option><option>中级</option><option selected>高级</option><option>专家</option><option>架构师</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>部门</label>
+                                    <input type="text" id="pf-dept" value="技术部">
+                                </div>
+                                <div class="form-group">
+                                    <label>薪资范围</label>
+                                    <input type="text" id="pf-salary" value="25K-40K">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <label>技能要求（每行一个：名称, 精通/熟悉/了解）</label>
+                            <textarea id="pf-skills" rows="4" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);">Python, 精通
+Flask, 精通
+MySQL, 熟悉
+Redis, 熟悉
+Docker, 熟悉</textarea>
+                        </div>
+                        <div class="form-section">
+                            <label>软技能（逗号分隔）</label>
+                            <input type="text" id="pf-soft-skills" value="团队协作, 沟通表达, 问题解决" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);">
+                        </div>
+                        <div class="llm-actions">
+                            <button type="button" class="btn-save-config" onclick="saveProfile()">💾 保存画像</button>
+                            <button type="button" class="btn-test" onclick="hideProfileForm()">取消</button>
+                        </div>
+                        <div id="profile-form-result" class="llm-test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 候选人档案管理面板（对接方向二） -->
+            <div class="llm-config-panel" style="margin-top:4px;">
+                <div class="llm-config-header" onclick="togglePanel('candidate-panel-body')">
+                    <h3><span class="section-icon">👤</span> 候选人档案管理 <span class="badge-count" id="candidate-count">0</span></h3>
+                    <span style="color:var(--text-secondary);font-size:13px;">对接方向二</span>
+                </div>
+                <div class="llm-config-body" id="candidate-panel-body" style="display:none;">
+                    <p class="panel-desc">已保存的候选人档案可在开始面试时作为面试背景</p>
+                    <div class="saved-list" id="candidate-list">
+                        <div class="empty-hint">暂无已保存的候选人</div>
+                    </div>
+                    <div class="panel-actions">
+                        <button type="button" class="btn-save-config" onclick="showCandidateForm()">➕ 新建候选人</button>
+                        <button type="button" class="btn-test" onclick="loadCandidates()">🔄 刷新</button>
+                    </div>
+                    <!-- 新建候选人表单 -->
+                    <div id="candidate-form" class="inline-form" style="display:none;">
+                        <div class="form-section">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>姓名</label>
+                                    <input type="text" id="ca-name" value="张三">
+                                </div>
+                                <div class="form-group">
+                                    <label>概述</label>
+                                    <input type="text" id="ca-summary" value="5年后端开发经验">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-section">
+                            <label>工作经历（每行一个：公司, 职位, 描述）</label>
+                            <textarea id="ca-experiences" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);">某科技公司, 高级开发, 负责核心业务后端开发与架构设计</textarea>
+                        </div>
+                        <div class="form-section">
+                            <label>已有技能（每行一个：名称, 水平）</label>
+                            <textarea id="ca-skills" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);">Python, 精通
+Java, 熟悉</textarea>
+                        </div>
+                        <div class="llm-actions">
+                            <button type="button" class="btn-save-config" onclick="saveCandidate()">💾 保存候选人</button>
+                            <button type="button" class="btn-test" onclick="hideCandidateForm()">取消</button>
+                        </div>
+                        <div id="candidate-form-result" class="llm-test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LLM 配置面板 -->
+            <div class="llm-config-panel">
+                <div class="llm-config-header" onclick="toggleLLMConfig()">
+                    <h3><span class="section-icon">🧠</span> 大语言模型配置</h3>
+                    <span class="llm-status" id="llm-status-badge">⏳ 检测中...</span>
+                </div>
+                <div class="llm-config-body" id="llm-config-body" style="display:none;">
+                    <div class="llm-toggle">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="llm-enabled" checked onchange="toggleLLM()">
+                            <span class="toggle-text">启用 LLM 增强模式</span>
+                        </label>
+                        <span class="toggle-hint">开启后，问题生成、追问、评估将由 AI 驱动，提供更智能的面试体验</span>
+                    </div>
+                    <div class="form-section" id="llm-config-fields">
+                        <div class="form-group">
+                            <label for="llm-provider">提供商</label>
+                            <select id="llm-provider" onchange="onProviderChange()">
+                                <option value="openai">OpenAI</option>
+                                <option value="deepseek" selected>DeepSeek</option>
+                                <option value="moonshot">Moonshot（月之暗面）</option>
+                                <option value="custom">自定义兼容接口</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-api-key">API Key</label>
+                            <input type="password" id="llm-api-key" placeholder="sk-..." value="sk-6bd830fab5b346f2a53d091c1910a5d7">
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-base-url">API 地址</label>
+                            <input type="text" id="llm-base-url" placeholder="https://api.deepseek.com" value="	https://api.deepseek.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-model">模型名称</label>
+                            <input type="text" id="llm-model" placeholder="deepseek-v4-flash" value="deepseek-v4-flash">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="llm-temperature">温度 (0-2)</label>
+                                <input type="number" id="llm-temperature" value="0.7" min="0" max="2" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="llm-max-tokens">最大 Token</label>
+                                <input type="number" id="llm-max-tokens" value="2048" min="256" max="8192" step="256">
+                            </div>
+                        </div>
+                        <div class="llm-actions">
+                            <button type="button" class="btn-test" id="btn-test-llm" onclick="testLLM()">🔌 测试连接</button>
+                            <button type="button" class="btn-save-config" onclick="saveLLMConfig()">💾 保存配置</button>
+                        </div>
+                        <div id="llm-test-result" class="llm-test-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== LLM 配置管理 ====================
+
+        const LLM_PRESETS = {
+            openai: { base_url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+            deepseek: { base_url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+            moonshot: { base_url: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
+            custom: { base_url: '', model: '' },
+        };
+
+        async function loadLLMConfig() {
+            try {
+                const resp = await fetch('/api/llm/config');
+                const data = await resp.json();
+                if (data.success) {
+                    const cfg = data.config;
+                    document.getElementById('llm-enabled').checked = cfg.available;
+                    document.getElementById('llm-api-key').value = cfg.api_key || '';
+                    document.getElementById('llm-base-url').value = cfg.base_url || '';
+                    document.getElementById('llm-model').value = cfg.model || '';
+                    document.getElementById('llm-temperature').value = cfg.temperature || 0.7;
+                    document.getElementById('llm-max-tokens').value = cfg.max_tokens || 2048;
+
+                    // 检测提供商
+                    let provider = 'custom';
+                    for (const [key, preset] of Object.entries(LLM_PRESETS)) {
+                        if (preset.base_url && cfg.base_url?.includes(preset.base_url.split('//')[1]?.split('/')[0])) {
+                            provider = key;
+                            break;
+                        }
+                    }
+                    document.getElementById('llm-provider').value = provider;
+
+                    updateLLMStatus(cfg.available, cfg.available ? '🧠 LLM 已就绪' : '⚠️ LLM 未配置');
+                }
+            } catch (e) {
+                updateLLMStatus(false, '❌ 加载失败');
+            }
+        }
+
+        function updateLLMStatus(available, text) {
+            const badge = document.getElementById('llm-status-badge');
+            badge.textContent = text;
+            badge.className = 'llm-status ' + (available ? 'status-ok' : 'status-off');
+        }
+
+        function toggleLLMConfig() {
+            const body = document.getElementById('llm-config-body');
+            body.style.display = body.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function onProviderChange() {
+            const provider = document.getElementById('llm-provider').value;
+            const preset = LLM_PRESETS[provider];
+            if (preset) {
+                if (preset.base_url) document.getElementById('llm-base-url').value = preset.base_url;
+                if (preset.model) document.getElementById('llm-model').value = preset.model;
+            }
+        }
+
+        async function testLLM() {
+            const btn = document.getElementById('btn-test-llm');
+            const result = document.getElementById('llm-test-result');
+            btn.disabled = true;
+            btn.textContent = '⏳ 测试中...';
+            result.className = 'llm-test-result';
+            result.textContent = '';
+
+            // 先保存配置
+            await saveLLMConfigSilent();
+
+            try {
+                const resp = await fetch('/api/llm/test', { method: 'POST' });
+                const data = await resp.json();
+                if (data.success) {
+                    result.className = 'llm-test-result success';
+                    result.textContent = '✅ 连接成功！回复: ' + data.reply;
+                } else {
+                    result.className = 'llm-test-result error';
+                    result.textContent = '❌ ' + (data.error || '连接失败');
+                }
+            } catch (e) {
+                result.className = 'llm-test-result error';
+                result.textContent = '❌ 网络错误: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔌 测试连接';
+            }
+        }
+
+        async function saveLLMConfig() {
+            const result = document.getElementById('llm-test-result');
+            result.className = 'llm-test-result';
+            result.textContent = '⏳ 保存中...';
+
+            const success = await saveLLMConfigSilent();
+            if (success) {
+                result.className = 'llm-test-result success';
+                result.textContent = '✅ 配置已保存';
+                updateLLMStatus(true, '🧠 LLM 已就绪');
+            } else {
+                result.className = 'llm-test-result error';
+                result.textContent = '❌ 保存失败';
+            }
+        }
+
+        async function saveLLMConfigSilent() {
+            try {
+                const resp = await fetch('/api/llm/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        api_key: document.getElementById('llm-api-key').value,
+                        base_url: document.getElementById('llm-base-url').value,
+                        model: document.getElementById('llm-model').value,
+                        provider: document.getElementById('llm-provider').value,
+                        temperature: parseFloat(document.getElementById('llm-temperature').value) || 0.7,
+                        max_tokens: parseInt(document.getElementById('llm-max-tokens').value) || 2048,
+                    })
+                });
+                const data = await resp.json();
+                return data.success;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function toggleLLM() {
+            const enabled = document.getElementById('llm-enabled').checked;
+            try {
+                await fetch('/api/llm/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                document.getElementById('llm-config-fields').style.opacity = enabled ? '1' : '0.5';
+                updateLLMStatus(enabled, enabled ? '🧠 LLM 已启用' : '⚠️ LLM 已禁用');
+            } catch (e) {
+                console.error('切换 LLM 失败:', e);
+            }
+        }
+
+        // 页面加载时获取 LLM 配置、画像、候选人
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLLMConfig();
+            loadProfiles();
+            loadCandidates();
+        });
+
+        function addSkill() {
+            const container = document.getElementById('skills-container');
+            const row = document.createElement('div');
+            row.className = 'skill-row';
+            row.innerHTML = `
+                <input type="text" class="skill-name" placeholder="技能名称">
+                <select class="skill-level">
+                    <option value="了解">了解</option>
+                    <option value="熟悉" selected>熟悉</option>
+                    <option value="精通">精通</option>
+                </select>
+                <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        document.getElementById('interview-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-start');
+            btn.disabled = true;
+            btn.textContent = '⏳ 正在准备面试...';
+
+            // 收集表单数据
+            const skills = [];
+            document.querySelectorAll('.skill-row').forEach(row => {
+                const name = row.querySelector('.skill-name').value.trim();
+                const level = row.querySelector('.skill-level').value;
+                if (name) skills.push({ name, level, weight: level === '精通' ? 9 : level === '熟悉' ? 6 : 3 });
+            });
+
+            const profile = {
+                position: {
+                    title: document.getElementById('position-title').value,
+                    department: '技术部',
+                    level: document.getElementById('position-level').value,
+                    salary_range: '面议'
+                },
+                requirements: {
+                    education: { min_degree: '本科', preferred_majors: ['计算机科学', '软件工程'] },
+                    experience: { min_years: 3, preferred_industries: ['互联网'] },
+                    skills: skills,
+                    soft_skills: ['团队协作', '沟通表达', '问题解决']
+                },
+                qualifications: { certifications: [], projects: [], other: [] },
+                culture_fit: { team_size: '5-10人', work_style: '敏捷开发', values: ['技术驱动', '结果导向'] }
+            };
+
+            // 如果选择了已保存的画像/简历，优先使用
+            const selectedProfileId = document.getElementById('profile-list')?.dataset?.selectedId;
+            const selectedCandidateId = document.getElementById('candidate-list')?.dataset?.selectedId;
+
+            const body = {
+                duration: parseInt(document.getElementById('duration').value)
+            };
+            if (selectedProfileId) {
+                body.profile_id = selectedProfileId;
+            } else {
+                body.profile = profile;
+            }
+            if (selectedCandidateId) {
+                body.candidate_id = selectedCandidateId;
+            }
+
+            try {
+                const resp = await fetch('/api/interview/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    const voiceEnabled = document.getElementById('enable-voice').checked;
+                    window.location.href = `/interview/${data.interview.interview_id}?voice=${voiceEnabled}`;
+                } else {
+                    showStartError(data);
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="btn-icon">🎙️</span> 开始 AI 面试';
+                }
+            } catch (err) {
+                showStartError({ error: '网络错误: ' + err.message, need_llm: false });
+                btn.disabled = false;
+                btn.innerHTML = '<span class="btn-icon">🎙️</span> 开始 AI 面试';
+            }
+        });
+
+        function showStartError(data) {
+            const errorDiv = document.getElementById('start-error') || (() => {
+                const div = document.createElement('div');
+                div.id = 'start-error';
+                div.className = 'start-error';
+                const btn = document.querySelector('.btn-start');
+                btn.parentNode.insertBefore(div, btn.nextSibling);
+                return div;
+            })();
+
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = '';
+
+            if (data.need_llm) {
+                errorDiv.className = 'start-error need-llm';
+                errorDiv.innerHTML = `
+                    <div class="error-icon">🧠</div>
+                    <div class="error-title">需要配置大语言模型</div>
+                    <div class="error-desc">${data.error}</div>
+                    <button class="btn-goto-config" onclick="toggleLLMConfig(); document.getElementById('llm-config-body').scrollIntoView({behavior:'smooth'});">
+                        ⚙️ 立即配置
+                    </button>
+                `;
+            } else {
+                errorDiv.className = 'start-error';
+                errorDiv.innerHTML = `
+                    <div class="error-icon">❌</div>
+                    <div class="error-title">启动失败</div>
+                    <div class="error-desc">${data.error}</div>
+                `;
+            }
+        }
+
+        // ==================== 通用面板切换 ====================
+        function togglePanel(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // ==================== 人才画像管理 ====================
+
+        async function loadProfiles() {
+            try {
+                const resp = await fetch('/api/profiles');
+                const data = await resp.json();
+                const list = document.getElementById('profile-list');
+                const count = document.getElementById('profile-count');
+                if (data.success && data.profiles.length) {
+                    count.textContent = data.profiles.length;
+                    list.innerHTML = data.profiles.map(p => {
+                        const title = p.position?.title || '未知岗位';
+                        const level = p.position?.level || '';
+                        const skills = (p.requirements?.skills || []).map(s => s.name).join(', ');
+                        return `
+                            <div class="saved-item ${list.dataset.selectedId === p._id ? 'selected' : ''}"
+                                 onclick="selectProfile('${p._id}', this)">
+                                <div class="saved-item-header">
+                                    <strong>${title}</strong> ${level ? '<span class="badge">' + level + '</span>' : ''}
+                                </div>
+                                <div class="saved-item-info">${skills || '无技能'}</div>
+                                <div class="saved-item-actions">
+                                    <button class="btn-use" onclick="event.stopPropagation(); useProfile('${p._id}')">🎯 选用</button>
+                                    <button class="btn-del" onclick="event.stopPropagation(); deleteProfile('${p._id}')">🗑</button>
+                                </div>
+                            </div>`;
+                    }).join('');
+                } else {
+                    count.textContent = '0';
+                    list.innerHTML = '<div class="empty-hint">暂无已保存的画像</div>';
+                }
+            } catch (e) {
+                console.error('加载画像失败:', e);
+            }
+        }
+
+        function selectProfile(id, el) {
+            const list = document.getElementById('profile-list');
+            list.dataset.selectedId = id;
+            list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            updateSelectedHint();
+        }
+
+        async function useProfile(id) {
+            const list = document.getElementById('profile-list');
+            const items = list.querySelectorAll('.saved-item');
+            // 模拟点击选中
+            let target = null;
+            items.forEach(i => { if (i.querySelector(`[onclick*="'${id}'"]`)) target = i; });
+            list.dataset.selectedId = id;
+            items.forEach(i => i.classList.remove('selected'));
+            if (target) target.classList.add('selected');
+            // 如果有候选人选中，跳转到表单
+            const hint = document.getElementById('selected-data-hint');
+            const p = await (await fetch('/api/profiles/' + id)).json();
+            if (p.success) {
+                const title = p.profile.position?.title || '未知';
+                hint.style.display = 'block';
+                hint.innerHTML = `✅ 已选用画像：<strong>${title}</strong> <span style="font-size:12px;color:var(--text-secondary)">(${id})</span> <button onclick="clearSelection('profile')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;">✕ 清除</button>`;
+            }
+            updateSelectedHint();
+        }
+
+        function updateSelectedHint() {
+            const pList = document.getElementById('profile-list');
+            const cList = document.getElementById('candidate-list');
+            const hint = document.getElementById('selected-data-hint');
+            const pid = pList?.dataset?.selectedId;
+            const cid = cList?.dataset?.selectedId;
+            if (pid || cid) {
+                let text = '';
+                if (pid) text += `📋 画像已选 | `;
+                if (cid) text += `👤 简历已选 | `;
+                text += '点击「开始 AI 面试」使用';
+                hint.style.display = 'block';
+                hint.innerHTML = `✅ ${text} <button onclick="clearAllSelections()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;float:right;">✕ 清除</button>`;
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+
+        function clearSelection(type) {
+            const list = document.getElementById(type === 'profile' ? 'profile-list' : 'candidate-list');
+            delete list.dataset.selectedId;
+            list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
+            updateSelectedHint();
+        }
+
+        function clearAllSelections() {
+            clearSelection('profile');
+            clearSelection('candidate');
+        }
+
+        async function deleteProfile(id) {
+            if (!confirm('确定删除此画像？')) return;
+            await fetch('/api/profiles/' + id, { method: 'DELETE' });
+            loadProfiles();
+        }
+
+        function showProfileForm() {
+            document.getElementById('profile-form').style.display = 'block';
+            document.getElementById('profile-form-result').className = 'llm-test-result';
+            document.getElementById('profile-form-result').textContent = '';
+        }
+
+        function hideProfileForm() {
+            document.getElementById('profile-form').style.display = 'none';
+        }
+
+        async function saveProfile() {
+            const btn = document.querySelector('#profile-form .btn-save-config');
+            const result = document.getElementById('profile-form-result');
+            btn.disabled = true;
+            btn.textContent = '⏳ 保存中...';
+            result.className = 'llm-test-result';
+            result.textContent = '';
+
+            const skills = document.getElementById('pf-skills').value.trim().split('\n')
+                .filter(s => s.trim())
+                .map(s => {
+                    const parts = s.split(',').map(x => x.trim());
+                    return { name: parts[0], level: parts[1] || '熟悉', weight: parts[1] === '精通' ? 9 : 6 };
+                });
+            const softSkills = document.getElementById('pf-soft-skills').value.split(',').map(s => s.trim()).filter(s => s);
+
+            const profile = {
+                position: {
+                    title: document.getElementById('pf-title').value,
+                    department: document.getElementById('pf-dept').value,
+                    level: document.getElementById('pf-level').value,
+                    salary_range: document.getElementById('pf-salary').value,
+                },
+                requirements: {
+                    education: { min_degree: '本科', preferred_majors: [] },
+                    experience: { min_years: 3, preferred_industries: [] },
+                    skills: skills,
+                    soft_skills: softSkills,
+                },
+                qualifications: { certifications: [], projects: [], other: [] },
+                culture_fit: { team_size: '', work_style: '', values: [] },
+            };
+
+            try {
+                const resp = await fetch('/api/profiles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profile),
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    result.className = 'llm-test-result success';
+                    result.textContent = '✅ 画像已保存！ID: ' + data.profile._id;
+                    hideProfileForm();
+                    loadProfiles();
+                } else {
+                    result.className = 'llm-test-result error';
+                    result.textContent = '❌ ' + (data.error || '保存失败');
+                }
+            } catch (e) {
+                result.className = 'llm-test-result error';
+                result.textContent = '❌ 网络错误: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💾 保存画像';
+            }
+        }
+
+        // ==================== 候选人档案管理 ====================
+
+        async function loadCandidates() {
+            try {
+                const resp = await fetch('/api/candidates');
+                const data = await resp.json();
+                const list = document.getElementById('candidate-list');
+                const count = document.getElementById('candidate-count');
+                if (data.success && data.candidates.length) {
+                    count.textContent = data.candidates.length;
+                    list.innerHTML = data.candidates.map(c => {
+                        const name = c.name || '未知';
+                        const exps = (c.experiences || []).map(e => e.company).filter(Boolean).join(', ');
+                        return `
+                            <div class="saved-item ${list.dataset.selectedId === c._id ? 'selected' : ''}"
+                                 onclick="selectCandidate('${c._id}', this)">
+                                <div class="saved-item-header">
+                                    <strong>${name}</strong>
+                                </div>
+                                <div class="saved-item-info">${exps || c.summary || '无经历'}</div>
+                                <div class="saved-item-actions">
+                                    <button class="btn-use" onclick="event.stopPropagation(); useCandidate('${c._id}')">🎯 选用</button>
+                                    <button class="btn-del" onclick="event.stopPropagation(); deleteCandidate('${c._id}')">🗑</button>
+                                </div>
+                            </div>`;
+                    }).join('');
+                } else {
+                    count.textContent = '0';
+                    list.innerHTML = '<div class="empty-hint">暂无已保存的候选人</div>';
+                }
+            } catch (e) {
+                console.error('加载候选人失败:', e);
+            }
+        }
+
+        function selectCandidate(id, el) {
+            const list = document.getElementById('candidate-list');
+            list.dataset.selectedId = id;
+            list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            updateSelectedHint();
+        }
+
+        async function useCandidate(id) {
+            const list = document.getElementById('candidate-list');
+            list.dataset.selectedId = id;
+            list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
+            const items = list.querySelectorAll('.saved-item');
+            items.forEach(i => {
+                if (i.querySelector(`[onclick*="'${id}'"]`)) i.classList.add('selected');
+            });
+            updateSelectedHint();
+        }
+
+        async function deleteCandidate(id) {
+            if (!confirm('确定删除此候选人？')) return;
+            await fetch('/api/candidates/' + id, { method: 'DELETE' });
+            loadCandidates();
+        }
+
+        function showCandidateForm() {
+            document.getElementById('candidate-form').style.display = 'block';
+            document.getElementById('candidate-form-result').className = 'llm-test-result';
+            document.getElementById('candidate-form-result').textContent = '';
+        }
+
+        function hideCandidateForm() {
+            document.getElementById('candidate-form').style.display = 'none';
+        }
+
+        async function saveCandidate() {
+            const btn = document.querySelector('#candidate-form .btn-save-config');
+            const result = document.getElementById('candidate-form-result');
+            btn.disabled = true;
+            btn.textContent = '⏳ 保存中...';
+            result.className = 'llm-test-result';
+            result.textContent = '';
+
+            const exps = document.getElementById('ca-experiences').value.trim().split('\n')
+                .filter(s => s.trim())
+                .map(s => {
+                    const parts = s.split(',').map(x => x.trim());
+                    return { company: parts[0] || '', title: parts[1] || '', description: parts[2] || '' };
+                });
+            const skills = document.getElementById('ca-skills').value.trim().split('\n')
+                .filter(s => s.trim())
+                .map(s => {
+                    const parts = s.split(',').map(x => x.trim());
+                    return { name: parts[0], level: parts[1] || '熟悉' };
+                });
+
+            const candidate = {
+                name: document.getElementById('ca-name').value,
+                summary: document.getElementById('ca-summary').value,
+                experiences: exps,
+                skills: skills,
+            };
+
+            try {
+                const resp = await fetch('/api/candidates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(candidate),
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    result.className = 'llm-test-result success';
+                    result.textContent = '✅ 候选人已保存！ID: ' + data.candidate._id;
+                    hideCandidateForm();
+                    loadCandidates();
+                } else {
+                    result.className = 'llm-test-result error';
+                    result.textContent = '❌ ' + (data.error || '保存失败');
+                }
+            } catch (e) {
+                result.className = 'llm-test-result error';
+                result.textContent = '❌ 网络错误: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💾 保存候选人';
+            }
+        }
+    </script>
+</body>
+</html>
