@@ -151,7 +151,7 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             voiceRecognition = new SpeechRecognition();
             voiceRecognition.lang = 'zh-CN';
-            voiceRecognition.continuous = true;
+            voiceRecognition.continuous = false;  // 非连续模式，更稳定
             voiceRecognition.interimResults = true;
             voiceRecognition.maxAlternatives = 1;
 
@@ -169,29 +169,76 @@
                     const input = document.getElementById('answer-input');
                     input.value = input.value ? input.value + finalTranscript : finalTranscript;
                 }
-                document.getElementById('voice-status').textContent = interimTranscript ? '正在识别: ' + interimTranscript : '语音识别中...';
+                const status = document.getElementById('voice-status');
+                if (status) {
+                    status.textContent = interimTranscript
+                        ? '正在识别: ' + interimTranscript
+                        : '🎤 聆听中...';
+                }
             };
 
             voiceRecognition.onerror = (event) => {
                 console.error('ASR Error:', event.error);
-                deactivateVoice();
-                if (event.error === 'no-speech') {
-                    document.getElementById('voice-status').textContent = '未检测到语音，请重试';
-                } else {
-                    document.getElementById('voice-status').textContent = '语音识别出错: ' + event.error;
+                if (event.error === 'not-allowed') {
+                    // 用户拒绝了麦克风权限
+                    deactivateVoice();
+                    const status = document.getElementById('voice-status');
+                    if (status) status.textContent = '⚠️ 麦克风权限被拒绝';
+                    return;
                 }
+                if (event.error === 'no-speech' || event.error === 'aborted') {
+                    // 没有声音或正常中断，无需处理，onend 会重启
+                    return;
+                }
+                // 其他错误
+                deactivateVoice();
+                const status = document.getElementById('voice-status');
+                if (status) status.textContent = '语音识别出错: ' + event.error;
             };
 
             voiceRecognition.onend = () => {
-                if (isVoiceActive) {
-                    try { voiceRecognition.start(); } catch(e) {}
+                // 用户主动开启麦克风后，自动保持连接
+                // Chrome 允许 onend 中再次 start（即使非用户手势）
+                if (isVoiceActive && isWaitingForAnswer && !isInterviewEnding) {
+                    try {
+                        voiceRecognition.start();
+                    } catch(e) {
+                        console.warn('语音重启失败:', e);
+                        deactivateVoice();
+                    }
                 }
             };
+        }
+
+        /** 显示"点击麦克风"提示（不自动开启，等待用户点击） */
+        function showVoiceHint() {
+            if (!VOICE_ENABLED || !voiceRecognition || isInterviewEnding) return;
+            // 如果麦克风已开启，无需显示提示
+            if (isVoiceActive) return;
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (indicator && status) {
+                indicator.classList.remove('active');
+                indicator.classList.add('hint');
+                indicator.style.display = 'flex';
+                status.textContent = '🎤 点击🎤按钮开始语音输入';
+            }
+        }
+
+        /** 隐藏语音提示 */
+        function hideVoiceHint() {
+            const indicator = document.getElementById('voice-indicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+                indicator.classList.remove('active', 'hint');
+            }
         }
 
         function toggleVoice() {
             if (isVoiceActive) {
                 deactivateVoice();
+                // 关闭后显示提示，让用户知道可以再次点击开启
+                showVoiceHint();
             } else {
                 activateVoice();
             }
@@ -203,17 +250,31 @@
                 return;
             }
             isVoiceActive = true;
-            document.getElementById('btn-voice').classList.add('active');
-            document.getElementById('voice-indicator').classList.add('active');
-            document.getElementById('voice-status').textContent = '语音识别中...';
-            try { voiceRecognition.start(); } catch(e) {}
+            const btn = document.getElementById('btn-voice');
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (btn) btn.classList.add('active');
+            if (indicator) indicator.classList.add('active');
+            if (status) status.textContent = '🎤 聆听中...';
+            try {
+                voiceRecognition.start();
+            } catch(e) {
+                console.error('麦克风启动失败:', e);
+                isVoiceActive = false;
+                if (btn) btn.classList.remove('active');
+                if (indicator) indicator.classList.remove('active');
+                if (status) status.textContent = '❌ 麦克风启动失败，请重试';
+            }
         }
 
         function deactivateVoice() {
             isVoiceActive = false;
-            document.getElementById('btn-voice').classList.remove('active');
-            document.getElementById('voice-indicator').classList.remove('active');
-            document.getElementById('voice-status').textContent = '语音已关闭';
+            const btn = document.getElementById('btn-voice');
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (btn) btn.classList.remove('active');
+            if (indicator) indicator.classList.remove('active');
+            if (status) status.textContent = '语音已关闭';
             if (voiceRecognition) {
                 try { voiceRecognition.stop(); } catch(e) {}
             }
@@ -347,6 +408,8 @@
 
                     isWaitingForAnswer = true;
                     document.getElementById('answer-input').focus();
+                    // 显示语音提示，等待用户点击开启
+                    showVoiceHint();
                 } else {
                     // 没有更多问题，结束面试
                     await endInterview();
@@ -368,6 +431,7 @@
             input.value = '';
             document.getElementById('btn-send').disabled = true;
             deactivateVoice();
+            hideVoiceHint();
 
             try {
                 // 处理回答
@@ -399,6 +463,8 @@
                             currentQuestion = { ...currentQuestion, follow_up: true };
                             isWaitingForAnswer = true;
                             document.getElementById('answer-input').focus();
+                            // 显示语音提示，等待用户点击开启
+                            showVoiceHint();
                         }
                         document.getElementById('follow-up-card').style.display = 'none';
                     }, 1500);

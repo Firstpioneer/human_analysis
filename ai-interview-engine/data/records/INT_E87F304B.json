@@ -1,0 +1,316 @@
+{
+  "interview_id": "INT_E87F304B",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-20T15:17:19.437667",
+  "end_time": "2026-05-20T15:18:00.895016",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 15,
+    "sections": [
+      {
+        "section_name": "技术基础与深度",
+        "duration_minutes": 5,
+        "focus_area": "考察Python和Flask的核心原理及实际应用能力，验证候选人是否真正精通而非仅会用",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请解释Python中GIL（全局解释器锁）的工作原理，以及在使用Flask开发高并发Web应用时，你是如何规避GIL带来的性能瓶颈的？",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "GIL",
+              "多线程",
+              "I/O密集型",
+              "多进程",
+              "协程",
+              "异步",
+              "Celery",
+              "Flask异步支持"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在Flask中，如果有一个需要耗时5秒的数据库查询操作，且用户请求频繁，你会如何设计接口来避免阻塞其他请求？请给出具体方案，包括中间件或扩展的使用。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "异步",
+              "Celery",
+              "消息队列",
+              "缓存",
+              "Flask-SQLAlchemy",
+              "连接池",
+              "异步视图"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "优化",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "请写出一个Flask装饰器，用于统一处理API接口的异常返回，要求返回JSON格式的错误信息，并包含HTTP状态码。",
+            "category": "技术",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "装饰器",
+              "try-except",
+              "jsonify",
+              "abort",
+              "errorhandler"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验验证",
+        "duration_minutes": 5,
+        "focus_area": "通过候选人简历中的具体项目，验证其技术实践能力和问题解决能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请描述你最近参与的一个使用Flask和MySQL的后端项目，你负责的核心模块是什么？遇到了哪些技术挑战？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "Flask",
+              "MySQL",
+              "核心模块",
+              "技术挑战",
+              "解决方案"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在那个项目中，如果让你重新设计数据库表结构，你会做哪些改进来提升查询性能？请结合具体的表或查询场景说明。",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "索引优化",
+              "SQL优化",
+              "分表",
+              "缓存",
+              "反范式",
+              "连接查询"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "举例",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "你在项目中是如何与前端同事协作定义API接口的？有没有因为接口设计不合理导致返工的情况？",
+            "category": "项目经验",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "RESTful",
+              "API文档",
+              "Swagger",
+              "沟通",
+              "版本控制",
+              "联调"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 5,
+        "focus_area": "评估候选人的团队协作、沟通表达和问题解决能力，判断是否适应敏捷开发和技术驱动文化",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "在敏捷开发团队中，如果你发现当前迭代的任务量远超团队能力，你会如何推动调整？请举例说明。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "沟通",
+              "Scrum",
+              "优先级",
+              "迭代计划",
+              "风险评估",
+              "团队协商"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "假设你负责的一个Flask服务在生产环境突然出现响应缓慢，你如何快速定位问题并解决？请描述你的排查步骤。",
+            "category": "问题解决",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "监控",
+              "日志",
+              "慢查询",
+              "CPU/内存",
+              "APM",
+              "逐步排查",
+              "回滚"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "技术驱动意味着我们鼓励主动引入新技术或优化方案。请分享一次你主动推动技术改进并带来可衡量成果的经历。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "主动",
+              "技术选型",
+              "性能提升",
+              "代码重构",
+              "团队分享",
+              "量化结果"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "为什么"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-20T15:17:39.053054",
+      "speaker": "候选人",
+      "text": "我不会",
+      "transcript": "我不会",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-20T15:17:42.058049",
+      "speaker": "AI",
+      "text": "没关系，我们可以从基础开始。你能否简单说说你对Python多线程的理解？或者在实际开发中，你通常用什么方式处理高并发请求？",
+      "transcript": "没关系，我们可以从基础开始。你能否简单说说你对Python多线程的理解？或者在实际开发中，你通常用什么方式处理高并发请求？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 45,
+    "dimension_scores": {
+      "技术能力": 30,
+      "项目经验": 40,
+      "沟通表达": 50,
+      "文化契合": 60
+    },
+    "strengths": [
+      "态度诚恳，愿意从基础开始学习",
+      "面对压力能保持冷静，不回避问题"
+    ],
+    "weaknesses": [
+      "技术基础薄弱，对Python多线程等核心概念缺乏理解",
+      "缺乏高并发场景的实际经验，无法展示项目深度",
+      "沟通中缺乏主动性和具体案例支撑"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "候选人在技术能力上明显不足，对Python多线程和高并发处理缺乏基本认知，无法满足高级后端开发工程师岗位的要求。虽然态度诚恳，但技术短板严重，且项目经验缺乏深度。建议候选人加强基础学习和项目实践，积累实际经验后再应聘高级岗位。当前评估为不推荐。"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 15
+}

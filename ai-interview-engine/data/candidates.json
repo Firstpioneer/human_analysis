@@ -1,3 +1,180 @@
 {
-  "items": []
+  "items": [
+    {
+      "name": "李四",
+      "summary": "3年测试经验",
+      "experiences": [
+        {
+          "company": "某科技",
+          "title": "测试工程师",
+          "description": "负责自动化测试"
+        }
+      ],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通"
+        },
+        {
+          "name": "Selenium",
+          "level": "精通"
+        }
+      ],
+      "_id": "CAN_21DFFC47",
+      "_created_at": "2026-05-19T13:18:43.647376",
+      "_updated_at": "2026-05-19T13:18:43.647376"
+    },
+    {
+      "name": "王小明",
+      "summary": "5年后端开发经验，擅长 Python/Go，有高并发系统设计和微服务架构经验",
+      "contact": {
+        "email": "wangxm@example.com",
+        "phone": "138-0000-0000"
+      },
+      "experiences": [
+        {
+          "company": "星云科技",
+          "title": "高级后端工程师",
+          "start_date": "2022-03",
+          "end_date": "至今",
+          "is_current": true,
+          "description": "负责核心交易系统的架构升级，将单体应用拆分为微服务架构，引入消息队列和缓存机制，系统吞吐量提升 3 倍",
+          "highlights": [
+            "主导微服务拆分",
+            "QPS 从 2000 提升至 8000"
+          ]
+        },
+        {
+          "company": "云帆互联",
+          "title": "后端开发工程师",
+          "start_date": "2019-07",
+          "end_date": "2022-02",
+          "is_current": false,
+          "description": "负责用户增长团队的后端开发，搭建用户行为分析平台",
+          "highlights": [
+            "日活用户从 10 万增长到 50 万"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "华中科技大学",
+          "degree": "本科",
+          "major": "计算机科学与技术",
+          "graduation_year": "2019"
+        }
+      ],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "Go",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "MySQL",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "Redis",
+          "level": "熟悉",
+          "source": "简历"
+        },
+        {
+          "name": "Docker",
+          "level": "熟悉",
+          "source": "简历"
+        },
+        {
+          "name": "Kubernetes",
+          "level": "熟悉",
+          "source": "简历"
+        }
+      ],
+      "_id": "CAN_FA05920E",
+      "_created_at": "2026-05-20T16:48:14.897361",
+      "_updated_at": "2026-05-20T16:48:14.897361"
+    },
+    {
+      "name": "王小明",
+      "summary": "5年后端开发经验，擅长 Python/Go，有高并发系统设计和微服务架构经验",
+      "contact": {
+        "email": "wangxm@example.com",
+        "phone": "138-0000-0000"
+      },
+      "experiences": [
+        {
+          "company": "星云科技",
+          "title": "高级后端工程师",
+          "start_date": "2022-03",
+          "end_date": "至今",
+          "is_current": true,
+          "description": "负责核心交易系统的架构升级，将单体应用拆分为微服务架构，引入消息队列和缓存机制，系统吞吐量提升 3 倍",
+          "highlights": [
+            "主导微服务拆分",
+            "QPS 从 2000 提升至 8000"
+          ]
+        },
+        {
+          "company": "云帆互联",
+          "title": "后端开发工程师",
+          "start_date": "2019-07",
+          "end_date": "2022-02",
+          "is_current": false,
+          "description": "负责用户增长团队的后端开发，搭建用户行为分析平台",
+          "highlights": [
+            "日活用户从 10 万增长到 50 万"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "华中科技大学",
+          "degree": "本科",
+          "major": "计算机科学与技术",
+          "graduation_year": "2019"
+        }
+      ],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "Go",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "MySQL",
+          "level": "精通",
+          "source": "简历"
+        },
+        {
+          "name": "Redis",
+          "level": "熟悉",
+          "source": "简历"
+        },
+        {
+          "name": "Docker",
+          "level": "熟悉",
+          "source": "简历"
+        },
+        {
+          "name": "Kubernetes",
+          "level": "熟悉",
+          "source": "简历"
+        }
+      ],
+      "_id": "CAN_DEDADF35",
+      "_created_at": "2026-05-20T16:52:17.734553",
+      "_updated_at": "2026-05-20T16:52:17.734553"
+    }
+  ]
 }

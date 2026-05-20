@@ -761,6 +761,10 @@ body {
     background: var(--ai-bubble);
 }
 
+.user-message {
+    flex-direction: row-reverse;
+}
+
 .user-message .avatar {
     background: var(--user-bubble);
 }
@@ -782,7 +786,6 @@ body {
     background: var(--user-bubble);
     color: white;
     border-top-right-radius: 4px;
-    margin-left: auto;
 }
 
 .message.follow-up .bubble {
@@ -839,10 +842,23 @@ body {
     border-radius: var(--radius-sm);
     color: var(--primary);
     font-size: 13px;
+    transition: all 0.3s ease;
 }
 
 .voice-indicator.active {
     display: flex;
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+.voice-indicator.hint {
+    display: flex;
+    animation: hintPulse 2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
 }
 
 .waveform {
