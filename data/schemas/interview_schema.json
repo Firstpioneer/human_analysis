@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "面试记录",
+  "description": "AI 面试全过程记录",
+  "type": "object",
+  "required": ["interview_id", "candidate", "start_time", "status"],
+  "properties": {
+    "interview_id": { "type": "string", "description": "面试唯一标识" },
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "profile_ref": { "type": "string", "description": "关联的人才画像引用" },
+        "candidate_ref": { "type": "string", "description": "关联的候选人档案引用" }
+      }
+    },
+    "start_time": { "type": "string", "format": "date-time" },
+    "end_time": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["待开始", "进行中", "已完成", "已中断"] },
+    "plan": {
+      "type": "object",
+      "description": "面试方案",
+      "properties": {
+        "total_duration_minutes": { "type": "integer" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "section_name": { "type": "string" },
+              "duration_minutes": { "type": "integer" },
+              "focus_area": { "type": "string" },
+              "questions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question_id": { "type": "string" },
+                    "question_text": { "type": "string" },
+                    "category": { "type": "string", "enum": ["技术", "项目经验", "软技能", "文化契合", "行为"] },
+                    "difficulty": { "type": "string", "enum": ["简单", "中等", "困难"] },
+                    "expected_answer_keywords": { "type": "array", "items": { "type": "string" } },
+                    "follow_up_triggers": { "type": "array", "items": { "type": "string" }, "description": "触发追问的关键词" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dialogues": {
+      "type": "array",
+      "description": "对话记录（含转写）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "speaker": { "type": "string", "enum": ["AI", "候选人"] },
+          "text": { "type": "string" },
+          "transcript": { "type": "string", "description": "ASR 转写文本" },
+          "question_ref": { "type": "string", "description": "关联的问题 ID" },
+          "duration_seconds": { "type": "number" }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "description": "面试评估",
+      "properties": {
+        "overall_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "dimension_scores": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "strengths": { "type": "array", "items": { "type": "string" } },
+        "weaknesses": { "type": "array", "items": { "type": "string" } },
+        "recommendation": { "type": "string", "enum": ["强烈推荐", "推荐", "待定", "不推荐"] },
+        "ai_comment": { "type": "string" }
+      }
+    },
+    "audio_records": {
+      "type": "array",
+      "description": "音频记录文件引用",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segment_id": { "type": "string" },
+          "file_path": { "type": "string" },
+          "start_time": { "type": "string" },
+          "duration": { "type": "number" },
+          "format": { "type": "string" }
+        }
+      }
+    }
+  }
+}

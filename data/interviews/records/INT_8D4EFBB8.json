@@ -1,0 +1,288 @@
+{
+  "interview_id": "INT_8D4EFBB8",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-20T16:12:06.346015",
+  "end_time": null,
+  "status": "进行中",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础与深度考察",
+        "duration_minutes": 20,
+        "focus_area": "Python、Flask、MySQL核心能力，结合岗位高频场景验证基础扎实度与深度理解",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请解释Python中装饰器的工作原理，并给出一个实际使用场景，比如在Flask中实现请求日志记录。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "闭包",
+              "函数作为参数",
+              "@语法糖",
+              "Flask before_request",
+              "日志记录"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在Flask中，如何处理数据库连接池的创建和管理？请描述一个你设计过的方案，并说明为什么选择该方案。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "连接池",
+              "Flask-SQLAlchemy",
+              "上下文管理",
+              "线程安全",
+              "并发控制"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "假设有一个MySQL表存储用户订单，查询某用户最近10条订单时速度很慢，你会如何优化？请从索引、查询语句、表设计三个角度分析。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "复合索引",
+              "覆盖索引",
+              "EXPLAIN分析",
+              "分页优化",
+              "读写分离",
+              "分表分库"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验深度验证",
+        "duration_minutes": 15,
+        "focus_area": "基于候选人简历中的项目，验证其技术贡献、问题解决能力及对业务的理解",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请详细描述你最近参与的一个Python后端项目，你负责的核心模块是什么？遇到了哪些技术挑战？你是如何解决的？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "项目背景",
+              "核心功能",
+              "技术难点",
+              "解决方案",
+              "性能优化"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在那个项目中，你们团队是如何进行敏捷开发的？你如何确保自己的代码质量和团队协作效率？请举例说明。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "Sprint",
+              "代码评审",
+              "单元测试",
+              "CI/CD",
+              "沟通反馈"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "如果让你重新设计那个项目的数据库表结构，你会做哪些改进？为什么？",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "范式化",
+              "反范式化",
+              "索引优化",
+              "扩展性",
+              "业务关联"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "具体",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 10,
+        "focus_area": "团队协作、沟通表达、问题解决能力，以及是否适应技术驱动、结果导向的敏捷团队",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "请分享一个你在团队中推动技术改进或解决技术债务的经历。你是如何说服其他人的？最终结果如何？",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "技术驱动",
+              "沟通说服",
+              "数据支撑",
+              "改进效果",
+              "团队认可"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "在敏捷开发中，如果遇到需求频繁变更导致开发进度延迟，你会如何处理？请结合你的实际经验说明。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "优先级调整",
+              "快速迭代",
+              "沟通协商",
+              "结果导向",
+              "适应性"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "你如何看待技术驱动和结果导向？请举一个你通过技术手段直接提升业务指标的例子。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "技术驱动",
+              "结果导向",
+              "业务指标",
+              "量化效果",
+              "创新"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-20T16:12:27.506097",
+      "speaker": "候选人",
+      "text": "Python装饰器本质上是一个函数，它接受另一个函数作为参数并扩展其行为。我常用 functools.wraps 来保留原函数的元信息。在Flask项目中，我实现过一个@log_request装饰器，用于记录每次API调用的耗时和参数。",
+      "transcript": "Python装饰器本质上是一个函数，它接受另一个函数作为参数并扩展其行为。我常用 functools.wraps 来保留原函数的元信息。在Flask项目中，我实现过一个@log_request装饰器，用于记录每次API调用的耗时和参数。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-20T16:12:30.050978",
+      "speaker": "AI",
+      "text": "你能具体描述一下这个@log_request装饰器的实现细节吗？比如如何记录耗时和参数，以及如何处理异常情况？",
+      "transcript": "你能具体描述一下这个@log_request装饰器的实现细节吗？比如如何记录耗时和参数，以及如何处理异常情况？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": null,
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}

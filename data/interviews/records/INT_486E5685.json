@@ -1,0 +1,302 @@
+{
+  "interview_id": "INT_486E5685",
+  "candidate": {
+    "name": "李四",
+    "profile_ref": "测试工程师",
+    "candidate_ref": "李四"
+  },
+  "start_time": "2026-05-19T13:18:56.151492",
+  "end_time": null,
+  "status": "进行中",
+  "plan": {
+    "total_duration_minutes": 30,
+    "sections": [
+      {
+        "section_name": "技术基础与Python能力",
+        "duration_minutes": 10,
+        "focus_area": "考察Python编程深度、面向对象设计、异常处理及测试框架理解",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "在Python中，你如何设计一个可复用的Selenium测试基类？请举例说明其中包含的关键方法（如元素等待、截图、日志记录）并解释为什么这样设计。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "基类",
+              "封装",
+              "WebDriverWait",
+              "expected_conditions",
+              "截图",
+              "日志",
+              "复用",
+              "初始化",
+              "teardown"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "假设你有一个包含100个测试用例的Selenium套件，运行时常因网络波动导致失败。你会如何优化Python代码来提高稳定性？请从异常处理、重试机制和等待策略三方面阐述。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "try-except",
+              "retry",
+              "装饰器",
+              "显式等待",
+              "implicitly_wait",
+              "超时",
+              "重试次数",
+              "日志记录"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "请用Python实现一个简单的装饰器，用于记录Selenium测试方法的执行时间，并说明如果测试方法抛出异常，装饰器应如何处理。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "装饰器",
+              "functools.wraps",
+              "time.time",
+              "日志",
+              "异常传递",
+              "finally"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "举例",
+              "为什么"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验与Selenium实战",
+        "duration_minutes": 10,
+        "focus_area": "验证候选人声称的Selenium精通程度，考察其在实际项目中的设计决策和问题解决能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "在你当前的项目中，你使用Selenium自动化了哪些类型的测试？请描述一个你遇到的最复杂的页面交互场景（如动态加载、iframe、弹窗），以及你是如何用Selenium处理的。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "动态元素",
+              "iframe切换",
+              "Alert处理",
+              "显式等待",
+              "JavaScript执行",
+              "Actions类"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在自动化测试中，你如何管理测试数据？例如，对于需要登录不同账号的测试用例，你是如何设计数据驱动框架的？请结合Python和Selenium具体说明。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "数据驱动",
+              "参数化",
+              "pytest",
+              "CSV",
+              "Excel",
+              "JSON",
+              "配置文件",
+              "fixture"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "你的简历中提到负责自动化测试，但未列出具体成果。请举一个例子，说明你通过自动化测试发现了哪个关键缺陷？你是如何设计用例来覆盖这个场景的？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "缺陷",
+              "边界值",
+              "异常路径",
+              "回归测试",
+              "覆盖",
+              "根因分析"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 10,
+        "focus_area": "考察细心程度、沟通能力、质量优先意识及敏捷团队协作",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "在敏捷迭代中，开发频繁提交代码，测试时间被压缩。你如何平衡测试覆盖率和交付速度？请描述一个你实际采取的策略。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "优先级",
+              "冒烟测试",
+              "关键路径",
+              "自动化回归",
+              "风险分析",
+              "沟通",
+              "迭代计划"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "假设你发现一个低概率但影响用户体验的bug，而开发认为优先级低可以延后修复。你会如何说服团队优先处理？请结合质量优先的价值观说明。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "数据",
+              "用户影响",
+              "严重程度",
+              "复现步骤",
+              "沟通",
+              "妥协",
+              "风险"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "你如何确保自己的测试用例没有遗漏？请分享你在编写用例时用来检查细节的方法或清单。",
+            "category": "软技能",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "等价类",
+              "边界值",
+              "正交表",
+              "需求覆盖",
+              "交叉检查",
+              "评审",
+              "checklist"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "举例",
+              "为什么"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [],
+  "evaluation": null,
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "测试工程师",
+      "department": "QA",
+      "level": "中级",
+      "salary_range": "15K-25K"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科"
+      },
+      "experience": {
+        "min_years": 2
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Selenium",
+          "level": "精通",
+          "weight": 8
+        }
+      ],
+      "soft_skills": [
+        "细心",
+        "沟通"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5人",
+      "work_style": "敏捷",
+      "values": [
+        "质量优先"
+      ]
+    },
+    "_id": "PRO_5E7C69EC",
+    "_created_at": "2026-05-19T13:18:43.642884",
+    "_updated_at": "2026-05-19T13:18:43.642884"
+  },
+  "_candidate": {
+    "name": "李四",
+    "summary": "3年测试经验",
+    "experiences": [
+      {
+        "company": "某科技",
+        "title": "测试工程师",
+        "description": "负责自动化测试"
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "level": "精通"
+      },
+      {
+        "name": "Selenium",
+        "level": "精通"
+      }
+    ],
+    "_id": "CAN_21DFFC47",
+    "_created_at": "2026-05-19T13:18:43.647376",
+    "_updated_at": "2026-05-19T13:18:43.647376"
+  },
+  "_duration": 30
+}

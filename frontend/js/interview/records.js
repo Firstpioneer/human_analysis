@@ -1,0 +1,108 @@
+/**
+ * Interview Records 模块 — 面试记录列表
+ */
+
+class InterviewRecords {
+  init(container) {
+    container.innerHTML = `
+      <div class="records-container">
+        <div class="records-header">
+          <h1>📋 面试记录</h1>
+          <p>查看历史面试记录与评估结果</p>
+        </div>
+        <div class="records-list" id="records-list">
+          <div class="empty-hint">加载中...</div>
+        </div>
+      </div>
+    `;
+
+    this._loadRecords(container);
+
+    return () => {};
+  }
+
+  async _loadRecords(container) {
+    const listEl = container.querySelector('#records-list');
+    try {
+      const data = await api.listInterviews();
+      if (!data.success || !data.interviews || data.interviews.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>暂无面试记录</h3>
+            <p>完成一次 AI 面试后，记录将在此显示</p>
+            <a href="#/interview" class="btn-back">🏠 返回首页开始面试</a>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = data.interviews.map(interview => {
+        const title = interview.candidate?.profile_ref || interview._profile?.position?.title || 'AI 面试';
+        const name = interview.candidate?.name || '匿名';
+        const startTime = interview.start_time ? interview.start_time.slice(0, 19).replace('T', ' ') : '--';
+        const score = interview.evaluation?.overall_score;
+        const canRestart = interview.status === '已完成' && interview._profile;
+
+        return `
+          <div class="record-card" data-id="${interview.interview_id}">
+            <div class="record-header" onclick="window.location.hash='#/interview/${interview.interview_id}'">
+              <h3>${this._escape(title)}</h3>
+              <span class="record-status status-${interview.status}">${interview.status}</span>
+            </div>
+            <div class="record-body" onclick="window.location.hash='#/interview/${interview.interview_id}'">
+              <div class="record-info">
+                <span>🆔 ${interview.interview_id}</span>
+                <span>👤 ${this._escape(name)}</span>
+                <span>📅 ${startTime}</span>
+              </div>
+              ${score ? `
+                <div class="record-score">
+                  <span class="score-value">${score}</span>
+                  <span class="score-label">综合评分</span>
+                </div>
+              ` : ''}
+            </div>
+            <div class="record-footer">
+              <span class="record-detail" onclick="window.location.hash='#/interview/${interview.interview_id}'">查看详情 →</span>
+              ${canRestart ? `<button class="btn-restart-record" onclick="event.stopPropagation(); window.interviewRecords.restartInterview('${interview.interview_id}', this)">🔄 重新开始</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>加载失败</h3><p>${err.message}</p></div>`;
+    }
+  }
+
+  async restartInterview(interviewId, btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ 重新创建中...';
+    try {
+      const data = await api.restartInterview(interviewId);
+      if (data.success) {
+        window.location.hash = '#/interview/' + data.interview.interview_id;
+      } else if (data.need_llm) {
+        alert('需要先配置大语言模型：' + data.error);
+        window.location.hash = '#/interview';
+      } else {
+        alert('重新开始失败: ' + (data.error || '未知错误'));
+        btn.disabled = false;
+        btn.textContent = '🔄 重新开始';
+      }
+    } catch (e) {
+      alert('网络错误: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = '🔄 重新开始';
+    }
+  }
+
+  _escape(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}
+
+window.interviewRecords = new InterviewRecords();

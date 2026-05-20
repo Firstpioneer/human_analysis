@@ -1,0 +1,351 @@
+{
+  "interview_id": "INT_4FE44FE2",
+  "candidate": {
+    "name": "张三",
+    "profile_ref": "中级前端工程师",
+    "candidate_ref": "张三"
+  },
+  "start_time": "2026-05-17T23:42:18.209556",
+  "end_time": "2026-05-17T23:42:18.224064",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 30,
+    "sections": [
+      {
+        "section_name": "技术考察",
+        "duration_minutes": 15,
+        "focus_area": "核心技能评估",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请详细介绍一下您在 JavaScript 方面的技术积累和项目实践经验。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "JavaScript"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在 JavaScript 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "JavaScript"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "您如何评估自己在 JavaScript 方面的水平？请举例说明。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "JavaScript"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0004",
+            "question_text": "如果让您设计一个基于 JavaScript 的系统架构，您会考虑哪些关键因素？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "JavaScript"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "请详细介绍一下您在 React 方面的技术积累和项目实践经验。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "React"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "在 React 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "React"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验",
+        "duration_minutes": 10,
+        "focus_area": "实战能力评估",
+        "questions": [
+          {
+            "question_id": "Q0013",
+            "question_text": "请介绍一下您曾在 某科技公司 项目中承担的角色和主要贡献。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "某科技公司"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0014",
+            "question_text": "在 某科技公司 项目中，最让您自豪的技术决策是什么？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "某科技公司"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0015",
+            "question_text": "某科技公司 项目中有没有遇到过重大困难？您是如何推动解决的？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "某科技公司"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0016",
+            "question_text": "如果让您重新做 某科技公司 项目，您会在哪些方面做不同的选择？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "某科技公司"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 8,
+        "focus_area": "综合素质评估",
+        "questions": [
+          {
+            "question_id": "Q0017",
+            "question_text": "请描述一次您快速适应新环境或新技术的经历。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0018",
+            "question_text": "请描述一个您设定高目标并最终达成的例子。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0019",
+            "question_text": "您如何对待工作中的负面反馈？可以分享一个具体例子。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0020",
+            "question_text": "在带领团队时，您如何激励成员发挥最大潜力？",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ]
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-17T23:42:18.210553",
+      "speaker": "候选人",
+      "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.211556",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.213558",
+      "speaker": "候选人",
+      "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "question_ref": "Q0002",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.214553",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.215554",
+      "speaker": "候选人",
+      "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "question_ref": "Q0003",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.216554",
+      "speaker": "AI",
+      "text": "从中学到了什么？",
+      "transcript": "从中学到了什么？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.218059",
+      "speaker": "候选人",
+      "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "question_ref": "Q0013",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.220063",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.221064",
+      "speaker": "候选人",
+      "text": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "transcript": "关于这个问题，我有丰富的经验。在过去的项目中，我深入使用相关技术，解决了多个实际业务场景中的挑战。具体来说，我采用了最佳实践方案，并取得了很好的效果。",
+      "question_ref": "Q0014",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:42:18.222064",
+      "speaker": "AI",
+      "text": "您对这方面还有什么补充吗？",
+      "transcript": "您对这方面还有什么补充吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 75,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 0,
+      "文化契合": 0
+    },
+    "strengths": [
+      "待面试完成后补充"
+    ],
+    "weaknesses": [
+      "待面试完成后补充"
+    ],
+    "recommendation": "待定",
+    "ai_comment": "面试记录已保存，详细评估待人工审核"
+  },
+  "audio_records": []
+}
