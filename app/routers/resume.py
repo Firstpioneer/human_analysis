@@ -4,7 +4,7 @@ import shutil
 import os
 
 from app.services.resume.pipeline_engine import ResumePipelineEngine
-from app.storage.resume_store import save_resume_result, load_resume_result, list_resume_results
+from app.storage.resume_store import save_resume_result, load_resume_result, list_resume_results, delete_resume_result
 from app.storage.interview_store import ProfileCandidateStorage
 
 router = APIRouter()
@@ -91,3 +91,10 @@ async def get_result(resume_id: str):
     if not result:
         raise HTTPException(status_code=404, detail="简历解析结果不存在")
     return result
+
+
+@router.delete("/results/{resume_id}")
+async def delete_result(resume_id: str):
+    if not delete_resume_result(resume_id):
+        raise HTTPException(status_code=404, detail="简历解析结果不存在")
+    return {"message": "删除成功", "resume_id": resume_id}

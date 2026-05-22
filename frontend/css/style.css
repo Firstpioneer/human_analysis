@@ -1277,6 +1277,89 @@ body {
   color: var(--color-text-primary);
 }
 
+/* ---- Parse Preview ---- */
+
+.parse-preview {
+  margin-bottom: var(--space-6);
+}
+
+.parse-preview-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  animation: fadeIn 0.3s ease;
+}
+
+.parse-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+
+.parse-preview-header h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.parse-section {
+  margin-bottom: var(--space-5);
+}
+
+.parse-section h4 {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-muted);
+}
+
+.parse-item {
+  padding: var(--space-3);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.parse-item-title {
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.parse-item-desc {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.parse-item-meta {
+  margin-top: var(--space-1);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.parse-claim-text {
+  margin-right: var(--space-3);
+}
+
+.parse-claim-strength {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.parse-blind-spot {
+  border-left: 3px solid var(--color-warning, #f59e0b);
+  background: rgba(245, 158, 11, 0.05);
+}
+
 /* ============================================================
    Interview Setup 模块
    ============================================================ */

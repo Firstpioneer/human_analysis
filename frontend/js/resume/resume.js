@@ -34,6 +34,8 @@ class ResumeModule {
           </div>
         </div>
 
+        <div class="parse-preview" id="parse-preview"></div>
+
         <div class="resume-results" id="resume-results"></div>
       </div>
     `;
@@ -88,6 +90,10 @@ class ResumeModule {
 
       const result = await api.parseResume(file);
 
+      if (result.status === 'failed') {
+        throw new Error(result.error || '解析失败');
+      }
+
       progressFill.style.width = '100%';
       progressText.textContent = '解析完成！';
 
@@ -99,12 +105,77 @@ class ResumeModule {
       }, 1500);
 
       this._loadResults(container);
+      this._showParsePreview(result, container);
     } catch (err) {
       progressFill.style.width = '0%';
       progressText.textContent = '解析失败';
       showToast('简历解析失败: ' + err.message, 'error');
       setTimeout(() => progress.classList.remove('active'), 2000);
     }
+  }
+
+  _showParsePreview(result, container) {
+    const previewEl = container.querySelector('#parse-preview');
+    if (!previewEl) return;
+
+    const parsed = result.parsed_data || {};
+    const experiences = parsed.objective_experiences || [];
+    const claims = parsed.claims || [];
+    const blindSpots = result.blind_spots || [];
+    const footprint = parsed.digital_footprint || {};
+    const name = result.resume_id ? result.resume_id.replace(/\.\w+$/, '') : '未知';
+
+    previewEl.innerHTML = `
+      <div class="parse-preview-card">
+        <div class="parse-preview-header">
+          <h3>${this._escape(name)} — 解析结果</h3>
+          <button class="resume-btn" onclick="this.closest('.parse-preview-card').remove()">关闭</button>
+        </div>
+
+        ${experiences.length > 0 ? `
+          <div class="parse-section">
+            <h4>客观经历 (${experiences.length})</h4>
+            ${experiences.map(e => `
+              <div class="parse-item">
+                <div class="parse-item-title">${this._escape(e.company || '')} — ${this._escape(e.title || '')}</div>
+                <div class="parse-item-desc">${this._escape(e.description || '')}</div>
+                <div class="parse-item-meta">信号强度: ${e.signal_strength || '-'} / 5 · STAR 完整度: ${e.star_completeness || '-'}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${claims.length > 0 ? `
+          <div class="parse-section">
+            <h4>能力声明 (${claims.length})</h4>
+            ${claims.map(c => `
+              <div class="parse-item">
+                <span class="parse-claim-text">${this._escape(c.content || '')}</span>
+                <span class="parse-claim-strength">信号强度: ${c.signal_strength || '-'} / 5</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${footprint.status === 'success' ? `
+          <div class="parse-section">
+            <h4>GitHub 数字足迹</h4>
+            <div class="parse-item">
+              <div>仓库: ${footprint.public_repos || 0} · Followers: ${footprint.followers || 0}</div>
+              <div>主要语言: ${(footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}</div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${blindSpots.length > 0 ? `
+          <div class="parse-section">
+            <h4>信息盲区</h4>
+            ${blindSpots.map(b => `<div class="parse-item parse-blind-spot">${this._escape(b)}</div>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+    previewEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async _loadResults(container) {
@@ -209,10 +280,12 @@ class ResumeModule {
   async deleteResult(id) {
     if (!confirm('确定删除此简历解析结果？')) return;
     try {
-      // No delete API yet, just reload
-      showToast('删除功能暂未实现', 'info');
+      await api.deleteResumeResult(id);
+      showToast('删除成功', 'success');
+      const container = document.querySelector('.resume-container');
+      if (container) this._loadResults(container);
     } catch (err) {
-      showToast(err.message, 'error');
+      showToast('删除失败: ' + err.message, 'error');
     }
   }
 

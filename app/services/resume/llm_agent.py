@@ -15,14 +15,6 @@ class SemanticAnalyzerAgent:
             logging.warning("未检测到 DASHSCOPE_API_KEY 环境变量，简历语义分析功能将不可用。")
         self._client = None
         self._base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-
-    @property
-    def client(self):
-        if self._client is None:
-            if not self._api_key:
-                raise RuntimeError("未配置 DASHSCOPE_API_KEY，无法调用语义分析服务")
-            self._client = OpenAI(api_key=self._api_key, base_url=self._base_url)
-        return self._client
         self.system_prompt = """
         你是一个严谨的 HR 数据分析专家。你的任务是解析候选人的简历文本，并进行"经历与声明"的分离。
         请严格以 JSON 格式输出，包含以下三个数组：
@@ -36,6 +28,14 @@ class SemanticAnalyzerAgent:
 
         必须且只能输出纯 JSON 格式数据，不要带有 ```json 等 Markdown 标记，不要输出多余的解释。
         """
+
+    @property
+    def client(self):
+        if self._client is None:
+            if not self._api_key:
+                raise RuntimeError("未配置 DASHSCOPE_API_KEY，无法调用语义分析服务")
+            self._client = OpenAI(api_key=self._api_key, base_url=self._base_url)
+        return self._client
 
     def _extract_json(self, text: str) -> str:
         match = re.search(r'\{.*\}', text, re.DOTALL)

@@ -104,6 +104,7 @@ class ApiClient {
   async parseResume(file) { return this._upload('/api/resume/parse', file); }
   async listResumeResults() { return this._request('/api/resume/results'); }
   async getResumeResult(id) { return this._request(`/api/resume/results/${id}`); }
+  async deleteResumeResult(id) { return this._request(`/api/resume/results/${id}`, { method: 'DELETE' }); }
 
   // ---- Interview API ----
   async startInterview(config) {

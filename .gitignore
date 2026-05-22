@@ -1,0 +1,17 @@
+# Runtime data (user-generated)
+data/conversations/
+data/profiles/
+data/resumes/
+data/interviews/
+data/candidates/
+
+# Keep schemas (structural definitions)
+!data/schemas/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment / secrets
+.env
+.env.json

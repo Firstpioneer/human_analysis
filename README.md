@@ -10,7 +10,6 @@ system/
 ├── config.py                 # 统一配置（端口、数据目录）
 ├── requirements.txt          # Python 依赖
 ├── .env.example              # 环境变量模板
-├── migrate_data.py           # 数据迁移脚本
 │
 ├── app/                      # FastAPI 后端
 │   ├── main.py               # 应用工厂、路由注册、静态文件挂载
@@ -105,14 +104,6 @@ python run.py
 ```
 
 启动后访问 http://localhost:8000
-
-### 4. 数据迁移（可选）
-
-如果有 `ai-interview-engine` 的历史数据需要迁移：
-
-```bash
-python migrate_data.py
-```
 
 ## 前端路由
 
