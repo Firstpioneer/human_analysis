@@ -44,6 +44,7 @@ class InterviewEngine:
             "dialogues": [],
             "evaluation": None,
             "audio_records": [],
+            "follow_up_counts": {},
             "_profile": profile,
             "_candidate": candidate,
             "_duration": total_duration,
@@ -72,7 +73,10 @@ class InterviewEngine:
         return None
 
     def process_answer(self, question_id: str, user_answer: str,
-                       audio_segment: Optional[dict] = None) -> dict:
+                       audio_segment: Optional[dict] = None,
+                       is_follow_up_answer: bool = False,
+                       elapsed_seconds: Optional[int] = None,
+                       client_latency_ms: Optional[int] = None) -> dict:
         if not self._current_interview:
             return {"error": "没有正在进行的面试"}
         question = self._question_generator.get_question_by_id(
@@ -85,20 +89,33 @@ class InterviewEngine:
             "transcript": user_answer,
             "question_ref": question_id,
             "duration_seconds": None,
+            "is_follow_up_answer": is_follow_up_answer,
+            "elapsed_seconds": elapsed_seconds,
+            "client_latency_ms": client_latency_ms,
         }
         self._current_interview["dialogues"].append(dialogue_entry)
+
         follow_up = None
-        if question:
+        follow_up_counts = self._current_interview.setdefault("follow_up_counts", {})
+        current_count = follow_up_counts.get(question_id, 0)
+        if question and current_count < 2:
             follow_up = self._follow_up_strategy.generate_follow_up(
                 trigger_keywords=question.get("follow_up_triggers", []),
                 user_answer=user_answer,
                 question_text=question.get("question_text", ""),
                 dialogue_history=self._current_interview.get("dialogues", []),
             )
+            if follow_up:
+                follow_up_counts[question_id] = current_count + 1
         if audio_segment:
             self._current_interview["audio_records"].append(audio_segment)
         self._get_storage().save_interview(self._current_interview)
-        return {"follow_up": follow_up, "has_follow_up": follow_up is not None}
+        return {
+            "follow_up": follow_up,
+            "has_follow_up": follow_up is not None,
+            "follow_up_count": follow_up_counts.get(question_id, current_count),
+            "max_follow_ups": 2,
+        }
 
     def ask_follow_up(self, question: str) -> dict:
         if not self._current_interview:

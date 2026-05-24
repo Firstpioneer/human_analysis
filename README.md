@@ -1,6 +1,6 @@
 # AI 招聘评估系统
 
-可验证的 AI 招聘评估系统，集成人才画像、简历分析、AI 面试三大模块，通过 LLM 实现从岗位定义到面试评估的全流程智能化。
+可验证的 AI 招聘评估系统，集成人才画像、简历分析、AI 面试三大模块，通过 LLM 实现从岗位定义到面试评估的全流程智能化。AI 面试采用语音优先交互：AI 语音提问，候选人语音回答，基于画像信号维度和简历证据动态生成问题与追问。
 
 ## 系统架构
 
@@ -14,8 +14,8 @@ system/
 ├── app/                      # FastAPI 后端
 │   ├── main.py               # 应用工厂、路由注册、静态文件挂载
 │   ├── routers/              # API 路由层
-│   │   ├── portrait.py       # /api/portrait/*  画像模块
-│   │   ├── resume.py         # /api/resume/*    简历模块
+│   │   ├── portrait.py       # /api/portrait/*  画像模块（保存时自动同步面试画像）
+│   │   ├── resume.py         # /api/resume/*    简历模块（解析时自动同步候选人）
 │   │   ├── interview.py      # /api/interview/* 面试模块
 │   │   └── llm_config.py     # /api/llm/*       LLM 配置
 │   ├── services/             # 业务逻辑层
@@ -23,7 +23,9 @@ system/
 │   │   ├── resume/           # 简历解析（DashScope / Qwen）
 │   │   └── interview/        # 面试引擎（可配置 LLM）
 │   ├── models/               # Pydantic 数据模型
-│   ├── converters/           # 数据格式转换（画像→面试、简历→候选人）
+│   ├── converters/           # 数据格式转换
+│   │   ├── profile_converter.py    # 画像 → 面试画像格式
+│   │   └── candidate_converter.py  # 简历 → 候选人格式
 │   ├── storage/              # 统一存储层（JSON 文件读写）
 │   └── schemas/              # JSON Schema 定义
 │
@@ -36,6 +38,9 @@ system/
 │       ├── portrait/         # 人才画像模块前端
 │       ├── resume/           # 简历分析模块前端
 │       └── interview/        # AI 面试模块前端
+│           ├── setup.js      # 面试设置页（选择画像 + 简历来源）
+│           ├── room.js       # 面试房间（语音优先状态机）
+│           └── records.js    # 面试记录
 │
 └── data/                     # 数据目录
     ├── conversations/        # 画像对话历史
@@ -44,7 +49,9 @@ system/
     ├── resumes/              # 简历解析结果
     ├── interviews/           # 面试记录
     │   ├── index.json        # 面试索引
-    │   └── records/          # 单条面试记录（INT_*.json）
+    │   ├── records/          # 单条面试记录（INT_*.json）
+    │   ├── profiles.json     # 面试画像库（画像模块自动同步）
+    │   └── candidates.json   # 面试候选人库（简历模块自动同步）
     └── schemas/              # JSON Schema
 ```
 
@@ -56,6 +63,7 @@ system/
 
 - LLM：DeepSeek（`https://api.deepseek.com`）
 - API Key：通过前端设置，存储在浏览器 localStorage
+- 保存画像后自动转换并同步到面试画像库，返回 `interview_profile_id` 供面试启动使用
 
 ### 简历分析（Resume）
 
@@ -63,13 +71,17 @@ system/
 
 - LLM：阿里云 DashScope / Qwen（`https://dashscope.aliyuncs.com/compatible-mode/v1`）
 - API Key：通过环境变量 `DASHSCOPE_API_KEY` 配置
+- 解析成功后自动转换并保存为面试候选人，返回 `candidate_id` 供面试启动使用
 
 ### AI 面试（Interview）
 
-根据人才画像自动生成面试方案，按方案逐题提问，支持追问、语音输入、计时控制，结束后生成评估报告。
+根据人才画像和简历分析结果自动生成面试方案，结合画像信号维度与候选人简历证据动态设计问题，采用语音优先交互模式。
 
 - LLM：可配置（默认 DeepSeek，支持 OpenAI 兼容接口）
 - 配置方式：前端页面设置，持久化到 `.env.json`
+- 面试设置页要求选择已保存的人才画像输出和简历分析结果，不再支持手动填写岗位/技能预设
+- 语音交互：浏览器 TTS 播报问题，ASR 录制候选人口述回答
+- 追问策略：每个问题最多追问 2 次，由 LLM 根据回答质量决定
 
 ## 快速启动
 
@@ -111,8 +123,8 @@ python run.py
 |------|------|------|
 | `#/portrait` | 人才画像 | 对话式岗位画像生成 |
 | `#/resume` | 简历分析 | 上传简历、查看解析结果 |
-| `#/interview` | AI 面试 | 选择画像和候选人，开始面试 |
-| `#/interview/:id` | 面试房间 | 进行面试对话 |
+| `#/interview` | AI 面试 | 选择画像输出和简历分析结果，配置时长后开始面试 |
+| `#/interview/:id` | 面试房间 | 语音优先面试交互（AI 语音提问 → 候选人语音回答） |
 | `#/records` | 面试记录 | 查看历史面试与评估 |
 
 ## API 端点
@@ -124,7 +136,7 @@ python run.py
 | POST | `/chat` | 与画像 Agent 对话 |
 | POST | `/parse-jd` | 解析 JD 文本 |
 | POST | `/generate-profile` | 生成结构化画像 |
-| POST | `/save-profile` | 保存画像 |
+| POST | `/save-profile` | 保存画像（同步写入面试画像库，返回 `interview_profile_id`） |
 | GET | `/profiles` | 画像列表 |
 | GET | `/profiles/{id}` | 画像详情 |
 | GET | `/conversations` | 对话历史列表 |
@@ -134,7 +146,7 @@ python run.py
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | `/parse` | 上传并解析简历 |
+| POST | `/parse` | 上传并解析简历（自动保存为面试候选人，返回 `candidate_id`） |
 | GET | `/results` | 解析结果列表 |
 | GET | `/results/{id}` | 解析结果详情 |
 
@@ -142,17 +154,17 @@ python run.py
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | `/start` | 开始面试 |
-| GET | `/next-question` | 获取下一个问题 |
-| POST | `/answer` | 提交回答 |
+| POST | `/start` | 开始面试（必须提供 `profile_id` + `candidate_id`） |
+| POST | `/next-question` | 获取下一个问题 |
+| POST | `/answer` | 提交回答（支持追问元数据） |
 | POST | `/ask-follow-up` | 追问 |
 | POST | `/end` | 结束面试 |
-| GET | `/status` | 面试状态 |
+| POST | `/status` | 面试状态 |
 | GET | `/list` | 面试记录列表 |
 | GET | `/detail/{id}` | 面试详情 |
 | POST | `/restart/{id}` | 重新开始面试 |
-| GET | `/profiles` | 画像列表（面试格式） |
-| GET | `/candidates` | 候选人列表 |
+| GET | `/profiles` | 面试画像列表 |
+| GET | `/candidates` | 面试候选人列表 |
 
 ### LLM 配置 `/api/llm`
 
@@ -172,18 +184,61 @@ python run.py
 | 简历 | Qwen-Max | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 环境变量 `DASHSCOPE_API_KEY` |
 | 面试 | DeepSeek | `https://api.deepseek.com` | 前端页面设置，保存至 `.env.json` |
 
-## 端到端工作流
+## 数据流转
 
 ```
-定义岗位画像  ──→  上传候选人简历  ──→  启动 AI 面试  ──→  查看评估记录
- (portrait)       (resume)          (interview)        (records)
-     │                │                   │                  │
-     └── JobProfile ──┘                   │                  │
-                     └── Candidate ───────┘                  │
-                              └── Interview Record ──────────┘
+人才画像页面                简历分析页面
+     │                          │
+     ▼                          ▼
+ /api/portrait/save-profile   /api/resume/parse
+     │                          │
+     ├─ 保存原始画像            ├─ 保存简历解析结果
+     └─ portrait_to_interview_profile()
+           │                    └─ resume_to_interview_candidate()
+           ▼                          ▼
+   data/interviews/profiles.json   data/interviews/candidates.json
+           │                          │
+           └──────────┬───────────────┘
+                      ▼
+              AI 面试设置页
+           选择画像 + 选择候选人
+                      │
+                      ▼
+           /api/interview/start
+           (profile_id + candidate_id)
+                      │
+                      ▼
+              InterviewEngine
+         ┌────────────┴────────────┐
+         ▼                         ▼
+   QuestionGenerator         FollowUpStrategy
+   (画像信号维度 +             (回答质量判断
+    简历盲点/经历)              最多追问2次)
+         │                         │
+         ▼                         ▼
+      面试房间 (语音交互)
+      AI TTS 播报问题
+      候选人 ASR 回答
+                      │
+                      ▼
+              /api/interview/end
+                      │
+                      ▼
+              评估报告生成
 ```
 
-1. 在「人才画像」页面通过对话生成岗位画像并保存
-2. 在「简历分析」页面上传简历，系统自动解析并生成候选人档案
-3. 在「AI 面试」页面选择画像和候选人，配置 LLM 后开始面试
-4. 面试结束后在「面试记录」页面查看评估结果
+## 面试房间语音交互
+
+面试房间采用语音优先的状态机模式：
+
+| 状态 | 说明 | 候选人操作 |
+|------|------|-----------|
+| `preparing` | 加载面试方案，检测浏览器语音能力 | 等待 |
+| `ai_speaking` | AI 语音播报问题（浏览器 TTS） | 听问题，不可录音 |
+| `candidate_answering` | 候选人语音回答（浏览器 ASR） | 按住按钮或点击回答，转写内容不实时显示 |
+| `ai_thinking` | 后端判断是否追问或下一题 | 等待 |
+| `completed` | 面试结束 | 查看结果 |
+
+- AI 首次提问前需要用户点击"开始语音面试"按钮以解除浏览器语音播放限制
+- 如果浏览器不支持 TTS/ASR，页面自动降级为文字展示 + 手动输入
+- 追问内容由 LLM 根据候选人回答质量动态生成，每个问题最多追问 2 次

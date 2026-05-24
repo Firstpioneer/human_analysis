@@ -81,6 +81,25 @@ class QuestionGenerator:
             if culture.get('values'):
                 position_context += f"\n价值观：{', '.join(culture['values'])}"
 
+        signal_dimensions = profile.get("_signal_dimensions", [])
+        if signal_dimensions:
+            position_context += "\n\n【画像信号维度】"
+            for category in signal_dimensions:
+                position_context += f"\n- {category.get('category', '未分类')}"
+                for dim in category.get("dimensions", []):
+                    position_context += (
+                        f"\n  · {dim.get('name', '')}"
+                        f"（{dim.get('weight', '参考')}）：{dim.get('description', '')}"
+                    )
+        if profile.get("_must_have"):
+            position_context += "\n\n【必须验证】\n" + "\n".join(f"- {s}" for s in profile["_must_have"])
+        if profile.get("_nice_to_have"):
+            position_context += "\n\n【加分信号】\n" + "\n".join(f"- {s}" for s in profile["_nice_to_have"])
+        if profile.get("_anti_profile"):
+            position_context += "\n\n【风险画像】\n" + "\n".join(f"- {s}" for s in profile["_anti_profile"])
+        if profile.get("_general_questions"):
+            position_context += "\n\n【画像建议问题】\n" + "\n".join(f"- {s}" for s in profile["_general_questions"])
+
         candidate_context = ""
         if candidate:
             candidate_context = f"""
@@ -102,6 +121,14 @@ class QuestionGenerator:
                 candidate_context += "\n\n已有技能："
                 for cs in candidate['skills']:
                     candidate_context += f"\n- {cs['name']}（{cs.get('level', '')}）"
+            if candidate.get('external_profiles'):
+                candidate_context += "\n\n外部信号："
+                for key, value in candidate['external_profiles'].items():
+                    candidate_context += f"\n- {key}：{value}"
+            if candidate.get('_blind_spots'):
+                candidate_context += "\n\n简历盲点 / 待澄清："
+                for spot in candidate['_blind_spots']:
+                    candidate_context += f"\n- {spot}"
 
         system_prompt = """你是一位资深的技术面试官和招聘专家。请根据提供的岗位要求和候选人信息，设计一份完整的面试方案。
 
@@ -130,9 +157,11 @@ class QuestionGenerator:
 1. 问题必须完全根据岗位画像和候选人信息动态设计，不得使用通用模板
 2. 技术问题要结合岗位的具体技能要求和工作场景，考察深度而非广度
 3. 如果有候选人简历，问题要针对其经历定制，验证其声称的能力
-4. 问题要层层递进：从基础理解 → 实践应用 → 深度思考
-5. 每个环节的问题数量要合理，确保在分配时间内能完成
-6. 面试总时长 {total_minutes} 分钟，请合理分配各环节时间"""
+4. 必须围绕画像信号维度、必须验证项和风险画像设计问题
+5. 对简历盲点要设计澄清问题，对外部信号可做可信度验证
+6. 问题要层层递进：从基础理解 → 实践应用 → 深度思考
+7. 每个环节的问题数量要合理，确保在分配时间内能完成
+8. 面试总时长 {total_minutes} 分钟，请合理分配各环节时间"""
 
         user_prompt = f"""请为以下岗位设计一份完整的面试方案。
 

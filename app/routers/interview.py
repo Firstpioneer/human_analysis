@@ -17,23 +17,6 @@ pc_storage = ProfileCandidateStorage()
 _interview_state = {"active": False, "elapsed_minutes": 0, "current_question_idx": 0}
 
 
-def _default_profile():
-    return {
-        "position": {"title": "高级后端开发工程师", "department": "技术部", "level": "高级", "salary_range": "25K-40K"},
-        "requirements": {
-            "education": {"min_degree": "本科", "preferred_majors": ["计算机科学", "软件工程"]},
-            "experience": {"min_years": 3, "preferred_industries": ["互联网", "科技"]},
-            "skills": [
-                {"name": "Python", "level": "精通", "weight": 10},
-                {"name": "Flask/FastAPI", "level": "精通", "weight": 9},
-                {"name": "MySQL", "level": "熟悉", "weight": 8},
-            ],
-            "soft_skills": ["团队协作", "沟通表达", "问题解决"],
-        },
-        "qualifications": {"certifications": [], "projects": [], "other": []},
-        "culture_fit": {"team_size": "5-10人", "work_style": "敏捷开发", "values": ["技术驱动", "结果导向"]},
-    }
-
 
 @router.post("/start")
 async def start_interview(request: StartInterviewRequest):
@@ -41,10 +24,14 @@ async def start_interview(request: StartInterviewRequest):
     candidate = request.candidate
     if not profile and request.profile_id:
         profile = pc_storage.get_profile(request.profile_id)
+        if not profile:
+            raise HTTPException(status_code=404, detail="所选人才画像不存在，请重新选择")
     if not candidate and request.candidate_id:
         candidate = pc_storage.get_candidate(request.candidate_id)
-    if not profile:
-        profile = _default_profile()
+        if not candidate:
+            raise HTTPException(status_code=404, detail="所选简历分析结果不存在，请重新选择")
+    if not profile or not candidate:
+        raise HTTPException(status_code=400, detail="请先选择人才画像和简历分析结果，再开始 AI 面试")
     try:
         interview = engine.start_interview(profile=profile, candidate=candidate, total_duration=request.duration)
         _interview_state["active"] = True
@@ -68,7 +55,13 @@ async def next_question(request: NextQuestionRequest):
 
 @router.post("/answer")
 async def process_answer(request: AnswerRequest):
-    result = engine.process_answer(request.question_id, request.answer)
+    result = engine.process_answer(
+        request.question_id,
+        request.answer,
+        is_follow_up_answer=request.is_follow_up_answer,
+        elapsed_seconds=request.elapsed_seconds,
+        client_latency_ms=request.client_latency_ms,
+    )
     return {"success": True, "result": result}
 
 
