@@ -69,8 +69,10 @@ system/
 
 上传 PDF/Word 简历，提取文本后调用 LLM 进行语义分析，分离"能力声明"与"客观经历"，识别信息盲区。
 
-- LLM：阿里云 DashScope / Qwen（`https://dashscope.aliyuncs.com/compatible-mode/v1`）
-- API Key：通过环境变量 `DASHSCOPE_API_KEY` 配置
+- 文本抽取：`pdfplumber`、`python-docx`、`mammoth`，图片型 PDF/图片简历可通过 `PyMuPDF + PaddleOCR` 回退 OCR
+- LLM：默认阿里云 DashScope / Qwen（`https://dashscope.aliyuncs.com/compatible-mode/v1`），也支持 OpenAI SDK 兼容网关
+- API Key：通过环境变量 `RESUME_LLM_API_KEY` 配置，兼容旧变量 `DASHSCOPE_API_KEY`
+- 外部足迹：自动识别 GitHub、仓库链接和技术博客 URL，抓取语言、仓库活跃度、博客标题/标签
 - 解析成功后自动转换并保存为面试候选人，返回 `candidate_id` 供面试启动使用
 
 ### AI 面试（Interview）
@@ -96,17 +98,21 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# 编辑 .env，填入 DashScope API Key（简历模块需要）
+# 编辑 .env，填入 LLM API Key（简历、画像和面试模块需要）
 ```
 
 也可直接设置环境变量：
 
 ```bash
-# Windows PowerShell
-$env:DASHSCOPE_API_KEY="your_key_here"
+# Windows PowerShell（OpenAI SDK 兼容网关）
+$env:RESUME_LLM_API_KEY="your_key_here"
+$env:RESUME_LLM_BASE_URL="https://ai-gateway.ailab.jiuan.com/v1"
+$env:RESUME_LLM_MODEL="gpt-4o-mini"
 
-# Linux / macOS
-export DASHSCOPE_API_KEY=your_key_here
+# Linux / macOS（OpenAI SDK 兼容网关）
+export RESUME_LLM_API_KEY=your_key_here
+export RESUME_LLM_BASE_URL=https://ai-gateway.ailab.jiuan.com/v1
+export RESUME_LLM_MODEL=gpt-4o-mini
 ```
 
 ### 3. 启动服务
@@ -180,9 +186,52 @@ python run.py
 
 | 模块 | 默认模型 | API 地址 | 配置方式 |
 |------|----------|----------|----------|
-| 画像 | DeepSeek | `https://api.deepseek.com` | 前端 API Key 设置 |
-| 简历 | Qwen-Max | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 环境变量 `DASHSCOPE_API_KEY` |
-| 面试 | DeepSeek | `https://api.deepseek.com` | 前端页面设置，保存至 `.env.json` |
+| 画像 | DeepSeek / 可切网关模型 | `PORTRAIT_LLM_BASE_URL`，默认 `https://api.deepseek.com` | 前端 API Key + 环境变量 Base URL/Model |
+| 简历 | Qwen-Max / 可切网关模型 | `RESUME_LLM_BASE_URL`，默认 `https://dashscope.aliyuncs.com/compatible-mode/v1` | 环境变量 `RESUME_LLM_API_KEY` |
+| 面试 | DeepSeek / 可切网关模型 | 前端可选 `https://ai-gateway.ailab.jiuan.com/v1` | 前端页面设置，保存至 `.env.json` |
+
+### 九安 AI Gateway 配置示例
+
+OpenAI SDK 兼容调用：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your_api_key_here",
+    base_url="https://ai-gateway.ailab.jiuan.com/v1",
+)
+```
+
+Anthropic SDK 兼容调用：
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(
+    api_key="your_api_key_here",
+    base_url="https://ai-gateway.ailab.jiuan.com",
+)
+```
+
+本项目后端的简历和面试模块当前通过 OpenAI SDK 兼容接口调用。要使用九安网关，请优先设置：
+
+```bash
+RESUME_LLM_API_KEY=your_api_key_here
+RESUME_LLM_BASE_URL=https://ai-gateway.ailab.jiuan.com/v1
+RESUME_LLM_MODEL=gpt-4o-mini
+
+LLM_API_KEY=your_api_key_here
+LLM_BASE_URL=https://ai-gateway.ailab.jiuan.com/v1
+LLM_MODEL=gpt-4o-mini
+```
+
+画像模块如果也走同一网关：
+
+```bash
+PORTRAIT_LLM_BASE_URL=https://ai-gateway.ailab.jiuan.com/v1
+PORTRAIT_LLM_MODEL=gpt-4o-mini
+```
 
 ## 数据流转
 

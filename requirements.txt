@@ -12,6 +12,12 @@ pydantic>=2.9.0
 # 简历解析
 pdfplumber>=0.10.0
 python-docx>=0.8.11
+PyMuPDF>=1.24.0
+Pillow>=10.0.0
+mammoth>=1.7.0
+numpy>=1.24.0
+# OCR 可选依赖，安装后可解析图片简历和图片型 PDF
+# paddleocr>=2.7.0
 
 # 网络请求
 requests>=2.31.0

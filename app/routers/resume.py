@@ -2,6 +2,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import shutil
 import os
+import uuid
 
 from app.converters.candidate_converter import resume_to_interview_candidate
 from app.services.resume.pipeline_engine import ResumePipelineEngine
@@ -16,16 +17,21 @@ pc_storage = ProfileCandidateStorage()
 async def parse_resume(file: UploadFile = File(...)):
     temp_dir = "temp_uploads"
     os.makedirs(temp_dir, exist_ok=True)
-    file_path = os.path.join(temp_dir, file.filename)
+    original_filename = os.path.basename(file.filename or "resume")
+    ext = os.path.splitext(original_filename)[1].lower()
+    allowed_exts = {".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg", ".webp", ".bmp"}
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail=f"不支持的简历格式: {ext or '未知'}")
+    file_path = os.path.join(temp_dir, f"{uuid.uuid4().hex}{ext}")
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        result = engine.run_pipeline(file_path)
+        result = engine.run_pipeline(file_path, original_filename=original_filename)
         if result.get("status") == "success":
-            save_resume_result(result)
             candidate = resume_to_interview_candidate(result)
             saved_candidate = pc_storage.save_candidate(candidate)
             result["candidate_id"] = saved_candidate.get("_id")
+            save_resume_result(result)
         return result
     finally:
         if os.path.exists(file_path):

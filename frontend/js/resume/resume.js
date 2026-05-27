@@ -25,8 +25,8 @@ class ResumeModule {
               </svg>
             </div>
             <h3>拖拽文件到此处，或点击上传</h3>
-            <p>支持 PDF、DOCX 格式，最大 10MB</p>
-            <input type="file" id="file-input" accept=".pdf,.docx" style="display:none;">
+            <p>支持 PDF、DOCX、图片型简历，最大 10MB</p>
+            <input type="file" id="file-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.bmp" style="display:none;">
           </div>
           <div class="upload-progress" id="upload-progress">
             <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
@@ -123,7 +123,7 @@ class ResumeModule {
     const claims = parsed.claims || [];
     const blindSpots = result.blind_spots || [];
     const footprint = parsed.digital_footprint || {};
-    const name = result.resume_id ? result.resume_id.replace(/\.\w+$/, '') : '未知';
+    const name = parsed.name || result.source_filename || result.resume_id || '未知';
 
     previewEl.innerHTML = `
       <div class="parse-preview-card">
@@ -163,7 +163,20 @@ class ResumeModule {
             <div class="parse-item">
               <div>仓库: ${footprint.public_repos || 0} · Followers: ${footprint.followers || 0}</div>
               <div>主要语言: ${(footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}</div>
+              <div>活跃度: ${footprint.activity_signal || '-'}</div>
             </div>
+          </div>
+        ` : ''}
+
+        ${(footprint.blogs || []).length > 0 ? `
+          <div class="parse-section">
+            <h4>技术博客</h4>
+            ${(footprint.blogs || []).map(b => `
+              <div class="parse-item">
+                <div class="parse-item-title">${this._escape(b.title || b.url || '')}</div>
+                <div class="parse-item-desc">${this._escape((b.tags || []).join(', '))}</div>
+              </div>
+            `).join('')}
           </div>
         ` : ''}
 
@@ -192,19 +205,21 @@ class ResumeModule {
         <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:var(--space-4);color:var(--color-foreground);">已解析的简历</h3>
         ${data.results.map(r => {
           const parsed = r.parsed_data || {};
-          const name = r.resume_id ? r.resume_id.replace(/\.\w+$/, '') : '未知';
+          const name = parsed.name || r.source_filename || r.resume_id || '未知';
           const experiences = (parsed.objective_experiences || []).length;
           const claims = (parsed.claims || []).length;
           const github = parsed.digital_footprint?.github_url || '';
+          const candidateId = r.candidate_id ? ` · 候选人 ${this._escape(r.candidate_id)}` : '';
           return `
             <div class="resume-result-card" data-id="${r.resume_id}">
               <div class="resume-result-header">
                 <span class="resume-result-title">${this._escape(name)}</span>
-                <span class="resume-result-badge">${experiences} 段经历 · ${claims} 项技能</span>
+                <span class="resume-result-badge">${experiences} 段经历 · ${claims} 项声明</span>
               </div>
               <div class="resume-result-info">
                 ${parsed.objective_experiences?.slice(0, 2).map(e => `${e.company} - ${e.title}`).join(' | ') || '暂无经历信息'}
                 ${github ? `<br>GitHub: ${this._escape(github)}` : ''}
+                ${candidateId ? `<br>已同步到面试候选人库${candidateId}` : ''}
               </div>
               <div class="resume-result-actions">
                 <button class="resume-btn" onclick="window.resumeModule.viewDetail('${r.resume_id}')">查看详情</button>
@@ -242,12 +257,19 @@ class ResumeModule {
 
             ${parsed.digital_footprint ? this._renderDetailSection('数字足迹', `
               <div class="resume-item">
+                状态: ${this._escape(parsed.digital_footprint.status || '无')}<br>
                 GitHub: ${this._escape(parsed.digital_footprint.github_url || '无')}<br>
                 公开仓库: ${parsed.digital_footprint.public_repos || 0}<br>
                 Followers: ${parsed.digital_footprint.followers || 0}<br>
-                主要语言: ${(parsed.digital_footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}
+                主要语言: ${(parsed.digital_footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}<br>
+                最近仓库: ${(parsed.digital_footprint.recent_repositories || []).map(r => r.name).filter(Boolean).slice(0, 5).join(', ') || '无'}<br>
+                技术博客: ${(parsed.digital_footprint.blogs || []).map(b => b.title || b.url).filter(Boolean).join(', ') || '无'}
               </div>
             `) : ''}
+
+            ${data.raw_text_preview ? this._renderDetailSection('原文预览',
+              `<div class="resume-item resume-raw-preview">${this._escape(data.raw_text_preview)}</div>`
+            ) : ''}
 
             ${data.blind_spots && data.blind_spots.length > 0 ? this._renderDetailSection('盲点分析',
               data.blind_spots.map(b => `<div class="resume-item">${this._escape(b)}</div>`).join('')

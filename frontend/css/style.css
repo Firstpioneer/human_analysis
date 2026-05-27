@@ -1277,6 +1277,14 @@ body {
   color: var(--color-text-primary);
 }
 
+.resume-raw-preview {
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow-y: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+}
+
 /* ---- Parse Preview ---- */
 
 .parse-preview {

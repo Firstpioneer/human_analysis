@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "候选人档案",
-  "description": "基于简历解析输出的结构化候选人档案",
+  "description": "基于简历解析、语义分离和外部数字足迹深挖输出的结构化候选人档案",
   "type": "object",
   "required": ["name", "contact", "experiences"],
   "properties": {
@@ -13,7 +13,8 @@
         "email": { "type": "string" },
         "linkedin": { "type": "string" },
         "github": { "type": "string" },
-        "blog": { "type": "string" }
+        "blog": { "type": "string" },
+        "links": { "type": "array", "items": { "type": "string" } }
       }
     },
     "summary": { "type": "string", "description": "候选人概述" },
@@ -42,6 +43,11 @@
             "type": "array",
             "items": { "type": "string" },
             "description": "亮点提炼"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": ["resume", "github", "blog", "manual"],
+            "description": "证据来源类型"
           }
         },
         "required": ["company", "title", "description"]
@@ -75,10 +81,18 @@
       "description": "外部资料深挖结果",
       "properties": {
         "github_activity": { "type": "string" },
+        "top_languages": { "type": "array", "items": { "type": "string" } },
+        "recent_repositories": { "type": "array", "items": { "type": "string" } },
         "blog_articles": { "type": "array", "items": { "type": "string" } },
         "open_source_contributions": { "type": "array", "items": { "type": "string" } },
         "social_media": { "type": "string" }
       }
-    }
+    },
+    "_blind_spots": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "需要面试追问确认的信息盲区"
+    },
+    "_source": { "type": "string" }
   }
 }

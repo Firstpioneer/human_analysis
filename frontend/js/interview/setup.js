@@ -4,6 +4,8 @@
 
 const LLM_PRESETS = {
   openai: { base_url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  ai_gateway_openai: { base_url: 'https://ai-gateway.ailab.jiuan.com/v1', model: 'gpt-4o-mini' },
+  ai_gateway_anthropic: { base_url: 'https://ai-gateway.ailab.jiuan.com', model: 'claude-3-5-sonnet-latest' },
   deepseek: { base_url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
   moonshot: { base_url: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
   custom: { base_url: '', model: '' },
@@ -109,6 +111,8 @@ class InterviewSetup {
                 <label>提供商</label>
                 <select id="llm-provider">
                   <option value="openai">OpenAI</option>
+                  <option value="ai_gateway_openai">九安 AI Gateway（OpenAI SDK）</option>
+                  <option value="ai_gateway_anthropic">九安 AI Gateway（Anthropic SDK）</option>
                   <option value="deepseek" selected>DeepSeek</option>
                   <option value="moonshot">Moonshot（月之暗面）</option>
                   <option value="custom">自定义兼容接口</option>

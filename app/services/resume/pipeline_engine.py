@@ -1,6 +1,8 @@
 """简历解析完整流水线"""
 import os
 import logging
+import time
+import uuid
 from app.services.resume.extractors import PDFExtractor, DocxExtractor, ImageExtractor
 from app.services.resume.cleaner import TextCleaner
 from app.services.resume.llm_agent import SemanticAnalyzerAgent
@@ -9,43 +11,79 @@ from app.services.resume.github_crawler import DigitalFootprintMiner
 
 class ResumePipelineEngine:
     def __init__(self):
-        self.pdf_ext = PDFExtractor()
-        self.docx_ext = DocxExtractor()
         self.img_ext = ImageExtractor()
+        self.pdf_ext = PDFExtractor(image_extractor=self.img_ext)
+        self.docx_ext = DocxExtractor()
         self.cleaner = TextCleaner()
         self.llm_agent = SemanticAnalyzerAgent()
         self.miner = DigitalFootprintMiner()
 
-    def run_pipeline(self, file_path: str) -> dict:
+    def run_pipeline(self, file_path: str, original_filename: str | None = None) -> dict:
+        started = time.time()
         ext = os.path.splitext(file_path)[1].lower()
+        source_name = original_filename or os.path.basename(file_path)
+        resume_id = f"RES_{uuid.uuid4().hex[:10].upper()}"
         raw_text = ""
-        if ext == '.pdf':
-            raw_text = self.pdf_ext.extract(file_path)
-        elif ext in ['.docx', '.doc']:
-            raw_text = self.docx_ext.extract(file_path)
-        elif ext in ['.png', '.jpg', '.jpeg']:
-            raw_text = self.img_ext.extract(file_path)
+        stages = []
+        try:
+            if ext == '.pdf':
+                raw_text = self.pdf_ext.extract(file_path)
+                stages.append({"name": "pdf_text_or_ocr", "status": "done"})
+            elif ext in ['.docx', '.doc']:
+                raw_text = self.docx_ext.extract(file_path)
+                stages.append({"name": "word_text", "status": "done"})
+            elif ext in ['.png', '.jpg', '.jpeg', '.webp', '.bmp']:
+                raw_text = self.img_ext.extract(file_path)
+                stages.append({"name": "image_ocr", "status": "done"})
+            else:
+                return self._failed_result(resume_id, source_name, f"不支持的文件格式: {ext}", started)
+        except Exception as e:
+            logging.exception("简历文本抽取异常")
+            return self._failed_result(resume_id, source_name, f"文本抽取失败: {e}", started)
 
         if not raw_text.strip():
-            return {
-                "resume_id": os.path.basename(file_path),
-                "status": "failed",
-                "error": "未能从文件中提取到有效文本",
-                "parsed_data": {"claims": [], "objective_experiences": [], "digital_footprint": {}},
-                "blind_spots": []
-            }
+            return self._failed_result(resume_id, source_name, "未能从文件中提取到有效文本", started)
 
         clean_text = self.cleaner.clean(raw_text)
+        stages.append({"name": "clean_text", "status": "done", "chars": len(clean_text)})
         semantic_data = self.llm_agent.analyze(clean_text)
+        stages.append({"name": "semantic_analysis", "status": "done"})
         footprint_data = self.miner.mine_data(clean_text)
+        stages.append({"name": "digital_footprint", "status": footprint_data.get("status", "done")})
 
         return {
-            "resume_id": os.path.basename(file_path),
+            "resume_id": resume_id,
+            "source_filename": source_name,
             "status": "success",
             "parsed_data": {
+                "name": semantic_data.get("name", ""),
+                "contact": semantic_data.get("contact", {}),
                 "claims": semantic_data.get("claims", []),
                 "objective_experiences": semantic_data.get("objective_experiences", []),
                 "digital_footprint": footprint_data
             },
-            "blind_spots": semantic_data.get("blind_spots", [])
+            "blind_spots": semantic_data.get("blind_spots", []),
+            "raw_text_preview": clean_text[:2000],
+            "metadata": {
+                "processing_seconds": round(time.time() - started, 3),
+                "text_chars": len(clean_text),
+                "stages": stages,
+            },
+        }
+
+    def _failed_result(self, resume_id: str, source_name: str, error: str, started: float) -> dict:
+        return {
+            "resume_id": resume_id,
+            "source_filename": source_name,
+            "status": "failed",
+            "error": error,
+            "parsed_data": {
+                "name": "",
+                "contact": {},
+                "claims": [],
+                "objective_experiences": [],
+                "digital_footprint": {},
+            },
+            "blind_spots": [],
+            "metadata": {"processing_seconds": round(time.time() - started, 3), "stages": []},
         }

@@ -2,6 +2,7 @@
 from openai import OpenAI
 from app.models.portrait import Message
 from app.services.portrait.prompts import AGENT_SYSTEM_PROMPT, JD_PARSE_PROMPT, PROFILE_GENERATE_PROMPT
+import config
 import json
 import re
 
@@ -10,9 +11,9 @@ class RecruitmentAgent:
     def __init__(self, api_key: str):
         self.client = OpenAI(
             api_key=api_key,
-            base_url="https://api.deepseek.com"
+            base_url=config.PORTRAIT_LLM_BASE_URL
         )
-        self.model = "deepseek-chat"
+        self.model = config.PORTRAIT_LLM_MODEL
 
     def _call_llm(self, messages: list[dict], temperature: float = 0.7) -> str:
         response = self.client.chat.completions.create(
