@@ -119,8 +119,12 @@ class ResumeModule {
     if (!previewEl) return;
 
     const parsed = result.parsed_data || {};
+    const projects = parsed.project_experiences || [];
     const experiences = parsed.objective_experiences || [];
     const claims = parsed.claims || [];
+    const formattedClaims = parsed.formatted_claims || [];
+    const roles = parsed.suitable_roles || [];
+    const questions = parsed.interview_questions || [];
     const blindSpots = result.blind_spots || [];
     const footprint = parsed.digital_footprint || {};
     const name = parsed.name || result.source_filename || result.resume_id || '未知';
@@ -132,28 +136,39 @@ class ResumeModule {
           <button class="resume-btn" onclick="this.closest('.parse-preview-card').remove()">关闭</button>
         </div>
 
-        ${experiences.length > 0 ? `
+        ${projects.length > 0 ? `
           <div class="parse-section">
-            <h4>客观经历 (${experiences.length})</h4>
-            ${experiences.map(e => `
-              <div class="parse-item">
-                <div class="parse-item-title">${this._escape(e.company || '')} — ${this._escape(e.title || '')}</div>
-                <div class="parse-item-desc">${this._escape(e.description || '')}</div>
-                <div class="parse-item-meta">信号强度: ${e.signal_strength || '-'} / 5 · STAR 完整度: ${e.star_completeness || '-'}</div>
-              </div>
-            `).join('')}
+            <h4>项目经历 (${projects.length})</h4>
+            <div class="resume-project-grid">
+              ${projects.map(p => this._renderProjectCard(p)).join('')}
+            </div>
+          </div>
+        ` : this._renderExperienceFallback(experiences)}
+
+        ${formattedClaims.length > 0 ? `
+          <div class="parse-section">
+            <h4>能力声明</h4>
+            <div class="resume-claim-groups">
+              ${formattedClaims.map(c => this._renderClaimGroup(c)).join('')}
+            </div>
+          </div>
+        ` : this._renderRawClaims(claims)}
+
+        ${roles.length > 0 ? `
+          <div class="parse-section">
+            <h4>适合投递岗位</h4>
+            <div class="resume-role-grid">
+              ${roles.map(r => this._renderRoleCard(r)).join('')}
+            </div>
           </div>
         ` : ''}
 
-        ${claims.length > 0 ? `
+        ${questions.length > 0 ? `
           <div class="parse-section">
-            <h4>能力声明 (${claims.length})</h4>
-            ${claims.map(c => `
-              <div class="parse-item">
-                <span class="parse-claim-text">${this._escape(c.content || '')}</span>
-                <span class="parse-claim-strength">信号强度: ${c.signal_strength || '-'} / 5</span>
-              </div>
-            `).join('')}
+            <h4>AI 面试辅助问题</h4>
+            <div class="resume-question-list">
+              ${questions.map(q => this._renderQuestion(q)).join('')}
+            </div>
           </div>
         ` : ''}
 
@@ -165,6 +180,7 @@ class ResumeModule {
               <div>主要语言: ${(footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}</div>
               <div>活跃度: ${footprint.activity_signal || '-'}</div>
             </div>
+            ${this._renderRepositoryPreviews(footprint.repository_previews || [])}
           </div>
         ` : ''}
 
@@ -206,18 +222,18 @@ class ResumeModule {
         ${data.results.map(r => {
           const parsed = r.parsed_data || {};
           const name = parsed.name || r.source_filename || r.resume_id || '未知';
-          const experiences = (parsed.objective_experiences || []).length;
-          const claims = (parsed.claims || []).length;
+          const projects = (parsed.project_experiences || []).length || (parsed.objective_experiences || []).length;
+          const claims = (parsed.formatted_claims || []).length || (parsed.claims || []).length;
           const github = parsed.digital_footprint?.github_url || '';
           const candidateId = r.candidate_id ? ` · 候选人 ${this._escape(r.candidate_id)}` : '';
           return `
             <div class="resume-result-card" data-id="${r.resume_id}">
               <div class="resume-result-header">
                 <span class="resume-result-title">${this._escape(name)}</span>
-                <span class="resume-result-badge">${experiences} 段经历 · ${claims} 项声明</span>
+                <span class="resume-result-badge">${projects} 个项目 · ${claims} 类能力</span>
               </div>
               <div class="resume-result-info">
-                ${parsed.objective_experiences?.slice(0, 2).map(e => `${e.company} - ${e.title}`).join(' | ') || '暂无经历信息'}
+                ${this._escape((parsed.project_experiences || []).slice(0, 2).map(p => p.name).join(' | ') || parsed.objective_experiences?.slice(0, 2).map(e => `${e.company} - ${e.title}`).join(' | ') || '暂无项目信息')}
                 ${github ? `<br>GitHub: ${this._escape(github)}` : ''}
                 ${candidateId ? `<br>已同步到面试候选人库${candidateId}` : ''}
               </div>
@@ -238,6 +254,7 @@ class ResumeModule {
     try {
       const data = await api.getResumeResult(id);
       const parsed = data.parsed_data || {};
+      const footprint = parsed.digital_footprint || {};
 
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
@@ -247,24 +264,33 @@ class ResumeModule {
             <div class="modal-title">简历详情 - ${this._escape(id)}</div>
           </div>
           <div class="resume-detail-content">
-            ${this._renderDetailSection('经历', (parsed.objective_experiences || []).map(e =>
-              `<div class="resume-item"><strong>${this._escape(e.company)}</strong> - ${this._escape(e.title)}<br>${this._escape(e.description || '')}</div>`
+            ${this._renderDetailSection('项目经历', (parsed.project_experiences || []).map(p =>
+              this._renderProjectCard(p)
+            ).join('') || this._renderExperienceFallback(parsed.objective_experiences || []) || '<div class="resume-item">暂无</div>')}
+
+            ${this._renderDetailSection('能力声明', (parsed.formatted_claims || []).map(c =>
+              this._renderClaimGroup(c)
+            ).join('') || this._renderRawClaims(parsed.claims || []) || '<div class="resume-item">暂无</div>')}
+
+            ${this._renderDetailSection('适合投递岗位', (parsed.suitable_roles || []).map(r =>
+              this._renderRoleCard(r)
             ).join('') || '<div class="resume-item">暂无</div>')}
 
-            ${this._renderDetailSection('技能声明', (parsed.claims || []).map(c =>
-              `<div class="resume-item">${this._escape(c.content || '')}</div>`
+            ${this._renderDetailSection('AI 面试辅助问题', (parsed.interview_questions || []).map(q =>
+              this._renderQuestion(q)
             ).join('') || '<div class="resume-item">暂无</div>')}
 
             ${parsed.digital_footprint ? this._renderDetailSection('数字足迹', `
               <div class="resume-item">
-                状态: ${this._escape(parsed.digital_footprint.status || '无')}<br>
-                GitHub: ${this._escape(parsed.digital_footprint.github_url || '无')}<br>
-                公开仓库: ${parsed.digital_footprint.public_repos || 0}<br>
-                Followers: ${parsed.digital_footprint.followers || 0}<br>
-                主要语言: ${(parsed.digital_footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}<br>
-                最近仓库: ${(parsed.digital_footprint.recent_repositories || []).map(r => r.name).filter(Boolean).slice(0, 5).join(', ') || '无'}<br>
-                技术博客: ${(parsed.digital_footprint.blogs || []).map(b => b.title || b.url).filter(Boolean).join(', ') || '无'}
+                状态: ${this._escape(footprint.status || '无')}<br>
+                GitHub: ${this._escape(footprint.github_url || '无')}<br>
+                公开仓库: ${footprint.public_repos || 0}<br>
+                Followers: ${footprint.followers || 0}<br>
+                主要语言: ${(footprint.top_languages || []).map(l => l[0]).join(', ') || '无'}<br>
+                最近仓库: ${(footprint.recent_repositories || []).map(r => r.name).filter(Boolean).slice(0, 5).join(', ') || '无'}<br>
+                技术博客: ${(footprint.blogs || []).map(b => b.title || b.url).filter(Boolean).join(', ') || '无'}
               </div>
+              ${this._renderRepositoryPreviews(footprint.repository_previews || [])}
             `) : ''}
 
             ${data.raw_text_preview ? this._renderDetailSection('原文预览',
@@ -299,6 +325,117 @@ class ResumeModule {
     `;
   }
 
+  _renderProjectCard(project) {
+    const techStack = project.tech_stack || [];
+    return `
+      <div class="resume-project-card">
+        <div class="resume-project-title">${this._escape(project.name || '未命名项目')}</div>
+        ${project.summary ? `<div class="resume-project-summary">${this._escape(project.summary)}</div>` : ''}
+        ${project.role ? `<div class="resume-project-meta">角色: ${this._escape(project.role)}</div>` : ''}
+        ${project.impact ? `<div class="resume-project-impact">${this._escape(project.impact)}</div>` : ''}
+        ${techStack.length > 0 ? `
+          <div class="resume-tech-stack">
+            ${techStack.map(t => `<span class="resume-tech-chip">${this._escape(t)}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  _renderExperienceFallback(experiences) {
+    if (!experiences || experiences.length === 0) return '';
+    return `
+      <div class="parse-section">
+        <h4>客观经历 (${experiences.length})</h4>
+        ${experiences.map(e => `
+          <div class="parse-item">
+            <div class="parse-item-title">${this._escape(e.company || '经历')} ${e.title ? `— ${this._escape(e.title)}` : ''}</div>
+            <div class="parse-item-desc">${this._escape(this._truncate(e.description || '', 160))}</div>
+            <div class="parse-item-meta">信号强度: ${e.signal_strength || '-'} / 5 · STAR 完整度: ${e.star_completeness || '-'}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  _renderClaimGroup(claim) {
+    return `
+      <div class="resume-claim-group">
+        <div class="resume-claim-head">
+          <span>${this._escape(claim.category || '综合能力')}</span>
+          <span class="resume-score">信号 ${claim.signal_strength || '-'}/5</span>
+        </div>
+        <div class="resume-claim-items">
+          ${(claim.items || []).map(item => `<span>${this._escape(item)}</span>`).join('')}
+        </div>
+        ${claim.evidence ? `<div class="resume-claim-evidence">${this._escape(claim.evidence)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  _renderRawClaims(claims) {
+    if (!claims || claims.length === 0) return '';
+    return `
+      <div class="parse-section">
+        <h4>能力声明 (${claims.length})</h4>
+        ${claims.map(c => `
+          <div class="parse-item">
+            <span class="parse-claim-text">${this._escape(c.content || '')}</span>
+            <span class="parse-claim-strength">信号强度: ${c.signal_strength || '-'} / 5</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  _renderRoleCard(role) {
+    return `
+      <div class="resume-role-card">
+        <div class="resume-role-title">${this._escape(role.title || '')}</div>
+        <div class="resume-role-reason">${this._escape(role.reason || '')}</div>
+        ${(role.matching_skills || []).length > 0 ? `
+          <div class="resume-tech-stack">
+            ${role.matching_skills.map(s => `<span class="resume-tech-chip">${this._escape(s)}</span>`).join('')}
+          </div>
+        ` : ''}
+        ${role.risk ? `<div class="resume-role-risk">${this._escape(role.risk)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  _renderQuestion(question) {
+    const difficultyText = { easy: '基础', medium: '中等', hard: '深入' }[question.difficulty] || '中等';
+    return `
+      <div class="resume-question">
+        <div class="resume-question-main">${this._escape(question.question || '')}</div>
+        <div class="resume-question-meta">${difficultyText}${question.purpose ? ` · ${this._escape(question.purpose)}` : ''}${question.based_on ? ` · ${this._escape(question.based_on)}` : ''}</div>
+      </div>
+    `;
+  }
+
+  _renderRepositoryPreviews(previews) {
+    if (!previews || previews.length === 0) return '';
+    return `
+      <div class="repo-preview-grid">
+        ${previews.map(repo => `
+          <a class="repo-preview-card" href="${this._escapeAttr(repo.url || '#')}" target="_blank" rel="noopener noreferrer">
+            ${repo.preview_image ? `<img src="${this._escapeAttr(repo.preview_image)}" alt="${this._escapeAttr(repo.name || 'repo')}">` : ''}
+            <div class="repo-preview-body">
+              <div class="repo-preview-title">${this._escape(repo.name || '')}</div>
+              <div class="repo-preview-summary">${this._escape(repo.summary || repo.readme_excerpt || '暂无项目描述')}</div>
+              <div class="repo-preview-meta">★ ${repo.stars || 0} · Fork ${repo.forks || 0}${repo.updated_at ? ` · ${this._escape(repo.updated_at.slice(0, 10))}` : ''}</div>
+              ${(repo.tech_stack || []).length > 0 ? `
+                <div class="resume-tech-stack">
+                  ${repo.tech_stack.map(t => `<span class="resume-tech-chip">${this._escape(t)}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    `;
+  }
+
   async deleteResult(id) {
     if (!confirm('确定删除此简历解析结果？')) return;
     try {
@@ -316,6 +453,15 @@ class ResumeModule {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  _escapeAttr(text) {
+    return this._escape(text).replace(/"/g, '&quot;');
+  }
+
+  _truncate(text, maxLength) {
+    if (!text || text.length <= maxLength) return text || '';
+    return text.slice(0, maxLength - 1) + '…';
   }
 }
 
