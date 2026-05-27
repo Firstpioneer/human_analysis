@@ -3,6 +3,8 @@ import os
 import logging
 import time
 import uuid
+from typing import Optional
+
 from app.services.resume.extractors import PDFExtractor, DocxExtractor, ImageExtractor
 from app.services.resume.cleaner import TextCleaner
 from app.services.resume.llm_agent import SemanticAnalyzerAgent
@@ -18,7 +20,7 @@ class ResumePipelineEngine:
         self.llm_agent = SemanticAnalyzerAgent()
         self.miner = DigitalFootprintMiner()
 
-    def run_pipeline(self, file_path: str, original_filename: str | None = None) -> dict:
+    def run_pipeline(self, file_path: str, original_filename: Optional[str] = None) -> dict:
         started = time.time()
         ext = os.path.splitext(file_path)[1].lower()
         source_name = original_filename or os.path.basename(file_path)

@@ -1,4 +1,6 @@
 """画像 Agent — DeepSeek LLM 对话与画像生成"""
+from typing import Optional
+
 from openai import OpenAI
 from app.models.portrait import Message
 from app.services.portrait.prompts import AGENT_SYSTEM_PROMPT, JD_PARSE_PROMPT, PROFILE_GENERATE_PROMPT
@@ -24,7 +26,7 @@ class RecruitmentAgent:
         )
         return response.choices[0].message.content
 
-    def _build_context_summary(self, profile_draft: dict | None) -> str:
+    def _build_context_summary(self, profile_draft: Optional[dict]) -> str:
         if not profile_draft:
             return ""
         parts = []
@@ -58,7 +60,7 @@ class RecruitmentAgent:
             result.append({"role": m.role, "content": m.content})
         return result
 
-    def chat(self, messages: list[Message], profile_draft: dict | None = None) -> str:
+    def chat(self, messages: list[Message], profile_draft: Optional[dict] = None) -> str:
         system_content = AGENT_SYSTEM_PROMPT
         context_summary = self._build_context_summary(profile_draft)
         if context_summary:
@@ -88,7 +90,7 @@ class RecruitmentAgent:
         except json.JSONDecodeError:
             return {"raw_text": result, "parse_error": True}
 
-    def _extract_json(self, text: str) -> dict | None:
+    def _extract_json(self, text: str) -> Optional[dict]:
         text = text.strip()
         try:
             return json.loads(text)
