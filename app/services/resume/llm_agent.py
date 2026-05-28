@@ -33,6 +33,12 @@ class SemanticAnalyzerAgent:
            抽取标准：必须能看出一个具体工作对象（项目/系统/平台/课题/论文/算法实验/竞赛作品/开源仓库等）以及候选人的动作、职责、技术方案、研究方法或成果之一。
            严格排除：姓名、电话、邮箱、学校、专业、学历、核心课程/相关课程、技能清单、证书、荣誉奖项、求职意向、自我评价、普通工作职责列表。
            如果某段只是"操作系统/数据库/Python"等课程或技能关键词，不得作为项目。无法确认是项目时不要编造，返回空数组也可以。
+           项目边界规则：
+           - 项目名称通常出现在一行开头，并可能带日期，如"XXX研究(2025.10 - 至今)"。必须保留该行中的完整项目名，去掉日期即可。
+           - "研究目标"、"管线设计与沙箱工程"、"个人贡献与成果"、"技术栈"等是项目小节，不得当作项目名称，也不得拆成多个项目。
+           - 同一个项目下的多条职责/研究目标/成果要合并为同一条 project_experiences。
+           - role 只能来自"角色/职责/担任/职位"等明确表述；不要因为出现"测试用例"就输出"测试"。
+           - tech_stack 只能总结工具、框架、语言、数据格式、评测基准和工程技术，如 SWE-bench、Parquet、Pytest、JSON Schema、LLM、SFT、虚拟沙箱、Git。
            - name: 项目名称，无法判断时用业务/系统名称概括
            - summary: 80字以内的项目经历总结，说明候选人做了什么和产生了什么结果
            - role: 候选人在项目中的角色或责任，无法判断则为空字符串
@@ -115,9 +121,11 @@ class SemanticAnalyzerAgent:
         fallback = self._heuristic_response(clean_text)
         contact = fallback.get("contact", {})
         contact.update(result.get("contact") or {})
-        projects = self._normalize_projects(result.get("project_experiences") or [], clean_text)
+        heuristic_projects = fallback.get("project_experiences", [])
+        llm_projects = self._normalize_projects(result.get("project_experiences") or [], clean_text)
+        projects = self._merge_projects(heuristic_projects, llm_projects)
         if not projects:
-            projects = fallback.get("project_experiences", [])
+            projects = heuristic_projects
         return {
             "name": result.get("name") or fallback.get("name", ""),
             "contact": contact,
@@ -273,17 +281,79 @@ class SemanticAnalyzerAgent:
             tech_stack = project.get("tech_stack") or []
             if isinstance(tech_stack, str):
                 tech_stack = [item.strip() for item in re.split(r"[,，/、\s]+", tech_stack) if item.strip()]
+            evidence = str(project.get("evidence") or "").strip()
+            raw_name = str(project.get("name") or "").strip()
+            name = self._repair_project_name(raw_name, evidence, idx)
             item = {
-                "name": str(project.get("name") or f"项目 {idx}")[:80],
+                "name": name[:80],
                 "summary": str(project.get("summary") or "")[:180],
                 "role": str(project.get("role") or "")[:80],
                 "tech_stack": [str(item)[:30] for item in tech_stack[:8]],
                 "impact": str(project.get("impact") or "")[:120],
-                "evidence": str(project.get("evidence") or "")[:160],
+                "evidence": evidence[:220],
             }
+            if item["role"] and not self._has_explicit_role_signal(item["role"], item["evidence"]):
+                item["role"] = ""
+            if not item["tech_stack"] and item["evidence"]:
+                item["tech_stack"] = self._extract_tech_stack(item["evidence"])
+            if not item["impact"] and item["evidence"]:
+                item["impact"] = self._extract_impact(item["evidence"])
             if self._is_valid_project(item, clean_text):
                 normalized.append(item)
         return normalized[:8]
+
+    def _merge_projects(self, primary: list[dict], secondary: list[dict]) -> list[dict]:
+        merged = []
+
+        def signature(project: dict) -> str:
+            name = self._normalize_key(project.get("name", ""))
+            evidence = self._normalize_key(project.get("evidence", ""))[:60]
+            return name or evidence
+
+        for project in (primary or []) + (secondary or []):
+            if not project:
+                continue
+            sig = signature(project)
+            if not sig:
+                continue
+            existing = next(
+                (
+                    item for item in merged
+                    if sig == signature(item)
+                    or self._project_names_similar(project.get("name", ""), item.get("name", ""))
+                    or (
+                        project.get("evidence")
+                        and item.get("evidence")
+                        and self._normalize_key(project["evidence"])[:50] in self._normalize_key(item["evidence"])
+                    )
+                ),
+                None,
+            )
+            if existing:
+                self._fill_project_gaps(existing, project)
+            else:
+                merged.append(dict(project))
+        return merged[:8]
+
+    def _fill_project_gaps(self, target: dict, source: dict) -> None:
+        for key in ("summary", "role", "impact", "evidence"):
+            if not target.get(key) and source.get(key):
+                target[key] = source[key]
+        techs = target.get("tech_stack") or []
+        for tech in source.get("tech_stack") or []:
+            if tech not in techs:
+                techs.append(tech)
+        target["tech_stack"] = techs[:8]
+
+    def _normalize_key(self, text: str) -> str:
+        return re.sub(r"[\s:：，,。；;（）()\[\]【】《》<>「」\-—_/]+", "", str(text).lower())
+
+    def _project_names_similar(self, left: str, right: str) -> bool:
+        left_key = self._normalize_key(left)
+        right_key = self._normalize_key(right)
+        if not left_key or not right_key:
+            return False
+        return left_key in right_key or right_key in left_key
 
     def _normalize_formatted_claims(self, formatted_claims: list[dict]) -> list[dict]:
         normalized = []
@@ -395,10 +465,10 @@ class SemanticAnalyzerAgent:
             projects.append({
                 "name": self._guess_project_name(desc, idx),
                 "summary": self._summarize_project(desc),
-                "role": exp.get("title", ""),
+                "role": self._extract_project_role(desc),
                 "tech_stack": self._extract_tech_stack(desc),
                 "impact": self._extract_impact(desc),
-                "evidence": desc[:160],
+                "evidence": desc[:220],
             })
         return self._normalize_projects(projects, "\n".join(lines))
 
@@ -422,11 +492,11 @@ class SemanticAnalyzerAgent:
             if not compact:
                 flush()
                 continue
-            if any(h in compact for h in stop_headings):
+            if self._is_section_heading(compact, stop_headings):
                 flush()
                 active_heading = ""
                 continue
-            if any(h in compact for h in project_headings):
+            if self._is_section_heading(compact, project_headings):
                 flush()
                 active_heading = compact
                 continue
@@ -460,22 +530,37 @@ class SemanticAnalyzerAgent:
                 blocks.append({"description": text, "title": self._guess_title(text)})
         return blocks[:8]
 
+    def _is_section_heading(self, compact_line: str, headings: tuple[str, ...]) -> bool:
+        if not compact_line:
+            return False
+        normalized = compact_line.strip("：:|_-—")
+        return any(
+            normalized == heading
+            or normalized.startswith(f"{heading}：")
+            or normalized.startswith(f"{heading}:")
+            for heading in headings
+        )
+
     def _line_starts_project(self, line: str) -> bool:
         if self._is_non_project_text(line):
             return False
         compact = re.sub(r"\s+", "", line)
+        if re.search(r"^(?:研究目标|项目背景|技术方案|主要工作|个人贡献|成果|职责|管线设计|沙箱工程|技术栈|难点)[:：]", compact):
+            return False
+        if re.search(r"^[\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{4,80}(?:\((?:19|20)\d{2}[./年-]?.*?\)|（(?:19|20)\d{2}[./年-]?.*?）)$", compact):
+            return True
         if re.search(r"(?:项目|课题|系统|平台|小程序|网站|应用|论文|竞赛|比赛|开源|研究)[:：\-—]", compact):
             return True
-        if re.search(r"[\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|小程序|网站|应用|算法|模型|课题|论文|竞赛|比赛)", compact):
+        if re.search(r"[\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80}(?:项目|系统|平台|小程序|网站|应用|算法|模型|课题|论文|竞赛|比赛|研究)", compact):
             return True
         return False
 
     def _looks_like_project_block(self, text: str) -> bool:
         if not text or self._is_non_project_text(text):
             return False
-        project_anchor = any(k in text for k in ("项目", "系统", "平台", "小程序", "网站", "应用", "课题", "科研", "研究", "论文", "竞赛", "比赛", "开源", "实验室"))
+        project_anchor = any(k in text for k in ("项目", "系统", "平台", "小程序", "网站", "应用", "课题", "科研", "研究", "论文", "竞赛", "比赛", "开源", "实验室", "框架", "管线", "沙箱"))
         action_or_result = any(k in text for k in ("负责", "参与", "开发", "设计", "实现", "优化", "搭建", "训练", "部署", "上线", "发表", "获得", "完成", "提出", "构建", "验证"))
-        technical_or_research = bool(self._extract_tech_stack(text)) or any(k in text for k in ("算法", "模型", "数据集", "指标", "准确率", "召回率", "实验", "专利", "论文", "框架", "接口", "数据库"))
+        technical_or_research = bool(self._extract_tech_stack(text)) or any(k in text for k in ("算法", "模型", "数据集", "指标", "准确率", "召回率", "实验", "专利", "论文", "框架", "接口", "数据库", "评测", "缺陷", "复现", "修复"))
         return project_anchor and action_or_result and technical_or_research
 
     def _is_valid_project(self, project: dict, clean_text: str = "") -> bool:
@@ -512,15 +597,52 @@ class SemanticAnalyzerAgent:
         return False
 
     def _guess_project_name(self, text: str, idx: int) -> str:
+        heading = self._extract_project_heading_name(text)
+        if heading:
+            return heading
         patterns = [
-            r"([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|网站|小程序|应用|服务|课题|论文|竞赛|比赛))",
-            r"(?:项目名称|项目|课题|论文)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30})",
+            r"(?:项目名称|项目|课题|论文|研究)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80})",
+            r"^([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80}(?:项目|系统|平台|网站|小程序|应用|服务|课题|论文|竞赛|比赛|研究))",
         ]
         for pattern in patterns:
             match = re.search(pattern, text)
             if match:
-                return match.group(1)
+                name = self._clean_project_name(match.group(1))
+                if name:
+                    return name
         return f"项目 {idx}"
+
+    def _extract_project_heading_name(self, text: str) -> str:
+        first_sentence = re.split(r"[。；;\n]", text.strip())[0]
+        first_sentence = re.sub(r"\s+", " ", first_sentence).strip()
+        date_pattern = r"^(.{4,100}?)[（(]\s*(?:19|20)\d{2}[./年-]?.*?(?:至今|今|present|Present|CURRENT|Current|(?:19|20)\d{2})?\s*[）)]"
+        match = re.search(date_pattern, first_sentence)
+        if match:
+            return self._clean_project_name(match.group(1))
+        return ""
+
+    def _clean_project_name(self, name: str) -> str:
+        name = re.sub(r"^\s*(?:项目名称|项目|课题|论文|研究)[:：]\s*", "", name)
+        name = re.sub(r"[（(]\s*(?:19|20)\d{2}[./年-]?.*?[）)]", "", name)
+        name = re.split(r"\s+(?:研究目标|项目背景|主要工作|职责|技术栈|个人贡献)[:：]", name)[0]
+        name = name.strip(" ：:-—|，,。；;")
+        invalid = ("研究目标", "项目背景", "主要工作", "个人贡献", "管线设计", "沙箱工程", "技术栈")
+        if any(name.startswith(word) for word in invalid):
+            return ""
+        return name[:80]
+
+    def _repair_project_name(self, name: str, evidence: str, idx: int) -> str:
+        cleaned = self._clean_project_name(name)
+        invalid_name = (
+            not cleaned
+            or cleaned in {"项目", "项目经历", "项目经验"}
+            or any(cleaned.startswith(word) for word in ("缺乏", "研究目标", "管线设计", "沙箱工程", "个人贡献", "技术栈"))
+        )
+        if invalid_name and evidence:
+            guessed = self._guess_project_name(evidence, idx)
+            if guessed:
+                return guessed
+        return cleaned or f"项目 {idx}"
 
     def _summarize_project(self, text: str) -> str:
         text = re.sub(r"\s+", " ", text).strip()
@@ -534,13 +656,20 @@ class SemanticAnalyzerAgent:
             "Python", "Java", "Go", "Golang", "C++", "JavaScript", "TypeScript", "Vue", "React",
             "Node.js", "FastAPI", "Django", "Flask", "Spring", "Spring Boot", "MySQL", "PostgreSQL",
             "Redis", "MongoDB", "Elasticsearch", "Docker", "Kubernetes", "Linux", "Nginx",
-            "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy",
+            "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy", "SWE-bench",
+            "Parquet", "Pytest", "pytest", "JSON Schema", "SFT", "Git", "OpenAI SDK",
+            "DashScope", "Qwen", "虚拟沙箱", "Virtual Sandbox", "venv", "virtualenv",
             "C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器",
         ]
         found = []
         lower = text.lower()
         for tech in known:
-            if tech.lower() in lower and not any(tech.lower() == item.lower() for item in found):
+            tech_lower = tech.lower()
+            if re.fullmatch(r"[a-z0-9][a-z0-9 .+#-]*", tech_lower):
+                present = bool(re.search(rf"(?<![a-z0-9]){re.escape(tech_lower)}(?![a-z0-9])", lower))
+            else:
+                present = tech_lower in lower
+            if present and not any(tech_lower == item.lower() for item in found):
                 found.append("Go" if tech == "Golang" else tech)
         chinese_tech = re.findall(r"(?:使用|基于|采用|技术栈[:：]?)([\u4e00-\u9fa5A-Za-z0-9+_.#/\-、，,\s]{2,80})", text)
         for chunk in chinese_tech:
@@ -548,17 +677,65 @@ class SemanticAnalyzerAgent:
             for item in re.split(r"[,，/、\s]+", chunk):
                 item = item.strip()
                 if (
-                    1 < len(item) <= 24
+                    self._looks_like_tech_token(item)
                     and item not in found
-                    and not any(k in item for k in ("负责", "参与", "开发", "设计", "实现", "优化", "上线", "提升", "降低"))
                 ):
                     found.append(item)
                 if len(found) >= 8:
                     return found
         return found[:8]
 
+    def _looks_like_tech_token(self, item: str) -> bool:
+        if not (1 < len(item) <= 24):
+            return False
+        reject_words = (
+            "负责", "参与", "开发", "设计", "实现", "优化", "上线", "提升", "降低", "构建",
+            "模块", "系统", "平台", "简历", "画像", "面试", "分析", "原生", "和", "及",
+        )
+        if any(word in item for word in reject_words):
+            return False
+        chinese_allow = ("虚拟沙箱", "单片机", "嵌入式", "传感器")
+        return bool(re.search(r"[A-Za-z0-9+#.-]", item)) or item in chinese_allow
+
+    def _extract_project_role(self, text: str) -> str:
+        patterns = [
+            r"(?:角色|担任|职位|责任|职责)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9/+\- ]{2,30})",
+            r"(?:作为|担任)([\u4e00-\u9fa5A-Za-z0-9/+\- ]{2,20})(?:，|,|。|；|;)",
+            r"(独立完成|主导|负责|参与)(?:该|本)?(?:项目|课题|系统|平台|研究)",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                role = match.group(1).strip(" ，,。；;")
+                if role in ("独立完成", "主导", "负责", "参与"):
+                    return role
+                if not any(word in role for word in ("测试用例", "测试脚本", "单元测试", "缺陷触发")):
+                    return role[:30]
+        return ""
+
+    def _has_explicit_role_signal(self, role: str, evidence: str) -> bool:
+        if not role:
+            return False
+        if any(word in role for word in ("测试用例", "测试脚本", "单元测试", "缺陷触发")):
+            return False
+        return (
+            role in evidence
+            or any(word in evidence for word in ("角色", "担任", "职位", "职责", "责任", "独立完成", "主导", "负责", "参与"))
+        )
+
     def _extract_impact(self, text: str) -> str:
-        match = re.search(r"([^。；;]*(?:提升|降低|节省|增长|稳定|上线|落地|支持|减少|优化)[^。；;]*\d*[^。；;]*)", text)
+        clauses = [clause.strip() for clause in re.split(r"[。；;]\s*", text) if clause.strip()]
+        preferred = []
+        for clause in clauses:
+            if "研究目标" in clause:
+                continue
+            has_result = any(k in clause for k in ("提升", "降低", "节省", "增长", "稳定", "上线", "落地", "支持", "减少", "优化", "沉淀", "修复", "完成", "成功"))
+            has_strength = bool(re.search(r"\d+|显著|高质量|高纯度|复杂", clause))
+            if has_result and has_strength:
+                preferred.append(clause)
+        if preferred:
+            return preferred[-1][:120]
+        match = re.search(r"([^。；;]*(?:提升|降低|节省|增长|稳定|上线|落地|支持|减少|优化)[^。；;]*)", text)
         return match.group(1).strip()[:120] if match else ""
 
     def _format_claims(self, claims: list[dict]) -> list[dict]:
