@@ -29,7 +29,10 @@ class SemanticAnalyzerAgent:
            - company, title, start_date, end_date, description
            - signal_strength (1-5): 数据指标越具体、事实越清晰，得分越高。
            - star_completeness: "high", "medium", "low"。
-        3. "project_experiences" (项目经历): 从简历中抽取项目，不要大段复述原文。
+        3. "project_experiences" (项目经历): 请通篇阅读简历后抽取真实项目/科研/竞赛/论文工程实践，不要只依赖"项目经历"标题。
+           抽取标准：必须能看出一个具体工作对象（项目/系统/平台/课题/论文/算法实验/竞赛作品/开源仓库等）以及候选人的动作、职责、技术方案、研究方法或成果之一。
+           严格排除：姓名、电话、邮箱、学校、专业、学历、核心课程/相关课程、技能清单、证书、荣誉奖项、求职意向、自我评价、普通工作职责列表。
+           如果某段只是"操作系统/数据库/Python"等课程或技能关键词，不得作为项目。无法确认是项目时不要编造，返回空数组也可以。
            - name: 项目名称，无法判断时用业务/系统名称概括
            - summary: 80字以内的项目经历总结，说明候选人做了什么和产生了什么结果
            - role: 候选人在项目中的角色或责任，无法判断则为空字符串
@@ -112,6 +115,9 @@ class SemanticAnalyzerAgent:
         fallback = self._heuristic_response(clean_text)
         contact = fallback.get("contact", {})
         contact.update(result.get("contact") or {})
+        projects = self._normalize_projects(result.get("project_experiences") or [], clean_text)
+        if not projects:
+            projects = fallback.get("project_experiences", [])
         return {
             "name": result.get("name") or fallback.get("name", ""),
             "contact": contact,
@@ -120,9 +126,7 @@ class SemanticAnalyzerAgent:
                 result.get("formatted_claims") or fallback.get("formatted_claims", [])
             ),
             "objective_experiences": result.get("objective_experiences") or fallback.get("objective_experiences", []),
-            "project_experiences": self._normalize_projects(
-                result.get("project_experiences") or fallback.get("project_experiences", [])
-            ),
+            "project_experiences": projects,
             "multidimensional_profile": self._normalize_multidimensional_profile(
                 result.get("multidimensional_profile") or fallback.get("multidimensional_profile", {})
             ),
@@ -198,9 +202,11 @@ class SemanticAnalyzerAgent:
 
     def _extract_experiences(self, lines: list[str]) -> list[dict]:
         experiences = []
-        company_pattern = re.compile(r"([\u4e00-\u9fa5A-Za-z0-9（）()·.\-]{2,30}(?:公司|科技|集团|银行|大学|学院|实验室|工作室))")
+        company_pattern = re.compile(r"([\u4e00-\u9fa5A-Za-z0-9（）()·.\-]{2,30}(?:公司|科技|集团|银行|实验室|工作室))")
         current = None
         for line in lines:
+            if self._is_non_project_text(line):
+                continue
             company_match = company_pattern.search(line)
             has_project_signal = any(k in line for k in ("项目", "系统", "平台", "负责", "参与", "开发", "设计", "优化", "上线"))
             if company_match or has_project_signal:
@@ -259,7 +265,7 @@ class SemanticAnalyzerAgent:
             blind_spots.append("简历中技能声明较多，但缺少对应项目证据支撑。")
         return blind_spots[:4]
 
-    def _normalize_projects(self, projects: list[dict]) -> list[dict]:
+    def _normalize_projects(self, projects: list[dict], clean_text: str = "") -> list[dict]:
         normalized = []
         for idx, project in enumerate(projects or [], start=1):
             if not isinstance(project, dict):
@@ -267,14 +273,16 @@ class SemanticAnalyzerAgent:
             tech_stack = project.get("tech_stack") or []
             if isinstance(tech_stack, str):
                 tech_stack = [item.strip() for item in re.split(r"[,，/、\s]+", tech_stack) if item.strip()]
-            normalized.append({
+            item = {
                 "name": str(project.get("name") or f"项目 {idx}")[:80],
                 "summary": str(project.get("summary") or "")[:180],
                 "role": str(project.get("role") or "")[:80],
                 "tech_stack": [str(item)[:30] for item in tech_stack[:8]],
                 "impact": str(project.get("impact") or "")[:120],
                 "evidence": str(project.get("evidence") or "")[:160],
-            })
+            }
+            if self._is_valid_project(item, clean_text):
+                normalized.append(item)
         return normalized[:8]
 
     def _normalize_formatted_claims(self, formatted_claims: list[dict]) -> list[dict]:
@@ -373,13 +381,13 @@ class SemanticAnalyzerAgent:
 
     def _build_project_experiences(self, experiences: list[dict], lines: list[str]) -> list[dict]:
         projects = []
-        source_experiences = experiences or []
+        project_blocks = self._extract_project_blocks(lines)
+        source_experiences = project_blocks or [
+            exp for exp in (experiences or [])
+            if self._looks_like_project_block(exp.get("description", ""))
+        ]
         if not source_experiences:
-            source_experiences = [
-                {"description": line, "title": self._guess_title(line)}
-                for line in lines
-                if any(k in line for k in ("项目", "系统", "平台", "开发", "设计", "优化"))
-            ][:6]
+            source_experiences = self._extract_project_blocks(lines)
         for idx, exp in enumerate(source_experiences[:8], start=1):
             desc = exp.get("description", "")
             if not desc:
@@ -392,12 +400,121 @@ class SemanticAnalyzerAgent:
                 "impact": self._extract_impact(desc),
                 "evidence": desc[:160],
             })
-        return self._normalize_projects(projects)
+        return self._normalize_projects(projects, "\n".join(lines))
+
+    def _extract_project_blocks(self, lines: list[str]) -> list[dict]:
+        blocks = []
+        active_heading = ""
+        current: list[str] = []
+        project_headings = ("项目经历", "项目经验", "科研经历", "科研项目", "研究经历", "竞赛经历", "比赛经历", "论文", "开源", "实践经历")
+        stop_headings = ("教育经历", "教育背景", "个人信息", "基本信息", "联系方式", "专业技能", "技能清单", "核心课程", "相关课程", "自我评价", "求职意向", "荣誉奖项", "证书")
+
+        def flush():
+            nonlocal current
+            text = " ".join(current).strip()
+            if self._looks_like_project_block(text):
+                blocks.append({"description": text, "title": self._guess_title(text)})
+            current = []
+
+        for raw_line in lines:
+            line = raw_line.strip()
+            compact = re.sub(r"\s+", "", line)
+            if not compact:
+                flush()
+                continue
+            if any(h in compact for h in stop_headings):
+                flush()
+                active_heading = ""
+                continue
+            if any(h in compact for h in project_headings):
+                flush()
+                active_heading = compact
+                continue
+
+            has_action = any(k in line for k in ("负责", "参与", "开发", "设计", "实现", "优化", "搭建", "训练", "部署", "上线", "发表", "获得", "完成", "提出", "构建", "验证"))
+            starts_new = self._line_starts_project(line) and not (current and has_action)
+            if starts_new and current:
+                flush()
+            if active_heading or starts_new or current:
+                current.append(line)
+                if len(" ".join(current)) > 700:
+                    flush()
+
+        flush()
+
+        if blocks:
+            return blocks[:8]
+
+        # 没有显式项目标题时，通篇扫描包含项目/科研动作的相邻短块，适配标题缺失的简历。
+        for idx, line in enumerate(lines):
+            if not self._line_starts_project(line):
+                continue
+            window = [line]
+            for next_line in lines[idx + 1: idx + 4]:
+                if self._is_non_project_text(next_line) or self._line_starts_project(next_line):
+                    break
+                if any(k in next_line for k in ("负责", "参与", "开发", "设计", "实现", "优化", "训练", "实验", "发表", "获得", "部署", "上线", "算法", "模型", "数据")):
+                    window.append(next_line)
+            text = " ".join(window)
+            if self._looks_like_project_block(text):
+                blocks.append({"description": text, "title": self._guess_title(text)})
+        return blocks[:8]
+
+    def _line_starts_project(self, line: str) -> bool:
+        if self._is_non_project_text(line):
+            return False
+        compact = re.sub(r"\s+", "", line)
+        if re.search(r"(?:项目|课题|系统|平台|小程序|网站|应用|论文|竞赛|比赛|开源|研究)[:：\-—]", compact):
+            return True
+        if re.search(r"[\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|小程序|网站|应用|算法|模型|课题|论文|竞赛|比赛)", compact):
+            return True
+        return False
+
+    def _looks_like_project_block(self, text: str) -> bool:
+        if not text or self._is_non_project_text(text):
+            return False
+        project_anchor = any(k in text for k in ("项目", "系统", "平台", "小程序", "网站", "应用", "课题", "科研", "研究", "论文", "竞赛", "比赛", "开源", "实验室"))
+        action_or_result = any(k in text for k in ("负责", "参与", "开发", "设计", "实现", "优化", "搭建", "训练", "部署", "上线", "发表", "获得", "完成", "提出", "构建", "验证"))
+        technical_or_research = bool(self._extract_tech_stack(text)) or any(k in text for k in ("算法", "模型", "数据集", "指标", "准确率", "召回率", "实验", "专利", "论文", "框架", "接口", "数据库"))
+        return project_anchor and action_or_result and technical_or_research
+
+    def _is_valid_project(self, project: dict, clean_text: str = "") -> bool:
+        combined = " ".join(str(project.get(key, "")) for key in ("name", "summary", "role", "impact", "evidence"))
+        if self._is_non_project_text(combined):
+            return False
+        if not self._looks_like_project_block(combined):
+            return False
+        evidence = str(project.get("evidence") or "").strip()
+        if evidence and clean_text and evidence not in clean_text and len(evidence) > 20:
+            # 模型偶尔会把零散关键词拼成不存在的项目，证据无法回指原文时降低信任。
+            compact_resume = re.sub(r"\s+", "", clean_text)
+            compact_evidence = re.sub(r"\s+", "", evidence)
+            if compact_evidence[:40] not in compact_resume:
+                return False
+        return True
+
+    def _is_non_project_text(self, text: str) -> bool:
+        if not text:
+            return True
+        compact = re.sub(r"\s+", "", text)
+        if re.search(r"(电话|手机|邮箱|Email|E-mail|微信|地址|籍贯|政治面貌|出生|性别)[:：]?", compact, re.I):
+            return True
+        if re.search(r"(毕业院校|院校|学校|学历|专业|本科|硕士|博士|学士|教育经历|教育背景)[:：]?", compact):
+            if not any(k in compact for k in ("项目", "课题", "科研", "实验室", "论文")):
+                return True
+        if re.search(r"(核心课程|相关课程|主修课程|课程)[:：]?", compact):
+            return True
+        if re.fullmatch(r"(?:操作系统|数据库原理|数据结构|计算机网络|软件工程|机器学习|深度学习|自然语言处理|计算机视觉|数据挖掘|Python程序设计|Java/C\+\+程序设计)[、，,A-Za-z0-9/+\u4e00-\u9fa5]*", compact):
+            return True
+        if re.search(r"(求职意向|自我评价|个人优势|荣誉奖项|获奖情况|证书|技能清单|专业技能)[:：]?", compact):
+            if not any(k in compact for k in ("项目", "系统", "平台", "课题", "论文", "竞赛")):
+                return True
+        return False
 
     def _guess_project_name(self, text: str, idx: int) -> str:
         patterns = [
-            r"([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|网站|小程序|应用|服务))",
-            r"(?:项目名称|项目)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30})",
+            r"([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|网站|小程序|应用|服务|课题|论文|竞赛|比赛))",
+            r"(?:项目名称|项目|课题|论文)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30})",
         ]
         for pattern in patterns:
             match = re.search(pattern, text)
@@ -417,13 +534,13 @@ class SemanticAnalyzerAgent:
             "Python", "Java", "Go", "Golang", "C++", "JavaScript", "TypeScript", "Vue", "React",
             "Node.js", "FastAPI", "Django", "Flask", "Spring", "Spring Boot", "MySQL", "PostgreSQL",
             "Redis", "MongoDB", "Elasticsearch", "Docker", "Kubernetes", "Linux", "Nginx",
-            "Pytorch", "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy",
+            "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy",
             "C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器",
         ]
         found = []
         lower = text.lower()
         for tech in known:
-            if tech.lower() in lower and tech not in found:
+            if tech.lower() in lower and not any(tech.lower() == item.lower() for item in found):
                 found.append("Go" if tech == "Golang" else tech)
         chinese_tech = re.findall(r"(?:使用|基于|采用|技术栈[:：]?)([\u4e00-\u9fa5A-Za-z0-9+_.#/\-、，,\s]{2,80})", text)
         for chunk in chinese_tech:
