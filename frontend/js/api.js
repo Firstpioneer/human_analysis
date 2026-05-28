@@ -129,6 +129,45 @@ class ApiClient {
   async deleteInterview(id) { return this._request(`/api/interview/detail/${id}`, { method: 'DELETE' }); }
   async restartInterview(id) { return this._request(`/api/interview/restart/${id}`, { method: 'POST' }); }
 
+  // ---- 语音 API (阿里云 NLS) ----
+  async textToSpeech(text, voice = 'xiaoyun', format = 'wav') {
+    return this._request('/api/interview/tts', {
+      method: 'POST',
+      body: JSON.stringify({ text, voice, format }),
+    });
+  }
+
+  /**
+   * 文字转语音 — 返回可直接播放的 Audio 对象
+   */
+  async playTTS(text, voice = 'xiaoyun') {
+    const url = `${this.baseUrl}/api/interview/tts`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice }),
+    });
+    if (!response.ok) throw new Error('TTS 请求失败');
+    const blob = await response.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+    audio.onended = () => URL.revokeObjectURL(audioUrl);
+    return audio;
+  }
+
+  async speechToText(audioBlob) {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'recording.wav');
+    const response = await fetch(`${this.baseUrl}/api/interview/asr`, { method: 'POST', body: formData });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || 'ASR 请求失败');
+    }
+    return await response.json();
+  }
+
+  async getVoices() { return this._request('/api/interview/voices'); }
+
   // ---- Interview Profiles & Candidates ----
   async listInterviewProfiles() { return this._request('/api/interview/profiles'); }
   async createInterviewProfile(data) { return this._request('/api/interview/profiles', { method: 'POST', body: JSON.stringify(data) }); }

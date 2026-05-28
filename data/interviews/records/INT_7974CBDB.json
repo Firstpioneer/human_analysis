@@ -1,0 +1,396 @@
+{
+  "interview_id": "INT_7974CBDB",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-28T00:04:29.376010",
+  "end_time": "2026-05-28T00:05:18.811396",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础考察（Python/Flask）",
+        "duration_minutes": 10,
+        "focus_area": "验证候选人对Python高级特性和Flask框架深度的理解，包括底层机制和性能优化",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "Python中的装饰器是如何实现的？请解释其原理，并举一个你在实际项目中使用的例子，说明为什么选择装饰器而不是其他方式。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "闭包",
+              "函数作为参数",
+              "@语法糖",
+              "装饰器工厂",
+              "functools.wraps",
+              "日志/权限/缓存"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在Flask中，请求上下文（request context）和应用上下文（app context）的区别是什么？Flask如何管理这些上下文？请结合源码或实际场景说明。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "LocalStack",
+              "LocalProxy",
+              "线程隔离",
+              "请求/应用生命周期",
+              "g对象",
+              "current_app",
+              "request"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "如果一个Flask应用响应变慢，你计划从哪些方面进行优化？请列出至少三个具体的优化手段，并解释其原理。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "N+1查询",
+              "数据库索引",
+              "缓存（Redis/内存）",
+              "异步处理（Celery）",
+              "gunicorn worker数量",
+              "代码热点分析",
+              "cProfile"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "衡量指标"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "数据库与系统设计",
+        "duration_minutes": 12,
+        "focus_area": "考察MySQL索引、查询优化、事务与高并发场景下的数据一致性设计能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请解释MySQL中聚簇索引和非聚簇索引的区别。在实际建表时，你会如何选择主键？",
+            "category": "技术",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "主键索引",
+              "叶子节点存储行数据",
+              "二级索引",
+              "回表",
+              "自增ID vs 业务字段",
+              "UUID劣势"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "举例",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "当你收到一个慢查询告警，请描述你分析和优化的完整步骤。可以结合你过去处理过的案例。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "慢查询日志",
+              "EXPLAIN",
+              "type/rows/Extra",
+              "索引覆盖",
+              "排序优化",
+              "字段类型",
+              "临时表"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "优化",
+              "为什么"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "在一个高并发的订单系统中，用户下单时需要扣减库存并生成订单，如何保证数据一致性？请设计一个方案，并指出你如何权衡性能和一致性。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "事务",
+              "行锁",
+              "乐观锁（版本号）",
+              "悲观锁",
+              "分布式锁（Redis）",
+              "最终一致性",
+              "消息队列",
+              "库存预扣"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化",
+              "权衡"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验与深度问题",
+        "duration_minutes": 15,
+        "focus_area": "通过候选人实际项目经历验证其技术深度、问题解决能力及高阶设计思维",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "请描述你最近负责的一个后端核心模块。你在其中扮演什么角色？遇到了哪些主要技术挑战？你是如何解决的？最终结果如何？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "系统架构",
+              "高并发/高可用",
+              "模块拆分",
+              "技术选型",
+              "性能优化",
+              "异常处理",
+              "监控指标"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "挑战",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "在Flask项目中，你是如何设计和管理API版本控制的？请对比你使用过的不同方案（如URL路径、请求头、子域名）的优缺点，并说明你的选择。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "版本 v1/v2",
+              "Blueprint",
+              "兼容性",
+              "废弃策略",
+              "中间件路由",
+              "Accept header"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "举例",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "假设一个原本响应时间为50ms的Flask API突然变成500ms，而且这个接口没有明显改动。请列出你的排查思路，从系统层面到代码层面，并说明每一步你可能会用到的工具。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "服务器负载 top/htop",
+              "数据库慢查询",
+              "缓存命中率",
+              "外部API延迟",
+              "日志分析",
+              "APM（SkyWalking/Prometheus）",
+              "代码profiling"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 8,
+        "focus_area": "评估团队协作、敏捷开发实践、技术驱动与结果导向的价值观匹配",
+        "questions": [
+          {
+            "question_id": "Q0010",
+            "question_text": "在敏捷开发中，需求频繁变更或迭代节奏很快，你如何确保代码质量不下降？请举一个你实际应用过的实践。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "代码审查",
+              "单元测试",
+              "自动化测试",
+              "重构",
+              "持续集成",
+              "技术债务管理",
+              "优先级排序"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0011",
+            "question_text": "请分享一个你和团队成员协作解决棘手技术问题的经历。你当时是如何推动问题解决的？",
+            "category": "行为",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "沟通",
+              "分工",
+              "结对编程",
+              "知识分享",
+              "文档",
+              "复盘",
+              "跨团队合作"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "挑战"
+            ]
+          },
+          {
+            "question_id": "Q0012",
+            "question_text": "我们团队强调“技术驱动”和“结果导向”。你认为这两者如何统一？请结合一个你过去的技术决策，说明你是如何平衡新技术追求与业务结果的。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "技术选型",
+              "ROI分析",
+              "渐进式引入",
+              "业务价值",
+              "成本收益",
+              "灰度发布",
+              "验证假设"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "衡量"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-28T00:05:11.642702",
+      "speaker": "候选人",
+      "text": "操你妈",
+      "transcript": "操你妈",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-28T00:05:16.319465",
+      "speaker": "AI",
+      "text": "请保持专业态度回答问题。现在重新解释Python装饰器的实现原理，并分享一个你实际项目中的使用案例。",
+      "transcript": "请保持专业态度回答问题。现在重新解释Python装饰器的实现原理，并分享一个你实际项目中的使用案例。",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 10,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 0,
+      "文化契合": 0
+    },
+    "strengths": [],
+    "weaknesses": [
+      "使用不文明用语作为姓名，缺乏基本职业素养",
+      "未对面试官的问题作出任何回应，无法评估技术能力"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "候选人以不文明词汇自称，严重违反专业面试规范，且未就提问作答。没有任何技术或经验信息可供评估，其行为表明不具备高级后端开发工程师所需的基本职业态度和沟通能力。建议直接淘汰。"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}

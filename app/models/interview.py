@@ -49,3 +49,16 @@ class ProfileRequest(BaseModel):
 class CandidateRequest(BaseModel):
     name: str
     experiences: list
+
+
+# ── 语音相关 ──
+
+class TTSRequest(BaseModel):
+    """文字转语音请求"""
+    text: str
+    voice: str = "xiaoyun"
+    format: str = "wav"
+    sample_rate: int = 16000
+    volume: int = 50
+    speech_rate: int = 0
+    pitch_rate: int = 0
