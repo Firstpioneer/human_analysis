@@ -51,12 +51,12 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      height: 64px;
+      min-height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      padding: 0 36px;
+      padding: 10px 36px;
       background: rgba(255, 255, 255, 0.88);
       border-bottom: 1px solid rgba(207, 228, 238, 0.9);
       backdrop-filter: blur(16px);
@@ -177,7 +177,7 @@
     }
 
     .hero-copy p {
-      max-width: 680px;
+      max-width: 720px;
       margin: 0;
       color: var(--text);
       font-size: 18px;
@@ -185,7 +185,7 @@
 
     .hero-metrics {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-top: 28px;
     }
@@ -221,11 +221,12 @@
     }
 
     .panel-head {
-      height: 54px;
+      min-height: 54px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
+      gap: 16px;
+      padding: 12px 18px;
       background: linear-gradient(90deg, #0f3552, #0369a1);
       color: #fff;
     }
@@ -240,6 +241,7 @@
     .window-dots {
       display: flex;
       gap: 7px;
+      flex: 0 0 auto;
     }
 
     .window-dots span {
@@ -296,10 +298,15 @@
       background: var(--green);
     }
 
+    .flow-step[data-kind="storage"] .step-icon {
+      background: var(--amber);
+    }
+
     .flow-step h3,
     .card h3,
     .detail h3,
-    .script-card h3 {
+    .script-card h3,
+    .flow-node h3 {
       margin: 0;
       font-size: 17px;
       line-height: 1.3;
@@ -308,7 +315,8 @@
     .flow-step p,
     .card p,
     .detail p,
-    .script-card p {
+    .script-card p,
+    .flow-node p {
       margin: 6px 0 0;
       color: var(--muted);
       font-size: 14px;
@@ -344,7 +352,7 @@
     .section-title p {
       margin: 7px 0 0;
       color: var(--muted);
-      max-width: 760px;
+      max-width: 820px;
     }
 
     .tabs {
@@ -392,7 +400,8 @@
 
     .detail,
     .script-card,
-    .card {
+    .card,
+    .flow-board {
       background: rgba(255, 255, 255, 0.86);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -543,27 +552,133 @@
       gap: 14px;
     }
 
-    .timeline {
-      display: grid;
+    .cards-row.cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .flow-board {
+      padding: 18px;
+      overflow-x: auto;
+    }
+
+    .data-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(188px, 1fr));
+      gap: 14px;
+      min-width: 980px;
+      align-items: stretch;
+    }
+
+    .flow-column {
+      display: flex;
+      flex-direction: column;
       gap: 12px;
     }
 
-    .timeline .card {
-      min-height: 158px;
-      position: relative;
-      overflow: hidden;
+    .flow-column-title {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
+      color: #fff;
+      background: #0f3552;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
     }
 
-    .timeline .card::before {
-      content: attr(data-step);
+    .flow-node {
+      position: relative;
+      min-height: 116px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+    }
+
+    .flow-node.cyan {
+      border-left-color: var(--cyan);
+    }
+
+    .flow-node.green {
+      border-left-color: var(--green);
+    }
+
+    .flow-node.amber {
+      border-left-color: var(--amber);
+    }
+
+    .flow-node.red {
+      border-left-color: var(--red);
+    }
+
+    .flow-node::after {
+      content: "→";
       position: absolute;
-      right: 14px;
-      bottom: 8px;
-      color: rgba(3, 105, 161, 0.08);
-      font-size: 52px;
+      top: 50%;
+      right: -18px;
+      transform: translateY(-50%);
+      color: #7da7ba;
+      font-size: 18px;
       font-weight: 900;
-      line-height: 1;
+    }
+
+    .flow-column:last-child .flow-node::after {
+      content: "";
+    }
+
+    .flow-note {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--ink);
+      background: #eaf6fb;
+      font-weight: 800;
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      padding: 2px 5px;
+      color: #075985;
+      background: #e0f2fe;
+      border-radius: 5px;
+      font-family: Consolas, "SFMono-Regular", "Liberation Mono", monospace;
+      font-size: 0.94em;
     }
 
     .footer {
@@ -624,15 +739,13 @@
       }
 
       .cards-row,
-      .timeline {
+      .cards-row.cols-4 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 720px) {
       .topbar {
-        height: auto;
-        min-height: 64px;
         padding: 12px 16px;
         align-items: flex-start;
         flex-direction: column;
@@ -657,7 +770,7 @@
       .tabs,
       .grid-2,
       .cards-row,
-      .timeline {
+      .cards-row.cols-4 {
         grid-template-columns: 1fr;
       }
 
@@ -675,6 +788,10 @@
       .footer-inner {
         align-items: flex-start;
         flex-direction: column;
+      }
+
+      .flow-node::after {
+        display: none;
       }
     }
 
@@ -700,7 +817,8 @@
       .detail,
       .script-card,
       .card,
-      .demo-panel {
+      .demo-panel,
+      .flow-board {
         box-shadow: none;
       }
     }
@@ -725,7 +843,9 @@
         </svg>
         进入系统
       </a>
-      <button class="icon-btn" id="focusBtn" title="聚焦讲解路径" aria-label="聚焦讲解路径">
+      <a class="text-btn" href="#data-flow">数据流</a>
+      <a class="text-btn" href="#modules">模块</a>
+      <button class="icon-btn" id="focusBtn" title="聚焦模块讲解" aria-label="聚焦模块讲解">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/>
           <path d="M3 12h3M18 12h3M12 3v3M12 18v3"/>
@@ -761,8 +881,12 @@
             <span>核心业务模块</span>
           </div>
           <div class="metric">
-            <strong>2</strong>
-            <span>上游信息来源</span>
+            <strong>4</strong>
+            <span>后端 API 分组</span>
+          </div>
+          <div class="metric">
+            <strong>5</strong>
+            <span>前端业务页面</span>
           </div>
           <div class="metric">
             <strong>1</strong>
@@ -778,7 +902,7 @@
               <path d="M4 4h16v16H4z"/>
               <path d="M8 9h8M8 13h5"/>
             </svg>
-            展示主线
+            系统闭环概览
           </div>
           <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
         </div>
@@ -807,6 +931,18 @@
               <p>从简历、GitHub、博客等材料中拆解经历、技能、项目成果和信息盲区。</p>
             </div>
           </article>
+          <article class="flow-step" data-kind="storage">
+            <div class="step-icon">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <path d="M3.3 7 12 12l8.7-5M12 22V12"/>
+              </svg>
+            </div>
+            <div>
+              <h3>转换存储：统一面试输入</h3>
+              <p>画像和简历结果经转换器写入面试画像库、候选人库和记录目录。</p>
+            </div>
+          </article>
           <article class="flow-step" data-kind="interview">
             <div class="step-icon">
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -823,11 +959,83 @@
       </aside>
     </section>
 
+    <section class="section" id="data-flow">
+      <div class="section-title">
+        <div>
+          <h2>数据流程图</h2>
+          <p>这张图展示系统中数据如何从原始材料进入各业务模块，如何经过转换器沉淀为统一输入，最终驱动 AI 面试和评估复盘。</p>
+        </div>
+      </div>
+
+      <div class="flow-board" role="img" aria-label="AI 招聘评估系统数据流程图">
+        <div class="data-flow">
+          <div class="flow-column">
+            <div class="flow-column-title">原始输入</div>
+            <article class="flow-node">
+              <h3>招聘需求 / JD</h3>
+              <p>岗位背景、职责边界、技能要求、团队现状、招聘风险点。</p>
+            </article>
+            <article class="flow-node cyan">
+              <h3>候选人材料</h3>
+              <p>PDF、Word、图片简历，以及候选人提供的 GitHub、博客链接。</p>
+            </article>
+          </div>
+          <div class="flow-column">
+            <div class="flow-column-title">智能解析</div>
+            <article class="flow-node">
+              <h3>画像 Agent</h3>
+              <p>解析 JD 并通过对话补齐信息，生成结构化 JobProfile。</p>
+            </article>
+            <article class="flow-node cyan">
+              <h3>简历流水线</h3>
+              <p>文本抽取、清洗、LLM 语义分析、OCR 回退和外部足迹挖掘。</p>
+            </article>
+          </div>
+          <div class="flow-column">
+            <div class="flow-column-title">结构化结果</div>
+            <article class="flow-node">
+              <h3>岗位画像</h3>
+              <p>信号维度、必须条件、加分项、反向画像、通用追问建议。</p>
+            </article>
+            <article class="flow-node cyan">
+              <h3>候选人证据</h3>
+              <p>能力声明、客观经历、项目证据、盲点、GitHub/博客信号。</p>
+            </article>
+          </div>
+          <div class="flow-column">
+            <div class="flow-column-title">转换与存储</div>
+            <article class="flow-node amber">
+              <h3>画像转换器</h3>
+              <p><code>portrait_to_interview_profile()</code> 写入面试画像库。</p>
+            </article>
+            <article class="flow-node amber">
+              <h3>候选人转换器</h3>
+              <p><code>resume_to_interview_candidate()</code> 写入候选人库。</p>
+            </article>
+          </div>
+          <div class="flow-column">
+            <div class="flow-column-title">面试输出</div>
+            <article class="flow-node green">
+              <h3>动态面试</h3>
+              <p>基于 profile_id 和 candidate_id 生成问题，执行语音/文字交互。</p>
+            </article>
+            <article class="flow-node red">
+              <h3>评估记录</h3>
+              <p>保存问题、回答、追问、评分、推荐结论和原始快照。</p>
+            </article>
+          </div>
+        </div>
+        <p class="flow-note">
+          关键闭环：画像提供“评价标准”，简历提供“候选人证据”，转换器保证两个上游结果能被面试引擎消费，面试记录再把过程和结论沉淀为可复盘数据。
+        </p>
+      </div>
+    </section>
+
     <section class="section" id="modules">
       <div class="section-title">
         <div>
-          <h2>三个板块的答辩讲解</h2>
-          <p>点击模块卡片切换讲解重点。每个模块都包含“已完成能力、核心价值、演示话术”和可以现场触发的提问预览。</p>
+          <h2>三个核心板块</h2>
+          <p>点击模块卡片切换讲解重点。每个模块都包含已完成能力、核心价值、当前实现细节，以及可以现场触发的提问预览。</p>
         </div>
       </div>
 
@@ -857,7 +1065,7 @@
         <aside class="script-card">
           <div>
             <h3>现场互动演示</h3>
-            <p>选择一个讲解角度，页面会给出对应的面试问题预览，可用于答辩时说明系统如何把上游信息转成下游面试动作。</p>
+            <p>选择一个讲解角度，页面会给出对应的面试问题预览，可用于说明系统如何把上游信息转成下游面试动作。</p>
             <div class="chips" id="questionChips" aria-label="问题预览选项"></div>
             <div class="question-preview" id="questionPreview"></div>
           </div>
@@ -869,7 +1077,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="architecture">
       <div class="section-title">
         <div>
           <h2>整体技术路线</h2>
@@ -881,27 +1089,27 @@
           <h3>前端展示层</h3>
           <p>统一导航、模块页面和面试房间状态展示。</p>
           <ul>
-            <li>Hash 路由管理模块切换</li>
-            <li>画像对话、简历上传、面试设置分屏呈现</li>
-            <li>浏览器 TTS/ASR 支撑语音优先面试</li>
+            <li><code>frontend/index.html</code> 作为 SPA 入口。</li>
+            <li><code>router.js</code> 通过 hash 路由切换画像、简历、面试和记录页。</li>
+            <li>画像对话、简历上传、面试设置、语音房间分模块实现。</li>
           </ul>
         </article>
         <article class="card">
           <h3>后端服务层</h3>
           <p>按业务边界拆分画像、简历、面试和 LLM 配置。</p>
           <ul>
-            <li>FastAPI Router 组织 API</li>
-            <li>Service 层封装 LLM、抽取、追问策略</li>
-            <li>Pydantic Model 和 JSON Schema 约束数据结构</li>
+            <li><code>app/main.py</code> 负责应用创建、CORS、静态资源和路由注册。</li>
+            <li><code>app/routers</code> 提供 HTTP 入口。</li>
+            <li><code>app/services</code> 封装 LLM、抽取、追问策略和评估逻辑。</li>
           </ul>
         </article>
         <article class="card">
           <h3>数据衔接层</h3>
           <p>画像和简历不是孤立结果，而是面试输入。</p>
           <ul>
-            <li>画像保存后同步到面试画像库</li>
-            <li>简历解析后保存为候选人档案</li>
-            <li>面试记录沉淀为可复盘结果</li>
+            <li><code>profile_converter.py</code> 同步画像到面试画像库。</li>
+            <li><code>candidate_converter.py</code> 同步简历结果为候选人档案。</li>
+            <li><code>interview_store.py</code> 维护面试索引和单场记录。</li>
           </ul>
         </article>
       </div>
@@ -910,26 +1118,138 @@
     <section class="section">
       <div class="section-title">
         <div>
-          <h2>答辩流程建议</h2>
-          <p>按“问题背景 - 系统方案 - 模块实现 - 演示路径 - 后续计划”的顺序展开，逻辑会更完整。</p>
+          <h2>关键数据对象</h2>
+          <p>系统的可追溯性来自明确的数据结构：每个模块都输出结构化对象，面试记录会保存过程和快照。</p>
         </div>
       </div>
-      <div class="timeline">
-        <article class="card" data-step="01">
-          <h3>背景痛点</h3>
-          <p>传统招聘评估标准容易口径不一致，简历信息与面试问题之间缺少可解释衔接。</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>数据对象</th>
+              <th>来源</th>
+              <th>典型字段</th>
+              <th>进入面试后的作用</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>岗位画像</td>
+              <td>画像 Agent / JD 解析</td>
+              <td><code>company_context</code>、<code>signal_dimensions</code>、<code>must_have</code>、<code>anti_profile</code></td>
+              <td>决定考察维度、问题优先级和风险验证方向。</td>
+            </tr>
+            <tr>
+              <td>简历解析结果</td>
+              <td>简历流水线</td>
+              <td><code>claims</code>、<code>objective_experiences</code>、<code>project_experiences</code>、<code>blind_spots</code></td>
+              <td>把候选人的项目、技能、经历和盲点转成追问依据。</td>
+            </tr>
+            <tr>
+              <td>外部足迹</td>
+              <td>GitHub / 博客抓取</td>
+              <td><code>repositories</code>、<code>languages</code>、<code>recent_activity</code>、<code>blog_titles</code></td>
+              <td>补充简历之外的公开证据，辅助核验技术真实性。</td>
+            </tr>
+            <tr>
+              <td>面试记录</td>
+              <td>AI 面试引擎</td>
+              <td><code>plan</code>、<code>answers</code>、<code>follow_ups</code>、<code>evaluation</code>、<code>snapshots</code></td>
+              <td>保留完整过程，支持复盘、人工审核和后续模型优化。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <div>
+          <h2>实现亮点</h2>
+          <p>这些点可以直接对应代码结构和系统行为，说明项目不是页面拼接，而是围绕招聘评估问题做了完整工程设计。</p>
+        </div>
+      </div>
+      <div class="cards-row cols-4">
+        <article class="card">
+          <h3>证据驱动</h3>
+          <p>问题生成同时使用画像标准和候选人证据，避免只问通用题。</p>
         </article>
-        <article class="card" data-step="02">
-          <h3>系统方案</h3>
-          <p>把岗位标准和候选人证据结构化，再交给 AI 面试模块做动态提问与追问。</p>
+        <article class="card">
+          <h3>模块闭环</h3>
+          <p>画像保存和简历解析会自动同步到面试模块，减少重复录入。</p>
         </article>
-        <article class="card" data-step="03">
-          <h3>现场演示</h3>
-          <p>先展示画像生成，再展示简历解析结果，最后启动面试说明问题来源。</p>
+        <article class="card">
+          <h3>可降级运行</h3>
+          <p>LLM、OCR、语音服务不可用时仍保留基本解析、文字面试和记录能力。</p>
         </article>
-        <article class="card" data-step="04">
-          <h3>下一阶段</h3>
-          <p>完善评估量表、增强记录分析、加入更多样本测试和可视化对比报告。</p>
+        <article class="card">
+          <h3>可扩展边界</h3>
+          <p>后续接数据库、企业 ATS、评分 Rubric 或新模型供应商时边界清晰。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <div>
+          <h2>API 能力概览</h2>
+          <p>四组 API 覆盖画像、简历、面试和模型配置，前端页面通过这些接口完成完整业务链路。</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>核心接口</th>
+              <th>能力说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>画像模块</td>
+              <td><code>POST /api/portrait/chat</code><br><code>POST /api/portrait/save-profile</code></td>
+              <td>完成画像对话、JD 解析、画像生成和保存同步。</td>
+            </tr>
+            <tr>
+              <td>简历模块</td>
+              <td><code>POST /api/resume/parse</code><br><code>GET /api/resume/results</code></td>
+              <td>上传文件并输出结构化简历结果，解析成功后生成面试候选人。</td>
+            </tr>
+            <tr>
+              <td>面试模块</td>
+              <td><code>POST /api/interview/start</code><br><code>POST /api/interview/answer</code><br><code>POST /api/interview/end</code></td>
+              <td>启动面试、获取问题、提交回答、生成追问和综合评估。</td>
+            </tr>
+            <tr>
+              <td>模型配置</td>
+              <td><code>GET /api/llm/config</code><br><code>POST /api/llm/test</code></td>
+              <td>支持前端配置模型地址、模型名称和连接测试。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <div>
+          <h2>后续完善方向</h2>
+          <p>基于当前闭环，后续可以继续增强评估可信度、数据管理能力和真实招聘场景适配。</p>
+        </div>
+      </div>
+      <div class="cards-row">
+        <article class="card">
+          <h3>评估量表</h3>
+          <p>增加可配置 Rubric，把画像信号维度映射为更稳定的评分标准。</p>
+        </article>
+        <article class="card">
+          <h3>数据存储升级</h3>
+          <p>将 JSON 文件存储替换为 SQLite、PostgreSQL 或 MongoDB，支持更多记录和查询。</p>
+        </article>
+        <article class="card">
+          <h3>人工复核</h3>
+          <p>增加人工审核页面，对 AI 评价、风险提示和推荐结论做二次校准。</p>
         </article>
       </div>
     </section>
@@ -939,7 +1259,7 @@
     <div class="footer-inner">
       <div>
         <strong>阶段成果结论</strong>
-        <p>当前系统已完成招聘评估链路的核心闭环：岗位画像输入、简历证据输入、AI 面试输出。</p>
+        <p>当前系统已完成招聘评估链路的核心闭环：岗位画像输入、简历证据输入、AI 面试输出和记录复盘。</p>
       </div>
       <a class="text-btn" href="#modules">回到模块讲解</a>
     </div>
@@ -964,12 +1284,12 @@
             points: ["核心角色与职责边界", "能力信号维度及权重", "任职条件、加分项和风险项"]
           },
           {
-            title: "对面试的贡献",
-            points: ["明确每轮面试要验证的能力", "为问题生成提供评价维度", "降低不同面试官之间的标准偏差"]
+            title: "工程实现",
+            points: ["app/services/portrait/agent.py 负责画像生成", "prompts.py 维护画像提示词", "保存画像时自动同步到面试画像库"]
           },
           {
-            title: "当前完成情况",
-            points: ["已实现画像对话流程", "已支持保存画像并同步到面试画像库", "已提供 profile 到 interview profile 的转换"]
+            title: "对面试的贡献",
+            points: ["明确每轮面试要验证的能力", "为问题生成提供评价维度", "降低不同面试官之间的标准偏差"]
           }
         ],
         signals: [
@@ -987,23 +1307,23 @@
         title: "简历分析",
         badge: "整理候选人证据",
         oneLine: "简历分析负责把候选人材料转成可验证证据，让 AI 面试知道应该验证哪些经历、哪些信息还缺失。",
-        intro: "该模块上传 PDF 或 Word 简历后抽取文本，并调用 LLM 进行语义分析，将能力声明、客观经历、项目证据和信息盲区拆开，形成候选人档案。",
+        intro: "该模块上传 PDF、Word 或图片简历后抽取文本，并调用 LLM 进行语义分析，将能力声明、客观经历、项目证据和信息盲区拆开，形成候选人档案。",
         cards: [
           {
             title: "输入内容",
-            points: ["PDF、Word 等简历文件", "GitHub、技术博客等外部足迹", "项目经历、技能栈和教育背景"]
+            points: ["PDF、Word、图片等简历文件", "GitHub、技术博客等外部足迹", "项目经历、技能栈和教育背景"]
           },
           {
             title: "结构化输出",
             points: ["候选人基础档案", "项目经历与技能证据", "信息盲区、可疑泛化表述和待追问点"]
           },
           {
-            title: "对面试的贡献",
-            points: ["把简历亮点转成验证问题", "针对信息缺口自动补问", "避免面试只围绕泛泛技能清单展开"]
+            title: "工程实现",
+            points: ["pipeline_engine.py 编排解析阶段", "extractors.py 负责 PDF/Word/OCR 文本抽取", "llm_agent.py 输出语义分析结果"]
           },
           {
-            title: "当前完成情况",
-            points: ["已实现简历上传解析 API", "已支持候选人档案保存", "已把解析结果同步为面试候选人输入"]
+            title: "对面试的贡献",
+            points: ["把简历亮点转成验证问题", "针对信息缺口自动补问", "避免面试只围绕泛泛技能清单展开"]
           }
         ],
         signals: [
@@ -1032,12 +1352,12 @@
             points: ["按画像维度生成主问题", "结合简历证据指定追问方向", "根据回答质量限制追问次数"]
           },
           {
-            title: "输出结果",
-            points: ["问题、回答与追问记录", "候选人表现证据", "后续可扩展为评分报告和对比分析"]
+            title: "工程实现",
+            points: ["interview_engine.py 管理面试生命周期", "question_generator.py 生成面试方案", "follow_up_strategy.py 控制追问逻辑"]
           },
           {
-            title: "当前完成情况",
-            points: ["已实现面试启动、下一题、回答提交", "已支持浏览器语音播报和录音输入", "已支持面试记录列表与详情查看"]
+            title: "输出结果",
+            points: ["问题、回答与追问记录", "候选人表现证据", "综合评分、推荐结论和复盘数据"]
           }
         ],
         signals: [
