@@ -21,3 +21,6 @@ numpy>=1.24.0
 
 # 网络请求
 requests>=2.31.0
+
+# 阿里云智能语音交互（TTS/ASR）
+aliyun-python-sdk-core>=2.16.0
