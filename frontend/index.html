@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 招聘评估系统</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="main-nav">
+    <div class="nav-left">
+      <div class="nav-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/>
+        </svg>
+        AI 招聘评估系统
+      </div>
+      <div class="nav-links">
+        <a href="#/portrait" class="nav-link" data-page="portrait">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          人才画像
+        </a>
+        <a href="#/resume" class="nav-link" data-page="resume">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          简历分析
+        </a>
+        <a href="#/interview" class="nav-link" data-page="interview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+          </svg>
+          AI 面试
+        </a>
+        <a href="#/records" class="nav-link" data-page="records">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          面试记录
+        </a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn" id="llm-config-btn" title="LLM 配置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 各模块容器 -->
+  <main id="app-content"></main>
+
+  <!-- Toast 通知容器 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- 核心脚本 -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/router.js"></script>
+
+  <!-- 各模块脚本 -->
+  <script src="/static/js/portrait/chat.js"></script>
+  <script src="/static/js/portrait/profile.js"></script>
+  <script src="/static/js/portrait/app.js"></script>
+  <script src="/static/js/resume/resume.js"></script>
+  <script src="/static/js/interview/setup.js"></script>
+  <script src="/static/js/interview/room.js"></script>
+  <script src="/static/js/interview/records.js"></script>
+
+  <!-- 全局初始化 -->
+  <script>
+    // Toast 通知
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // 注册路由
+    router.register('#/portrait', (container) => {
+      return window.portraitApp ? window.portraitApp.init(container) : null;
+    });
+
+    router.register('#/resume', (container) => {
+      return window.resumeModule ? window.resumeModule.init(container) : null;
+    });
+
+    router.register('#/interview', (container) => {
+      return window.interviewSetup ? window.interviewSetup.init(container) : null;
+    });
+
+    router.register('#/interview/:id', (container, params) => {
+      return window.interviewRoom ? window.interviewRoom.init(container, params.id) : null;
+    });
+
+    router.register('#/records', (container) => {
+      return window.interviewRecords ? window.interviewRecords.init(container) : null;
+    });
+
+    // LLM 配置按钮
+    document.getElementById('llm-config-btn').addEventListener('click', () => {
+      window.location.hash = '#/interview';
+      setTimeout(() => {
+        const panel = document.getElementById('llm-config-body');
+        if (panel) panel.style.display = 'block';
+      }, 100);
+    });
+
+    // 启动路由
+    router.start();
+  </script>
+</body>
+</html>
