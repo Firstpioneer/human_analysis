@@ -257,12 +257,15 @@ class PortraitApp {
   async _loadConversation(id) {
     try {
       const conv = await api.getConversation(id);
+      this.chatManager.conversationId = conv.id;
       if (conv.messages && conv.messages.length > 0) {
         this.chatManager.restoreMessages(conv.messages, conv.id);
+      } else {
+        this.chatManager.reset();
+        this.chatManager.conversationId = conv.id;
       }
-      if (conv.profile_draft) {
-        this.profileManager.updateProfile(conv.profile_draft);
-      }
+      this.profileManager.updateProfile(conv.profile_draft || null);
+      this.chatManager.saveState();
       document.getElementById('history-panel').classList.remove('open');
       showToast('已加载历史对话', 'success');
     } catch (err) {

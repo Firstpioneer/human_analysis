@@ -28,6 +28,15 @@ def load_resume_result(resume_id: str) -> Optional[dict]:
         return json.load(f)
 
 
+def delete_resume_result(resume_id: str) -> bool:
+    """删除简历解析结果，返回是否成功"""
+    filepath = os.path.join(config.RESUMES_DIR, f"{resume_id}.json")
+    if not os.path.exists(filepath):
+        return False
+    os.remove(filepath)
+    return True
+
+
 def list_resume_results() -> list[dict]:
     os.makedirs(config.RESUMES_DIR, exist_ok=True)
     results = []

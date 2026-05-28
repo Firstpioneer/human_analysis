@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "候选人档案",
+  "description": "基于简历解析输出的结构化候选人档案",
+  "type": "object",
+  "required": ["name", "contact", "experiences"],
+  "properties": {
+    "name": { "type": "string", "description": "姓名" },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "github": { "type": "string" },
+        "blog": { "type": "string" }
+      }
+    },
+    "summary": { "type": "string", "description": "候选人概述" },
+    "experiences": {
+      "type": "array",
+      "description": "工作经历（含信号强度标注）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "title": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "is_current": { "type": "boolean" },
+          "description": { "type": "string" },
+          "signal": {
+            "type": "object",
+            "description": "信号强度标注",
+            "properties": {
+              "type": { "type": "string", "enum": ["事实", "声明", "推断"] },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+              "evidence": { "type": "string", "description": "证据来源" }
+            }
+          },
+          "highlights": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "亮点提炼"
+          }
+        },
+        "required": ["company", "title", "description"]
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "school": { "type": "string" },
+          "degree": { "type": "string" },
+          "major": { "type": "string" },
+          "graduation_year": { "type": "string" }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "level": { "type": "string", "enum": ["了解", "熟悉", "精通"] },
+          "source": { "type": "string", "description": "来源（简历/项目/面试）" }
+        }
+      }
+    },
+    "external_profiles": {
+      "type": "object",
+      "description": "外部资料深挖结果",
+      "properties": {
+        "github_activity": { "type": "string" },
+        "blog_articles": { "type": "array", "items": { "type": "string" } },
+        "open_source_contributions": { "type": "array", "items": { "type": "string" } },
+        "social_media": { "type": "string" }
+      }
+    }
+  }
+}

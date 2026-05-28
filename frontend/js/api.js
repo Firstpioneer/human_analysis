@@ -104,6 +104,7 @@ class ApiClient {
   async parseResume(file) { return this._upload('/api/resume/parse', file); }
   async listResumeResults() { return this._request('/api/resume/results'); }
   async getResumeResult(id) { return this._request(`/api/resume/results/${id}`); }
+  async deleteResumeResult(id) { return this._request(`/api/resume/results/${id}`, { method: 'DELETE' }); }
 
   // ---- Interview API ----
   async startInterview(config) {
@@ -112,11 +113,14 @@ class ApiClient {
   async getNextQuestion(elapsedMinutes) {
     return this._request('/api/interview/next-question', { method: 'POST', body: JSON.stringify({ elapsed_minutes: elapsedMinutes }) });
   }
-  async submitAnswer(questionId, answer) {
-    return this._request('/api/interview/answer', { method: 'POST', body: JSON.stringify({ question_id: questionId, answer }) });
+  async submitAnswer(questionId, answer, options = {}) {
+    return this._request('/api/interview/answer', {
+      method: 'POST',
+      body: JSON.stringify({ question_id: questionId, answer, ...options })
+    });
   }
-  async askFollowUp(question) {
-    return this._request('/api/interview/ask-follow-up', { method: 'POST', body: JSON.stringify({ question }) });
+  async askFollowUp(question, options = {}) {
+    return this._request('/api/interview/ask-follow-up', { method: 'POST', body: JSON.stringify({ question, ...options }) });
   }
   async endInterview() {
     return this._request('/api/interview/end', { method: 'POST' });

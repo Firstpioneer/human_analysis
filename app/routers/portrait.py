@@ -10,6 +10,8 @@ from app.models.portrait import (
     SaveProfileRequest
 )
 from app.services.portrait.agent import RecruitmentAgent
+from app.converters.profile_converter import portrait_to_interview_profile
+from app.storage.interview_store import ProfileCandidateStorage
 from app.storage.portrait_store import (
     validate_profile, enrich_profile,
     save_profile, load_profile, list_profiles,
@@ -18,6 +20,7 @@ from app.storage.portrait_store import (
 )
 
 router = APIRouter()
+pc_storage = ProfileCandidateStorage()
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -117,7 +120,15 @@ async def save_profile_endpoint(request: SaveProfileRequest):
     profile["status"] = "confirmed"
     messages_data = [m.model_dump() for m in request.messages] if request.messages else []
     profile_id = save_profile(profile, messages_data)
-    return {"success": True, "profile_id": profile_id, "message": "画像保存成功"}
+    interview_profile = portrait_to_interview_profile(profile)
+    interview_profile["_portrait_id"] = profile_id
+    saved_interview_profile = pc_storage.save_profile(interview_profile)
+    return {
+        "success": True,
+        "profile_id": profile_id,
+        "interview_profile_id": saved_interview_profile.get("_id"),
+        "message": "画像保存成功"
+    }
 
 
 @router.get("/profiles")

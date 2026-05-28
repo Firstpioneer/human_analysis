@@ -13,178 +13,84 @@ class InterviewSetup {
   constructor() {
     this.profiles = [];
     this.candidates = [];
+    this.selectedProfileId = null;
+    this.selectedCandidateId = null;
   }
 
   init(container) {
+    this.selectedProfileId = null;
+    this.selectedCandidateId = null;
+
     container.innerHTML = `
       <div class="interview-container">
         <div class="interview-hero">
           <h1>AI 驱动的智能面试系统</h1>
-          <p>基于人才画像与候选人档案，自动生成面试方案，支持语音交互与实时追问</p>
+          <p>选择人才画像与简历分析结果，AI 将结合岗位信号和候选人经历生成语音面试方案</p>
         </div>
 
-        <div class="setup-card">
+        <div class="setup-card source-setup-card">
           <h2>开始一场新的面试</h2>
-          <p class="card-desc">配置面试参数，AI 将自动生成面试方案</p>
+          <p class="card-desc">面试问题将基于人才画像输出与简历分析输出动态生成，不再使用预设岗位或技能模板</p>
 
           <form id="interview-form">
-            <div class="form-section">
-              <h3><span class="section-icon">📋</span> 岗位信息</h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>岗位名称</label>
-                  <input type="text" id="position-title" value="高级后端开发工程师" placeholder="例如：高级前端工程师">
+            <div class="source-selection-grid">
+              <section class="source-card" id="portrait-source-card">
+                <div class="source-card-header">
+                  <div>
+                    <span class="source-eyebrow">步骤 1</span>
+                    <h3>选择人才画像输出</h3>
+                  </div>
+                  <span class="badge-count" id="profile-count">0</span>
                 </div>
-                <div class="form-group">
-                  <label>职级</label>
-                  <select id="position-level">
-                    <option value="初级">初级</option>
-                    <option value="中级">中级</option>
-                    <option value="高级" selected>高级</option>
-                    <option value="专家">专家</option>
-                    <option value="架构师">架构师</option>
-                  </select>
+                <p class="source-desc">用于确定岗位目标、信号维度、必须验证项与风险画像。</p>
+                <div class="saved-list source-list" id="profile-list">
+                  <div class="empty-hint">正在加载画像...</div>
                 </div>
-              </div>
+                <div class="source-actions">
+                  <button type="button" class="btn-test" id="btn-refresh-profiles">刷新画像</button>
+                  <button type="button" class="source-empty-action" id="btn-go-portrait">去生成画像</button>
+                </div>
+              </section>
+
+              <section class="source-card" id="resume-source-card">
+                <div class="source-card-header">
+                  <div>
+                    <span class="source-eyebrow">步骤 2</span>
+                    <h3>选择简历分析结果</h3>
+                  </div>
+                  <span class="badge-count" id="candidate-count">0</span>
+                </div>
+                <p class="source-desc">用于验证候选人的经历、技能声明、外部信号与简历盲点。</p>
+                <div class="saved-list source-list" id="candidate-list">
+                  <div class="empty-hint">正在加载简历分析结果...</div>
+                </div>
+                <div class="source-actions">
+                  <button type="button" class="btn-test" id="btn-refresh-candidates">刷新简历</button>
+                  <button type="button" class="source-empty-action" id="btn-go-resume">去解析简历</button>
+                </div>
+              </section>
             </div>
 
-            <div class="form-section">
-              <h3><span class="section-icon">🔧</span> 技能要求</h3>
-              <div id="skills-container">
-                <div class="skill-row">
-                  <input type="text" class="skill-name" value="Python" placeholder="技能名称">
-                  <select class="skill-level">
-                    <option value="了解">了解</option>
-                    <option value="熟悉">熟悉</option>
-                    <option value="精通" selected>精通</option>
-                  </select>
-                  <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
-                </div>
-                <div class="skill-row">
-                  <input type="text" class="skill-name" value="Flask" placeholder="技能名称">
-                  <select class="skill-level">
-                    <option value="了解">了解</option>
-                    <option value="熟悉">熟悉</option>
-                    <option value="精通" selected>精通</option>
-                  </select>
-                  <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
-                </div>
-                <div class="skill-row">
-                  <input type="text" class="skill-name" value="MySQL" placeholder="技能名称">
-                  <select class="skill-level">
-                    <option value="了解">了解</option>
-                    <option value="熟悉" selected>熟悉</option>
-                    <option value="精通">精通</option>
-                  </select>
-                  <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
-                </div>
-              </div>
-              <button type="button" class="btn-add-skill" id="btn-add-skill">+ 添加技能</button>
-            </div>
-
-            <div class="form-section">
+            <div class="form-section interview-basic-settings">
               <h3><span class="section-icon">⚙️</span> 面试设置</h3>
               <div class="form-row">
                 <div class="form-group">
                   <label>面试时长（分钟）</label>
                   <input type="number" id="duration" value="45" min="15" max="120">
                 </div>
-                <div class="form-group">
-                  <label style="display:flex;align-items:center;gap:8px;">
-                    <input type="checkbox" id="enable-voice" checked style="width:18px;height:18px;accent-color:var(--color-primary);">
-                    启用语音交互
-                  </label>
-                </div>
               </div>
             </div>
 
-            <button type="submit" class="btn-start-interview" id="btn-start">
-              🎙️ 开始 AI 面试
-            </button>
+            <div id="selected-data-hint" class="selected-source-summary">
+              请选择人才画像和简历分析结果后开始面试。
+            </div>
 
-            <div id="selected-data-hint" class="selected-hint" style="display:none;"></div>
+            <button type="submit" class="btn-start-interview" id="btn-start" disabled>
+              开始 AI 面试
+            </button>
           </form>
         </div>
 
-        <!-- 人才画像管理 -->
-        <div class="collapse-panel">
-          <div class="collapse-header" id="profile-collapse-header">
-            <h3><span class="section-icon">📋</span> 人才画像管理 <span class="badge-count" id="profile-count">0</span></h3>
-            <span style="color:var(--color-text-secondary);font-size:13px;">对接画像模块</span>
-          </div>
-          <div class="collapse-body" id="profile-panel-body" style="display:none;">
-            <p class="collapse-desc">已保存的人才画像可在开始面试时直接选用</p>
-            <div class="saved-list" id="profile-list"><div class="empty-hint">暂无已保存的画像</div></div>
-            <div class="panel-actions">
-              <button type="button" class="btn-save-config" id="btn-show-profile-form">➕ 新建画像</button>
-              <button type="button" class="btn-test" id="btn-refresh-profiles">🔄 刷新</button>
-            </div>
-            <div id="profile-form" class="inline-form" style="display:none;">
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group"><label>岗位名称</label><input type="text" id="pf-title" value="高级后端开发工程师"></div>
-                  <div class="form-group"><label>职级</label><select id="pf-level"><option>初级</option><option>中级</option><option selected>高级</option><option>专家</option><option>架构师</option></select></div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group"><label>部门</label><input type="text" id="pf-dept" value="技术部"></div>
-                  <div class="form-group"><label>薪资范围</label><input type="text" id="pf-salary" value="25K-40K"></div>
-                </div>
-              </div>
-              <div class="form-section">
-                <label style="display:block;font-size:13px;font-weight:600;color:var(--color-text-secondary);margin-bottom:6px;">技能要求（每行一个：名称, 精通/熟悉/了解）</label>
-                <textarea id="pf-skills" rows="4" class="form-textarea">Python, 精通\nFlask, 精通\nMySQL, 熟悉</textarea>
-              </div>
-              <div class="form-section">
-                <label style="display:block;font-size:13px;font-weight:600;color:var(--color-text-secondary);margin-bottom:6px;">软技能（逗号分隔）</label>
-                <input type="text" id="pf-soft-skills" value="团队协作, 沟通表达, 问题解决" class="form-input">
-              </div>
-              <div class="llm-actions">
-                <button type="button" class="btn-save-config" id="btn-save-profile">💾 保存画像</button>
-                <button type="button" class="btn-test" id="btn-hide-profile-form">取消</button>
-              </div>
-              <div id="profile-form-result" class="llm-test-result"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 候选人管理 -->
-        <div class="collapse-panel">
-          <div class="collapse-header" id="candidate-collapse-header">
-            <h3><span class="section-icon">👤</span> 候选人档案管理 <span class="badge-count" id="candidate-count">0</span></h3>
-            <span style="color:var(--color-text-secondary);font-size:13px;">对接简历模块</span>
-          </div>
-          <div class="collapse-body" id="candidate-panel-body" style="display:none;">
-            <p class="collapse-desc">已保存的候选人档案可在开始面试时作为面试背景</p>
-            <div class="saved-list" id="candidate-list"><div class="empty-hint">暂无已保存的候选人</div></div>
-            <div class="panel-actions">
-              <button type="button" class="btn-save-config" id="btn-show-candidate-form">➕ 新建候选人</button>
-              <button type="button" class="btn-test" id="btn-refresh-candidates">🔄 刷新</button>
-            </div>
-            <div id="candidate-form" class="inline-form" style="display:none;">
-              <div class="form-section">
-                <div class="form-row">
-                  <div class="form-group"><label>姓名</label><input type="text" id="ca-name" value="张三"></div>
-                  <div class="form-group"><label>概述</label><input type="text" id="ca-summary" value="5年后端开发经验"></div>
-                </div>
-              </div>
-              <div class="form-section">
-                <label style="display:block;font-size:13px;font-weight:600;color:var(--color-text-secondary);margin-bottom:6px;">工作经历（每行一个：公司, 职位, 描述）</label>
-                <textarea id="ca-experiences" rows="3" class="form-textarea">某科技公司, 高级开发, 负责核心业务后端开发与架构设计</textarea>
-              </div>
-              <div class="form-section">
-                <label style="display:block;font-size:13px;font-weight:600;color:var(--color-text-secondary);margin-bottom:6px;">已有技能（每行一个：名称, 水平）</label>
-                <textarea id="ca-skills" rows="2" class="form-textarea">Python, 精通\nJava, 熟悉</textarea>
-              </div>
-              <div class="llm-actions">
-                <button type="button" class="btn-save-config" id="btn-save-candidate">💾 保存候选人</button>
-                <button type="button" class="btn-test" id="btn-hide-candidate-form">取消</button>
-              </div>
-              <div id="candidate-form-result" class="llm-test-result"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- LLM 配置 -->
         <div class="collapse-panel">
           <div class="collapse-header" id="llm-collapse-header">
             <h3><span class="section-icon">🧠</span> 大语言模型配置</h3>
@@ -246,67 +152,20 @@ class InterviewSetup {
     this._loadProfiles();
     this._loadCandidates();
 
-    return () => {
-      // Cleanup portrait nav buttons when leaving
-      document.querySelectorAll('.portrait-nav-btn').forEach(b => b.remove());
-    };
+    return () => {};
   }
 
   _bindEvents(container) {
-    // Collapsible panels
-    container.querySelector('#profile-collapse-header').addEventListener('click', () => {
-      const body = container.querySelector('#profile-panel-body');
-      body.style.display = body.style.display === 'none' ? 'block' : 'none';
-    });
-
-    container.querySelector('#candidate-collapse-header').addEventListener('click', () => {
-      const body = container.querySelector('#candidate-panel-body');
-      body.style.display = body.style.display === 'none' ? 'block' : 'none';
-    });
+    container.querySelector('#btn-refresh-profiles').addEventListener('click', () => this._loadProfiles());
+    container.querySelector('#btn-refresh-candidates').addEventListener('click', () => this._loadCandidates());
+    container.querySelector('#btn-go-portrait').addEventListener('click', () => { window.location.hash = '#/portrait'; });
+    container.querySelector('#btn-go-resume').addEventListener('click', () => { window.location.hash = '#/resume'; });
 
     container.querySelector('#llm-collapse-header').addEventListener('click', () => {
       const body = container.querySelector('#llm-config-body');
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Add skill
-    container.querySelector('#btn-add-skill').addEventListener('click', () => {
-      const skillsContainer = container.querySelector('#skills-container');
-      const row = document.createElement('div');
-      row.className = 'skill-row';
-      row.innerHTML = `
-        <input type="text" class="skill-name" placeholder="技能名称">
-        <select class="skill-level">
-          <option value="了解">了解</option>
-          <option value="熟悉" selected>熟悉</option>
-          <option value="精通">精通</option>
-        </select>
-        <button type="button" class="btn-remove-skill" onclick="this.parentElement.remove()">✕</button>
-      `;
-      skillsContainer.appendChild(row);
-    });
-
-    // Profile form
-    container.querySelector('#btn-show-profile-form').addEventListener('click', () => {
-      container.querySelector('#profile-form').style.display = 'block';
-    });
-    container.querySelector('#btn-hide-profile-form').addEventListener('click', () => {
-      container.querySelector('#profile-form').style.display = 'none';
-    });
-    container.querySelector('#btn-save-profile').addEventListener('click', () => this._saveProfile(container));
-    container.querySelector('#btn-refresh-profiles').addEventListener('click', () => this._loadProfiles());
-
-    // Candidate form
-    container.querySelector('#btn-show-candidate-form').addEventListener('click', () => {
-      container.querySelector('#candidate-form').style.display = 'block';
-    });
-    container.querySelector('#btn-hide-candidate-form').addEventListener('click', () => {
-      container.querySelector('#candidate-form').style.display = 'none';
-    });
-    container.querySelector('#btn-save-candidate').addEventListener('click', () => this._saveCandidate(container));
-    container.querySelector('#btn-refresh-candidates').addEventListener('click', () => this._loadCandidates());
-
-    // LLM config
     container.querySelector('#llm-provider').addEventListener('change', () => {
       const provider = container.querySelector('#llm-provider').value;
       const preset = LLM_PRESETS[provider];
@@ -328,7 +187,6 @@ class InterviewSetup {
     container.querySelector('#btn-test-llm').addEventListener('click', () => this._testLLM(container));
     container.querySelector('#btn-save-llm').addEventListener('click', () => this._saveLLMConfig(container));
 
-    // Form submit
     container.querySelector('#interview-form').addEventListener('submit', (e) => {
       e.preventDefault();
       this._startInterview(container);
@@ -439,54 +297,60 @@ class InterviewSetup {
 
       const list = container.querySelector('#profile-list');
       const count = container.querySelector('#profile-count');
-      if (data.success && data.profiles.length) {
-        count.textContent = data.profiles.length;
-        list.innerHTML = data.profiles.map(p => {
-          const title = p.position?.title || '未知岗位';
-          const level = p.position?.level || '';
-          const skills = (p.requirements?.skills || []).map(s => s.name).join(', ');
-          return `
-            <div class="saved-item" data-id="${p._id}" onclick="window.interviewSetup.selectProfile('${p._id}', this)">
-              <div class="saved-item-header"><strong>${title}</strong> ${level ? '<span class="badge">' + level + '</span>' : ''}</div>
-              <div class="saved-item-info">${skills || '无技能'}</div>
-              <div class="saved-item-actions">
-                <button class="btn-use" onclick="event.stopPropagation(); window.interviewSetup.useProfile('${p._id}')">🎯 选用</button>
-                <button class="btn-del" onclick="event.stopPropagation(); window.interviewSetup.deleteProfile('${p._id}')">🗑</button>
-              </div>
-            </div>`;
-        }).join('');
+      this.profiles = data.success ? data.profiles : [];
+      if (this.profiles.length) {
+        count.textContent = this.profiles.length;
+        list.innerHTML = this.profiles.map(p => this._renderProfileItem(p)).join('');
+        if (this.selectedProfileId) {
+          const target = list.querySelector(`[data-id="${this.selectedProfileId}"]`);
+          if (target) target.classList.add('selected');
+        }
       } else {
         count.textContent = '0';
-        list.innerHTML = '<div class="empty-hint">暂无已保存的画像</div>';
+        list.innerHTML = `
+          <div class="source-empty-state">
+            <strong>暂无可用画像</strong>
+            <span>请先在人才画像页生成并保存画像。</span>
+          </div>
+        `;
       }
+      this._updateSelectedHint(container);
     } catch (e) { console.error('加载画像失败:', e); }
   }
 
+  _renderProfileItem(profile) {
+    const title = this._escape(profile.position?.title || '未知岗位');
+    const skills = (profile.requirements?.skills || []).slice(0, 4).map(s => s.name).filter(Boolean);
+    const dimensions = (profile._signal_dimensions || []).map(s => s.category).filter(Boolean).slice(0, 3);
+    const meta = dimensions.length ? dimensions.join(' / ') : skills.join(' / ');
+    const sourceLabel = profile._source === 'portrait' ? '来自人才画像' : '面试画像';
+    return `
+      <div class="saved-item source-item" data-id="${profile._id}" onclick="window.interviewSetup.selectProfile('${profile._id}', this)">
+        <div class="saved-item-header">
+          <strong>${title}</strong>
+          <span class="badge">${sourceLabel}</span>
+        </div>
+        <div class="saved-item-info">${this._escape(meta || '暂无信号维度')}</div>
+        <div class="saved-item-actions">
+          <button type="button" class="btn-use" onclick="event.stopPropagation(); window.interviewSetup.useProfile('${profile._id}')">选用</button>
+        </div>
+      </div>`;
+  }
+
   selectProfile(id, el) {
+    this.selectedProfileId = id;
     const container = document.querySelector('.interview-container');
     const list = container.querySelector('#profile-list');
-    list.dataset.selectedId = id;
     list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
     this._updateSelectedHint(container);
   }
 
-  async useProfile(id) {
+  useProfile(id) {
     const container = document.querySelector('.interview-container');
     const list = container.querySelector('#profile-list');
-    list.dataset.selectedId = id;
-    list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
     const target = list.querySelector(`.saved-item[data-id="${id}"]`);
-    if (target) target.classList.add('selected');
-    this._updateSelectedHint(container);
-  }
-
-  async deleteProfile(id) {
-    if (!confirm('确定删除此画像？')) return;
-    try {
-      await api.deleteInterviewProfile(id);
-      this._loadProfiles();
-    } catch (e) { showToast(e.message, 'error'); }
+    if (target) this.selectProfile(id, target);
   }
 
   async _loadCandidates() {
@@ -497,232 +361,126 @@ class InterviewSetup {
 
       const list = container.querySelector('#candidate-list');
       const count = container.querySelector('#candidate-count');
-      if (data.success && data.candidates.length) {
-        count.textContent = data.candidates.length;
-        list.innerHTML = data.candidates.map(c => {
-          return `
-            <div class="saved-item" data-id="${c._id}" onclick="window.interviewSetup.selectCandidate('${c._id}', this)">
-              <div class="saved-item-header"><strong>${this._escape(c.name || '未知')}</strong></div>
-              <div class="saved-item-info">${this._escape(c.summary || '')}</div>
-              <div class="saved-item-actions">
-                <button class="btn-use" onclick="event.stopPropagation(); window.interviewSetup.useCandidate('${c._id}')">🎯 选用</button>
-                <button class="btn-del" onclick="event.stopPropagation(); window.interviewSetup.deleteCandidate('${c._id}')">🗑</button>
-              </div>
-            </div>`;
-        }).join('');
+      this.candidates = data.success ? data.candidates : [];
+      if (this.candidates.length) {
+        count.textContent = this.candidates.length;
+        list.innerHTML = this.candidates.map(c => this._renderCandidateItem(c)).join('');
+        if (this.selectedCandidateId) {
+          const target = list.querySelector(`[data-id="${this.selectedCandidateId}"]`);
+          if (target) target.classList.add('selected');
+        }
       } else {
         count.textContent = '0';
-        list.innerHTML = '<div class="empty-hint">暂无已保存的候选人</div>';
+        list.innerHTML = `
+          <div class="source-empty-state">
+            <strong>暂无简历分析结果</strong>
+            <span>请先在简历分析页上传并解析简历。</span>
+          </div>
+        `;
       }
+      this._updateSelectedHint(container);
     } catch (e) { console.error('加载候选人失败:', e); }
   }
 
+  _renderCandidateItem(candidate) {
+    const name = this._escape(candidate.name || '未知候选人');
+    const expCount = candidate.experiences?.length || 0;
+    const skillCount = candidate.skills?.length || 0;
+    const blindSpotCount = candidate._blind_spots?.length || 0;
+    const summary = [
+      `${expCount} 段经历`,
+      `${skillCount} 条技能/声明`,
+      blindSpotCount ? `${blindSpotCount} 个待澄清点` : '',
+    ].filter(Boolean).join(' · ');
+    const sourceLabel = candidate._source === 'resume_parser' ? '来自简历解析' : '候选人档案';
+    return `
+      <div class="saved-item source-item" data-id="${candidate._id}" onclick="window.interviewSetup.selectCandidate('${candidate._id}', this)">
+        <div class="saved-item-header">
+          <strong>${name}</strong>
+          <span class="badge">${sourceLabel}</span>
+        </div>
+        <div class="saved-item-info">${this._escape(summary || candidate.summary || '暂无摘要')}</div>
+        <div class="saved-item-actions">
+          <button type="button" class="btn-use" onclick="event.stopPropagation(); window.interviewSetup.useCandidate('${candidate._id}')">选用</button>
+        </div>
+      </div>`;
+  }
+
   selectCandidate(id, el) {
+    this.selectedCandidateId = id;
     const container = document.querySelector('.interview-container');
     const list = container.querySelector('#candidate-list');
-    list.dataset.selectedId = id;
     list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
     this._updateSelectedHint(container);
   }
 
-  async useCandidate(id) {
+  useCandidate(id) {
     const container = document.querySelector('.interview-container');
     const list = container.querySelector('#candidate-list');
-    list.dataset.selectedId = id;
-    list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
     const target = list.querySelector(`.saved-item[data-id="${id}"]`);
-    if (target) target.classList.add('selected');
-    this._updateSelectedHint(container);
-  }
-
-  async deleteCandidate(id) {
-    if (!confirm('确定删除此候选人？')) return;
-    try {
-      await api.deleteCandidate(id);
-      this._loadCandidates();
-    } catch (e) { showToast(e.message, 'error'); }
+    if (target) this.selectCandidate(id, target);
   }
 
   _updateSelectedHint(container) {
-    const pList = container.querySelector('#profile-list');
-    const cList = container.querySelector('#candidate-list');
     const hint = container.querySelector('#selected-data-hint');
-    const pid = pList?.dataset?.selectedId;
-    const cid = cList?.dataset?.selectedId;
-    if (pid || cid) {
-      let text = '';
-      if (pid) text += '📋 画像已选 | ';
-      if (cid) text += '👤 简历已选 | ';
-      text += '点击「开始 AI 面试」使用';
-      hint.style.display = 'block';
-      hint.innerHTML = `✅ ${text} <button onclick="window.interviewSetup.clearSelections()" style="background:none;border:none;color:var(--color-destructive);cursor:pointer;font-size:13px;float:right;">✕ 清除</button>`;
-    } else {
-      hint.style.display = 'none';
-    }
-  }
+    const btn = container.querySelector('#btn-start');
+    const profile = this.profiles.find(p => p._id === this.selectedProfileId);
+    const candidate = this.candidates.find(c => c._id === this.selectedCandidateId);
 
-  clearSelections() {
-    const container = document.querySelector('.interview-container');
-    ['profile-list', 'candidate-list'].forEach(id => {
-      const list = container.querySelector('#' + id);
-      delete list.dataset.selectedId;
-      list.querySelectorAll('.saved-item').forEach(i => i.classList.remove('selected'));
-    });
-    this._updateSelectedHint(container);
-  }
-
-  async _saveProfile(container) {
-    const btn = container.querySelector('#btn-save-profile');
-    const result = container.querySelector('#profile-form-result');
-    btn.disabled = true;
-    btn.textContent = '⏳ 保存中...';
-
-    const skills = container.querySelector('#pf-skills').value.trim().split('\n')
-      .filter(s => s.trim())
-      .map(s => {
-        const parts = s.split(',').map(x => x.trim());
-        return { name: parts[0], level: parts[1] || '熟悉', weight: parts[1] === '精通' ? 9 : 6 };
-      });
-    const softSkills = container.querySelector('#pf-soft-skills').value.split(',').map(s => s.trim()).filter(s => s);
-
-    const profile = {
-      position: {
-        title: container.querySelector('#pf-title').value,
-        department: container.querySelector('#pf-dept').value,
-        level: container.querySelector('#pf-level').value,
-        salary_range: container.querySelector('#pf-salary').value,
-      },
-      requirements: {
-        education: { min_degree: '本科', preferred_majors: [] },
-        experience: { min_years: 3, preferred_industries: [] },
-        skills: skills,
-        soft_skills: softSkills,
-      },
-      qualifications: { certifications: [], projects: [], other: [] },
-      culture_fit: { team_size: '', work_style: '', values: [] }
-    };
-
-    try {
-      const data = await api.createInterviewProfile(profile);
-      if (data.success) {
-        result.className = 'llm-test-result success';
-        result.textContent = '✅ 画像已保存';
-        this._loadProfiles();
-      } else {
-        result.className = 'llm-test-result error';
-        result.textContent = '❌ ' + (data.error || '保存失败');
-      }
-    } catch (e) {
-      result.className = 'llm-test-result error';
-      result.textContent = '❌ ' + e.message;
-    } finally {
+    if (profile && candidate) {
+      hint.className = 'selected-source-summary ready';
+      hint.innerHTML = `
+        <strong>已选择：</strong>
+        <span>${this._escape(profile.position?.title || '人才画像')}</span>
+        <span>+</span>
+        <span>${this._escape(candidate.name || '简历分析结果')}</span>
+        <small>AI 将结合画像信号和简历证据生成问题。</small>
+      `;
       btn.disabled = false;
-      btn.textContent = '💾 保存画像';
+      return;
     }
-  }
 
-  async _saveCandidate(container) {
-    const btn = container.querySelector('#btn-save-candidate');
-    const result = container.querySelector('#candidate-form-result');
+    const missing = [];
+    if (!profile) missing.push('人才画像');
+    if (!candidate) missing.push('简历分析结果');
+    hint.className = 'selected-source-summary';
+    hint.textContent = `还需要选择${missing.join('和')}。`;
     btn.disabled = true;
-    btn.textContent = '⏳ 保存中...';
-
-    const experiences = container.querySelector('#ca-experiences').value.trim().split('\n')
-      .filter(s => s.trim())
-      .map(s => {
-        const parts = s.split(',').map(x => x.trim());
-        return { company: parts[0] || '', title: parts[1] || '', description: parts[2] || '' };
-      });
-    const skills = container.querySelector('#ca-skills').value.trim().split('\n')
-      .filter(s => s.trim())
-      .map(s => {
-        const parts = s.split(',').map(x => x.trim());
-        return { name: parts[0], level: parts[1] || '熟悉' };
-      });
-
-    const candidate = {
-      name: container.querySelector('#ca-name').value,
-      summary: container.querySelector('#ca-summary').value,
-      experiences: experiences,
-      skills: skills,
-      education: [],
-      contact: {},
-      external_profiles: {}
-    };
-
-    try {
-      const data = await api.createCandidate(candidate);
-      if (data.success) {
-        result.className = 'llm-test-result success';
-        result.textContent = '✅ 候选人已保存';
-        this._loadCandidates();
-      } else {
-        result.className = 'llm-test-result error';
-        result.textContent = '❌ ' + (data.error || '保存失败');
-      }
-    } catch (e) {
-      result.className = 'llm-test-result error';
-      result.textContent = '❌ ' + e.message;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '💾 保存候选人';
-    }
   }
 
   async _startInterview(container) {
     const btn = container.querySelector('#btn-start');
+    const profile = this.profiles.find(p => p._id === this.selectedProfileId);
+    const candidate = this.candidates.find(c => c._id === this.selectedCandidateId);
+    if (!profile || !candidate) {
+      this._showStartError(container, { error: '请先选择人才画像和简历分析结果' });
+      this._updateSelectedHint(container);
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = '⏳ 正在准备面试...';
 
-    const skills = [];
-    container.querySelectorAll('.skill-row').forEach(row => {
-      const name = row.querySelector('.skill-name').value.trim();
-      const level = row.querySelector('.skill-level').value;
-      if (name) skills.push({ name, level, weight: level === '精通' ? 9 : level === '熟悉' ? 6 : 3 });
-    });
-
-    const profile = {
-      position: {
-        title: container.querySelector('#position-title').value,
-        department: '技术部',
-        level: container.querySelector('#position-level').value,
-        salary_range: '面议'
-      },
-      requirements: {
-        education: { min_degree: '本科', preferred_majors: ['计算机科学', '软件工程'] },
-        experience: { min_years: 3, preferred_industries: ['互联网'] },
-        skills: skills,
-        soft_skills: ['团队协作', '沟通表达', '问题解决']
-      },
-      qualifications: { certifications: [], projects: [], other: [] },
-      culture_fit: { team_size: '5-10人', work_style: '敏捷开发', values: ['技术驱动', '结果导向'] }
+    const body = {
+      profile_id: this.selectedProfileId,
+      candidate_id: this.selectedCandidateId,
+      duration: parseInt(container.querySelector('#duration').value, 10) || 45,
     };
-
-    const pList = container.querySelector('#profile-list');
-    const cList = container.querySelector('#candidate-list');
-    const selectedProfileId = pList?.dataset?.selectedId;
-    const selectedCandidateId = cList?.dataset?.selectedId;
-
-    const body = { duration: parseInt(container.querySelector('#duration').value) };
-    if (selectedProfileId) body.profile_id = selectedProfileId;
-    else body.profile = profile;
-    if (selectedCandidateId) body.candidate_id = selectedCandidateId;
 
     try {
       const data = await api.startInterview(body);
       if (data.success) {
-        const voiceEnabled = container.querySelector('#enable-voice').checked;
         window.location.hash = '#/interview/' + data.interview.interview_id;
       } else {
         this._showStartError(container, data);
         btn.disabled = false;
-        btn.innerHTML = '🎙️ 开始 AI 面试';
+        btn.textContent = '开始 AI 面试';
       }
     } catch (err) {
       this._showStartError(container, { error: '网络错误: ' + err.message, need_llm: false });
       btn.disabled = false;
-      btn.innerHTML = '🎙️ 开始 AI 面试';
+      btn.textContent = '开始 AI 面试';
     }
   }
 
@@ -743,15 +501,15 @@ class InterviewSetup {
       errorDiv.innerHTML = `
         <div class="error-icon">🧠</div>
         <div class="error-title">需要配置大语言模型</div>
-        <div class="error-desc">${data.error}</div>
-        <button class="btn-goto-config" onclick="document.getElementById('llm-config-body').style.display='block';document.getElementById('llm-config-body').scrollIntoView({behavior:'smooth'});">⚙️ 立即配置</button>
+        <div class="error-desc">${this._escape(data.error)}</div>
+        <button type="button" class="btn-goto-config" onclick="document.getElementById('llm-config-body').style.display='block';document.getElementById('llm-config-body').scrollIntoView({behavior:'smooth'});">立即配置</button>
       `;
     } else {
       errorDiv.className = 'start-error';
       errorDiv.innerHTML = `
-        <div class="error-icon">❌</div>
+        <div class="error-icon">!</div>
         <div class="error-title">启动失败</div>
-        <div class="error-desc">${data.error}</div>
+        <div class="error-desc">${this._escape(data.error || data.detail || '请检查配置后重试')}</div>
       `;
     }
   }

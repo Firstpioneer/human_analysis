@@ -18,6 +18,9 @@ class NextQuestionRequest(BaseModel):
 class AnswerRequest(BaseModel):
     question_id: str
     answer: str
+    is_follow_up_answer: bool = False
+    elapsed_seconds: Optional[int] = None
+    client_latency_ms: Optional[int] = None
 
 
 class FollowUpRequest(BaseModel):
