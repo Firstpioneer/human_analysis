@@ -1,0 +1,349 @@
+{
+  "interview_id": "INT_5DC21EA8",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-27T23:54:49.654636",
+  "end_time": "2026-05-27T23:57:12.172595",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "项目经验与背景考察",
+        "duration_minutes": 10,
+        "focus_area": "验证候选人技术深度与实际贡献，重点关注Python/Flask/MySQL在项目中的应用",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请详细描述一个你主导或深度参与的后端项目，包括技术栈、你的角色、解决的核心问题以及最终成果。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "Flask",
+              "Python",
+              "MySQL",
+              "高并发/复杂业务",
+              "架构设计",
+              "性能优化"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在那个项目中，你提到了使用Flask框架，能谈谈你为什么会选择Flask而不是其他框架（如Django）吗？你在项目中是如何组织Flask应用的结构（如蓝图、上下文、扩展）的？",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "Flask轻量灵活",
+              "蓝图划分模块",
+              "自定义扩展",
+              "应用工厂模式",
+              "上下文管理"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "举例",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "技术深度考察（Python/Flask/MySQL）",
+        "duration_minutes": 20,
+        "focus_area": "深入考察Python核心特性、Flask高级用法、MySQL优化与设计",
+        "questions": [
+          {
+            "question_id": "Q0003",
+            "question_text": "Python中GIL是如何影响多线程性能的？在什么场景下你会使用多线程，什么场景下会使用多进程或协程？请结合你的项目经验举例。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "GIL",
+              "多线程I/O密集型",
+              "多进程CPU密集型",
+              "协程",
+              "asyncio",
+              "Flask异步支持"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0004",
+            "question_text": "假设你需要为Flask应用实现一个用户认证中间件，要求支持JWT token验证和请求速率限制。请设计一个方案，包括代码结构、装饰器实现、以及如何避免常见的安全漏洞。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "JWT",
+              "装饰器",
+              "before_request",
+              "token校验",
+              "速率限制",
+              "Redis",
+              "SQL注入防御"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在MySQL中，你遇到过最复杂的慢查询是什么？你是如何定位和优化的？请从执行计划、索引设计、查询重写等角度说明。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "EXPLAIN",
+              "慢查询日志",
+              "索引",
+              "覆盖索引",
+              "联合索引",
+              "分页优化",
+              "避免SELECT *"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "如果现在有一个订单表（users, orders）需要支持高并发写入和复杂关联查询，你会如何设计表结构和索引？请考虑分库分表、读写分离、缓存策略等。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "分库分表",
+              "水平拆分",
+              "分片键",
+              "读写分离",
+              "Redis缓存",
+              "延迟关联",
+              "覆盖索引"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 15,
+        "focus_area": "考察团队协作、沟通表达、问题解决能力，并评估是否符合敏捷开发、技术驱动、结果导向的团队文化",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "在敏捷开发中，你如何与产品经理、前端和测试人员协同完成一个迭代？请分享一次你主动推动跨团队解决问题的经历。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "每日站会",
+              "需求澄清",
+              "代码评审",
+              "责任共担",
+              "主动沟通",
+              "结果导向"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "假设你在上线前发现一个严重的性能瓶颈，但截止时间迫在眉睫。你会如何处理？请描述你的决策过程和行动方案。",
+            "category": "文化契合",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "评估影响",
+              "灰度发布",
+              "技术方案",
+              "沟通优先级",
+              "快速修复",
+              "事后复盘"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "我们团队强调技术驱动和结果导向，你能举一个你主动学习新技术并成功应用到项目中，带来可量化效益的例子吗？",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "新技术调研",
+              "POC",
+              "落地实施",
+              "性能提升/成本降低",
+              "团队推广"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-27T23:55:09.998647",
+      "speaker": "候选人",
+      "text": "这个我不会。",
+      "transcript": "这个我不会。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-27T23:55:13.894059",
+      "speaker": "AI",
+      "text": "没关系，可以换一个你印象比较深的后端项目来聊聊。比如你参与过的某个系统改造、性能优化或功能开发，简单说说你用的技术栈和解决的主要问题就行。",
+      "transcript": "没关系，可以换一个你印象比较深的后端项目来聊聊。比如你参与过的某个系统改造、性能优化或功能开发，简单说说你用的技术栈和解决的主要问题就行。",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-27T23:55:47.310901",
+      "speaker": "候选人",
+      "text": "没做过后端项目。",
+      "transcript": "没做过后端项目。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-27T23:55:51.475790",
+      "speaker": "AI",
+      "text": "您提到没做过后端项目，能谈谈您之前主要从事哪些技术方向或项目类型吗？另外，对于后端开发所需的技术栈，比如数据库、API设计或系统架构，您有哪些学习或实践经历？",
+      "transcript": "您提到没做过后端项目，能谈谈您之前主要从事哪些技术方向或项目类型吗？另外，对于后端开发所需的技术栈，比如数据库、API设计或系统架构，您有哪些学习或实践经历？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-27T23:57:05.220159",
+      "speaker": "候选人",
+      "text": "我擅长打野",
+      "transcript": "我擅长打野",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-27T23:57:09.427243",
+      "speaker": "AI",
+      "text": "您的回答似乎偏离了问题。作为高级后端开发工程师，能否具体说明一个您主导或深度参与的后端项目？如果目前没有相关项目经验，也可以谈谈您在后端技术方面的掌握情况。",
+      "transcript": "您的回答似乎偏离了问题。作为高级后端开发工程师，能否具体说明一个您主导或深度参与的后端项目？如果目前没有相关项目经验，也可以谈谈您在后端技术方面的掌握情况。",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 10,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 5,
+      "文化契合": 10
+    },
+    "strengths": [],
+    "weaknesses": [
+      "完全缺乏后端开发基础知识与项目经验",
+      "沟通态度不专业，答非所问，缺乏面试基本礼仪"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "该候选人在面试中完全不具备高级后端开发工程师所需的技术能力和项目经验，对后端相关问题直接回答“不会”、“没做过后端项目”，甚至答非所问提及“擅长打野”。其沟通表现极不专业，未能展示任何后端技术掌握情况或相关学习经历，与岗位要求严重不符。建议放弃该候选人。"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}

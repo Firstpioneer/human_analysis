@@ -2085,6 +2085,20 @@ body {
   padding: var(--space-2) var(--space-5);
   border-radius: 16px;
   max-width: 80%;
+  white-space: pre-wrap;
+}
+
+/* 阿里云 TTS 播报指示器 */
+.tts-indicator {
+  font-size: 11px;
+  color: var(--color-primary);
+  margin-left: 8px;
+  animation: tts-pulse 1s ease-in-out infinite;
+}
+
+@keyframes tts-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* Interview Input */
