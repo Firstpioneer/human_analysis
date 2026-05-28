@@ -84,6 +84,8 @@ def resume_to_interview_candidate(result: dict) -> dict:
         ]
     if parsed.get("suitable_roles"):
         external_profiles["suitable_roles"] = parsed.get("suitable_roles", [])[:5]
+    if parsed.get("multidimensional_profile"):
+        external_profiles["multidimensional_profile"] = parsed.get("multidimensional_profile", {})
     if parsed.get("interview_questions"):
         external_profiles["resume_interview_questions"] = parsed.get("interview_questions", [])[:10]
 

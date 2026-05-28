@@ -64,6 +64,7 @@ class ResumePipelineEngine:
                 "formatted_claims": semantic_data.get("formatted_claims", []),
                 "objective_experiences": semantic_data.get("objective_experiences", []),
                 "project_experiences": semantic_data.get("project_experiences", []),
+                "multidimensional_profile": semantic_data.get("multidimensional_profile", {}),
                 "suitable_roles": semantic_data.get("suitable_roles", []),
                 "interview_questions": semantic_data.get("interview_questions", []),
                 "digital_footprint": footprint_data
@@ -90,6 +91,7 @@ class ResumePipelineEngine:
                 "formatted_claims": [],
                 "objective_experiences": [],
                 "project_experiences": [],
+                "multidimensional_profile": {},
                 "suitable_roles": [],
                 "interview_questions": [],
                 "digital_footprint": {},
