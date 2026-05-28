@@ -123,6 +123,7 @@ class ResumeModule {
     const experiences = parsed.objective_experiences || [];
     const claims = parsed.claims || [];
     const formattedClaims = parsed.formatted_claims || [];
+    const multidimensionalProfile = parsed.multidimensional_profile || {};
     const roles = parsed.suitable_roles || [];
     const questions = parsed.interview_questions || [];
     const blindSpots = result.blind_spots || [];
@@ -135,6 +136,8 @@ class ResumeModule {
           <h3>${this._escape(name)} — 解析结果</h3>
           <button class="resume-btn" onclick="this.closest('.parse-preview-card').remove()">关闭</button>
         </div>
+
+        ${this._renderMultidimensionalProfile(multidimensionalProfile)}
 
         ${projects.length > 0 ? `
           <div class="parse-section">
@@ -224,13 +227,15 @@ class ResumeModule {
           const name = parsed.name || r.source_filename || r.resume_id || '未知';
           const projects = (parsed.project_experiences || []).length || (parsed.objective_experiences || []).length;
           const claims = (parsed.formatted_claims || []).length || (parsed.claims || []).length;
+          const topRole = (parsed.suitable_roles || [])[0];
+          const fitText = topRole?.fit_score ? ` · 最高契合 ${topRole.fit_score}%` : '';
           const github = parsed.digital_footprint?.github_url || '';
           const candidateId = r.candidate_id ? ` · 候选人 ${this._escape(r.candidate_id)}` : '';
           return `
             <div class="resume-result-card" data-id="${r.resume_id}">
               <div class="resume-result-header">
                 <span class="resume-result-title">${this._escape(name)}</span>
-                <span class="resume-result-badge">${projects} 个项目 · ${claims} 类能力</span>
+                <span class="resume-result-badge">${projects} 个项目 · ${claims} 类能力${fitText}</span>
               </div>
               <div class="resume-result-info">
                 ${this._escape((parsed.project_experiences || []).slice(0, 2).map(p => p.name).join(' | ') || parsed.objective_experiences?.slice(0, 2).map(e => `${e.company} - ${e.title}`).join(' | ') || '暂无项目信息')}
@@ -264,6 +269,8 @@ class ResumeModule {
             <div class="modal-title">简历详情 - ${this._escape(id)}</div>
           </div>
           <div class="resume-detail-content">
+            ${this._renderMultidimensionalProfile(parsed.multidimensional_profile || {})}
+
             ${this._renderDetailSection('项目经历', (parsed.project_experiences || []).map(p =>
               this._renderProjectCard(p)
             ).join('') || this._renderExperienceFallback(parsed.objective_experiences || []) || '<div class="resume-item">暂无</div>')}
@@ -389,16 +396,66 @@ class ResumeModule {
   }
 
   _renderRoleCard(role) {
+    const fitScore = this._clampPercent(role.fit_score ?? 0);
     return `
       <div class="resume-role-card">
-        <div class="resume-role-title">${this._escape(role.title || '')}</div>
+        <div class="resume-role-head">
+          <div class="resume-role-title">${this._escape(role.title || '')}</div>
+          ${role.fit_score !== undefined ? `<div class="resume-fit-score">${fitScore}%</div>` : ''}
+        </div>
+        ${role.fit_score !== undefined ? `
+          <div class="resume-fit-meter" aria-label="岗位契合度 ${fitScore}%">
+            <div class="resume-fit-fill" style="width:${fitScore}%"></div>
+          </div>
+        ` : ''}
         <div class="resume-role-reason">${this._escape(role.reason || '')}</div>
+        ${role.fit_reason ? `<div class="resume-role-fit-reason">${this._escape(role.fit_reason)}</div>` : ''}
         ${(role.matching_skills || []).length > 0 ? `
           <div class="resume-tech-stack">
             ${role.matching_skills.map(s => `<span class="resume-tech-chip">${this._escape(s)}</span>`).join('')}
           </div>
         ` : ''}
         ${role.risk ? `<div class="resume-role-risk">${this._escape(role.risk)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  _renderMultidimensionalProfile(profile) {
+    const dimensions = profile?.dimensions || [];
+    if (!dimensions.length) return '';
+    return `
+      <div class="parse-section resume-profile-section">
+        <h4>多维职业画像</h4>
+        ${(profile.overall_tags || []).length > 0 ? `
+          <div class="resume-profile-tags">
+            ${profile.overall_tags.map(tag => `<span>${this._escape(tag)}</span>`).join('')}
+          </div>
+        ` : ''}
+        ${profile.summary ? `<div class="resume-profile-summary">${this._escape(profile.summary)}</div>` : ''}
+        <div class="resume-dimension-list">
+          ${dimensions.map(dim => this._renderDimensionAxis(dim)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderDimensionAxis(dim) {
+    const score = this._clampPercent(dim.score ?? 50);
+    return `
+      <div class="resume-dimension">
+        <div class="resume-dimension-head">
+          <span>${this._escape(dim.left_label || '')}</span>
+          <span>${this._escape(dim.right_label || '')}</span>
+        </div>
+        <div class="resume-axis">
+          <div class="resume-axis-mid"></div>
+          <div class="resume-axis-marker" style="left:${score}%"></div>
+        </div>
+        <div class="resume-dimension-meta">
+          <span>${this._escape(dim.summary || '')}</span>
+          <span>置信 ${this._escape(dim.confidence || '-')}/5</span>
+        </div>
+        ${dim.evidence ? `<div class="resume-dimension-evidence">${this._escape(dim.evidence)}</div>` : ''}
       </div>
     `;
   }
@@ -462,6 +519,12 @@ class ResumeModule {
   _truncate(text, maxLength) {
     if (!text || text.length <= maxLength) return text || '';
     return text.slice(0, maxLength - 1) + '…';
+  }
+
+  _clampPercent(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return 0;
+    return Math.max(0, Math.min(100, Math.round(number)));
   }
 }
 

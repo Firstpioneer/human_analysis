@@ -41,12 +41,21 @@ class SemanticAnalyzerAgent:
            - items: 该类别下的能力关键词或短句
            - evidence: 简短证据或来源说明，无法判断则为空字符串
            - signal_strength: 1-5
-        5. "suitable_roles" (适合投递岗位): 根据项目、能力声明和外部足迹推荐3-5个岗位。
+        5. "multidimensional_profile" (多维履历画像): 像 MBTI 维度一样，根据简历证据给出候选人的职业倾向坐标。
+           - dimensions: 4-8个维度。每个维度包含 key、left_label、right_label、score、summary、evidence、confidence。
+             score 为 0-100，越接近 0 越偏 left_label，越接近 100 越偏 right_label；50 表示证据不足或中性。
+             必须至少覆盖：软件实现/硬件工程、技术深耕/业务管理、独立产出/协作沟通、数据分析/人际服务。
+             可按候选人经历增加：探索创新/流程执行、规划推进/灵活适应、内部平台/客户现场等维度。
+           - overall_tags: 3-6个画像标签，如"软件工程型"、"数据驱动"、"跨部门协同"。
+           - summary: 120字以内总结画像，不要做心理诊断，只描述履历证据呈现出的工作倾向。
+        6. "suitable_roles" (适合投递岗位): 根据项目、能力声明和多维画像推荐3-5个岗位。岗位池可由企业数据库替换，此处先输出通用岗位建议。
            - title: 岗位名称
            - reason: 60字以内推荐理由
            - matching_skills: 3-6个匹配技能
+           - fit_score: 0-100契合度，综合技能证据、项目经历、多维画像和信息盲区得出
+           - fit_reason: 40字以内说明契合度的主要依据
            - risk: 需要面试确认的风险点，无法判断则为空字符串
-        6. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
+        7. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
            - question: 问题内容
            - purpose: 考察目的
            - based_on: 关联的项目/技能/盲区
@@ -114,6 +123,9 @@ class SemanticAnalyzerAgent:
             "project_experiences": self._normalize_projects(
                 result.get("project_experiences") or fallback.get("project_experiences", [])
             ),
+            "multidimensional_profile": self._normalize_multidimensional_profile(
+                result.get("multidimensional_profile") or fallback.get("multidimensional_profile", {})
+            ),
             "suitable_roles": self._normalize_roles(
                 result.get("suitable_roles") or fallback.get("suitable_roles", [])
             ),
@@ -131,7 +143,8 @@ class SemanticAnalyzerAgent:
         experiences = self._extract_experiences(lines)
         projects = self._build_project_experiences(experiences, lines)
         formatted_claims = self._format_claims(claims)
-        roles = self._suggest_roles(projects, formatted_claims)
+        multidimensional_profile = self._build_multidimensional_profile(clean_text, projects, formatted_claims, experiences, claims)
+        roles = self._suggest_roles(projects, formatted_claims, multidimensional_profile)
         blind_spots = self._build_blind_spots(experiences, claims)
         return {
             "name": name,
@@ -140,6 +153,7 @@ class SemanticAnalyzerAgent:
             "formatted_claims": formatted_claims,
             "objective_experiences": experiences,
             "project_experiences": projects,
+            "multidimensional_profile": multidimensional_profile,
             "suitable_roles": roles,
             "interview_questions": self._build_interview_questions(projects, roles, blind_spots),
             "blind_spots": blind_spots,
@@ -291,9 +305,41 @@ class SemanticAnalyzerAgent:
                 "title": str(role.get("title") or "")[:60],
                 "reason": str(role.get("reason") or "")[:140],
                 "matching_skills": [str(item)[:30] for item in skills[:6]],
+                "fit_score": self._clamp_percent(role.get("fit_score", 70)),
+                "fit_reason": str(role.get("fit_reason") or "")[:80],
                 "risk": str(role.get("risk") or "")[:120],
             })
         return [role for role in normalized if role["title"]][:5]
+
+    def _normalize_multidimensional_profile(self, profile: dict) -> dict:
+        if not isinstance(profile, dict):
+            profile = {}
+        dimensions = []
+        for dim in profile.get("dimensions", []) or []:
+            if not isinstance(dim, dict):
+                continue
+            left = str(dim.get("left_label") or "")[:20]
+            right = str(dim.get("right_label") or "")[:20]
+            if not left or not right:
+                continue
+            dimensions.append({
+                "key": str(dim.get("key") or f"{left}_{right}")[:40],
+                "left_label": left,
+                "right_label": right,
+                "score": self._clamp_percent(dim.get("score", 50)),
+                "summary": str(dim.get("summary") or "")[:120],
+                "evidence": str(dim.get("evidence") or "")[:160],
+                "confidence": self._clamp_score(dim.get("confidence", 3)),
+            })
+        tags = profile.get("overall_tags") or []
+        if isinstance(tags, str):
+            tags = [item.strip() for item in re.split(r"[,，/、\s]+", tags) if item.strip()]
+        normalized = {
+            "dimensions": dimensions[:8],
+            "overall_tags": [str(tag)[:20] for tag in tags[:6]],
+            "summary": str(profile.get("summary") or "")[:160],
+        }
+        return normalized
 
     def _normalize_questions(self, questions: list[dict]) -> list[dict]:
         normalized = []
@@ -318,6 +364,12 @@ class SemanticAnalyzerAgent:
             return max(1, min(5, int(value)))
         except (TypeError, ValueError):
             return 3
+
+    def _clamp_percent(self, value) -> int:
+        try:
+            return max(0, min(100, int(round(float(value)))))
+        except (TypeError, ValueError):
+            return 50
 
     def _build_project_experiences(self, experiences: list[dict], lines: list[str]) -> list[dict]:
         projects = []
@@ -366,6 +418,7 @@ class SemanticAnalyzerAgent:
             "Node.js", "FastAPI", "Django", "Flask", "Spring", "Spring Boot", "MySQL", "PostgreSQL",
             "Redis", "MongoDB", "Elasticsearch", "Docker", "Kubernetes", "Linux", "Nginx",
             "Pytorch", "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy",
+            "C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器",
         ]
         found = []
         lower = text.lower()
@@ -423,36 +476,182 @@ class SemanticAnalyzerAgent:
             return "协作管理"
         return "综合能力"
 
-    def _suggest_roles(self, projects: list[dict], formatted_claims: list[dict]) -> list[dict]:
+    def _build_multidimensional_profile(
+        self,
+        clean_text: str,
+        projects: list[dict],
+        formatted_claims: list[dict],
+        experiences: list[dict],
+        claims: list[dict],
+    ) -> dict:
+        text = clean_text.lower()
         techs = {tech for project in projects for tech in project.get("tech_stack", [])}
         categories = {claim.get("category") for claim in formatted_claims}
+        evidence = self._pick_evidence(projects, experiences, claims)
+
+        def score(left_words, right_words, default=50):
+            left_hits = sum(1 for word in left_words if word.lower() in text)
+            right_hits = sum(1 for word in right_words if word.lower() in text)
+            if left_hits == right_hits == 0:
+                return default
+            raw = 50 + (right_hits - left_hits) * 14
+            return self._clamp_percent(raw)
+
+        sw_hw = score(
+            ["python", "java", "go", "javascript", "typescript", "vue", "react", "后端", "前端", "软件", "系统", "平台", "算法", "api"],
+            ["硬件", "嵌入式", "单片机", "pcb", "fpga", "电路", "芯片", "传感器", "机械", "自动化"],
+            35 if techs or categories & {"后端开发", "前端开发", "AI/算法"} else 50,
+        )
+        tech_biz = score(
+            ["架构", "算法", "开发", "性能", "数据库", "模型", "技术栈", "代码", "接口"],
+            ["产品", "运营", "业务", "销售", "市场", "管理", "预算", "增长", "商业"],
+        )
+        solo_collab = score(
+            ["独立", "个人", "负责模块", "开发实现", "编码"],
+            ["协作", "团队", "跨部门", "沟通", "推进", "管理", "组织", "协调", "客户"],
+        )
+        data_people = score(
+            ["数据", "分析", "指标", "报表", "建模", "统计", "实验", "a/b", "量化"],
+            ["人事", "hr", "招聘", "培训", "员工", "客户", "用户访谈", "沟通", "关系"],
+        )
+        innovation_process = score(
+            ["创新", "探索", "研究", "从0到1", "原型", "论文", "专利"],
+            ["流程", "规范", "交付", "执行", "维护", "测试", "运营", "标准化"],
+        )
+        planning_flex = score(
+            ["计划", "排期", "项目管理", "里程碑", "规划", "落地"],
+            ["快速响应", "灵活", "迭代", "敏捷", "适应", "临时", "应急"],
+        )
+
+        dimensions = [
+            self._dimension("software_hardware", "软件实现", "硬件工程", sw_hw, evidence),
+            self._dimension("technical_business", "技术深耕", "业务管理", tech_biz, evidence),
+            self._dimension("solo_collaboration", "独立产出", "协作沟通", solo_collab, evidence),
+            self._dimension("data_people", "数据分析", "人际服务", data_people, evidence),
+            self._dimension("innovation_process", "探索创新", "流程执行", innovation_process, evidence),
+            self._dimension("planning_flexible", "规划推进", "灵活适应", planning_flex, evidence),
+        ]
+        tags = []
+        if sw_hw < 40:
+            tags.append("软件工程型")
+        elif sw_hw > 60:
+            tags.append("硬件工程型")
+        if tech_biz < 45:
+            tags.append("技术深耕")
+        elif tech_biz > 60:
+            tags.append("业务管理")
+        if solo_collab > 58 or data_people > 58:
+            tags.append("沟通协同")
+        if data_people < 42:
+            tags.append("数据驱动")
+        if innovation_process < 42:
+            tags.append("探索创新")
+        if not tags:
+            tags = ["综合发展型"]
+        summary = "；".join(tags[:3]) + "，建议结合岗位要求继续验证关键项目中的个人贡献和产出指标。"
+        return self._normalize_multidimensional_profile({
+            "dimensions": dimensions,
+            "overall_tags": tags,
+            "summary": summary,
+        })
+
+    def _dimension(self, key: str, left: str, right: str, score: int, evidence: str) -> dict:
+        leaning = left if score < 45 else (right if score > 55 else "均衡")
+        return {
+            "key": key,
+            "left_label": left,
+            "right_label": right,
+            "score": score,
+            "summary": f"当前证据偏向{leaning}。",
+            "evidence": evidence,
+            "confidence": 4 if evidence else 2,
+        }
+
+    def _pick_evidence(self, projects: list[dict], experiences: list[dict], claims: list[dict]) -> str:
+        for project in projects:
+            if project.get("summary"):
+                return project["summary"][:160]
+            if project.get("evidence"):
+                return project["evidence"][:160]
+        for exp in experiences:
+            if exp.get("description"):
+                return exp["description"][:160]
+        for claim in claims:
+            if claim.get("content"):
+                return claim["content"][:160]
+        return ""
+
+    def _profile_score(self, profile: dict, key: str, default: int = 50) -> int:
+        for dim in (profile or {}).get("dimensions", []):
+            if dim.get("key") == key:
+                return self._clamp_percent(dim.get("score", default))
+        return default
+
+    def _suggest_roles(self, projects: list[dict], formatted_claims: list[dict], multidimensional_profile: dict | None = None) -> list[dict]:
+        techs = {tech for project in projects for tech in project.get("tech_stack", [])}
+        categories = {claim.get("category") for claim in formatted_claims}
+        profile = multidimensional_profile or {}
+        software_hardware = self._profile_score(profile, "software_hardware", 50)
+        technical_business = self._profile_score(profile, "technical_business", 50)
+        solo_collab = self._profile_score(profile, "solo_collaboration", 50)
+        data_people = self._profile_score(profile, "data_people", 50)
         roles = []
         if categories & {"后端开发"} or techs & {"Python", "Java", "Go", "FastAPI", "Spring Boot", "MySQL", "Redis"}:
+            fit = self._clamp_percent(82 - max(0, software_hardware - 40) + max(0, 50 - technical_business) // 3)
             roles.append({
                 "title": "后端开发工程师",
                 "reason": "项目和技能中出现服务端开发、数据库或接口实现相关信号。",
                 "matching_skills": list((techs & {"Python", "Java", "Go", "FastAPI", "Spring Boot", "MySQL", "Redis"}) or ["服务端开发"]),
+                "fit_score": fit,
+                "fit_reason": "软件实现和技术深耕信号较强。",
                 "risk": "需要确认系统设计深度、性能指标和个人贡献边界。",
             })
         if categories & {"前端开发"} or techs & {"Vue", "React", "JavaScript", "TypeScript"}:
+            fit = self._clamp_percent(78 - max(0, software_hardware - 45) + max(0, solo_collab - 55) // 4)
             roles.append({
                 "title": "前端开发工程师",
                 "reason": "简历体现前端框架、页面开发或交互实现经验。",
                 "matching_skills": list((techs & {"Vue", "React", "JavaScript", "TypeScript"}) or ["前端工程化"]),
+                "fit_score": fit,
+                "fit_reason": "前端技能和协作交付信号匹配。",
                 "risk": "需要确认组件设计、状态管理和工程化实践。",
             })
         if categories & {"AI/算法"} or techs & {"PyTorch", "TensorFlow", "LLM", "RAG", "OCR"}:
+            fit = self._clamp_percent(80 - max(0, software_hardware - 45) + max(0, 45 - data_people) // 4)
             roles.append({
                 "title": "AI应用开发工程师",
                 "reason": "存在模型、LLM、OCR或AI应用落地相关信号。",
                 "matching_skills": list((techs & {"PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Python"}) or ["AI应用"]),
+                "fit_score": fit,
+                "fit_reason": "AI技术栈和数据分析倾向支撑岗位匹配。",
                 "risk": "需要确认模型调用、数据处理和效果评估是否为本人完成。",
+            })
+        if software_hardware > 60 or techs & {"C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器"}:
+            hardware_skills = techs & {"C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器"}
+            roles.append({
+                "title": "嵌入式/硬件工程师",
+                "reason": "简历中出现硬件、嵌入式、电路或设备调试相关信号。",
+                "matching_skills": list(hardware_skills)[:6] or ["硬件工程", "嵌入式开发"],
+                "fit_score": self._clamp_percent(70 + max(0, software_hardware - 60) // 2),
+                "fit_reason": "软件-硬件画像明显偏硬件工程侧。",
+                "risk": "需要确认硬件设计、调试记录和量产/交付经验。",
+            })
+        if data_people > 60 or categories & {"协作管理"}:
+            roles.append({
+                "title": "HR/人才发展专员",
+                "reason": "简历呈现人际沟通、组织协调或人事相关信号。",
+                "matching_skills": ["沟通协调", "人员支持", "流程推进"],
+                "fit_score": self._clamp_percent(68 + max(0, data_people - 60) // 2 + max(0, solo_collab - 55) // 3),
+                "fit_reason": "人际服务和协作沟通信号较明显。",
+                "risk": "需要确认人事制度、招聘流程或员工关系经验深度。",
             })
         if not roles:
             roles.append({
                 "title": "软件开发工程师",
                 "reason": "简历中存在项目开发经历，但岗位方向需要通过面试进一步聚焦。",
                 "matching_skills": list(techs)[:6] or ["项目开发"],
+                "fit_score": self._clamp_percent(62 + max(0, 50 - software_hardware) // 3),
+                "fit_reason": "项目开发证据存在，但方向聚焦度一般。",
                 "risk": "简历技术栈和项目结果不够清晰。",
             })
         return self._normalize_roles(roles)

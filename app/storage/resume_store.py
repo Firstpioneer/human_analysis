@@ -63,6 +63,7 @@ def list_resume_results() -> list[dict]:
                             "formatted_claims": parsed.get("formatted_claims", [])[:5],
                             "objective_experiences": parsed.get("objective_experiences", [])[:5],
                             "project_experiences": parsed.get("project_experiences", [])[:5],
+                            "multidimensional_profile": parsed.get("multidimensional_profile", {}),
                             "suitable_roles": parsed.get("suitable_roles", [])[:5],
                             "interview_questions": parsed.get("interview_questions", [])[:5],
                             "digital_footprint": parsed.get("digital_footprint", {}),
