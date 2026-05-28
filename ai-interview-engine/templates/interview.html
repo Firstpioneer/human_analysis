@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 面试 - {{ interview.candidate.name or '进行中' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-brand">AI 面试引擎</div>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/records">面试记录</a>
+                <a href="javascript:void(0)" class="active" id="nav-status">面试进行中</a>
+            </div>
+        </nav>
+
+        <div class="interview-layout">
+            <!-- 左侧：面试主区域 -->
+            <div class="interview-main">
+                <!-- 顶部信息栏 -->
+                <div class="interview-header">
+                    <div class="interview-info">
+                        <h2 id="position-title">{{ interview.candidate.profile_ref or 'AI 面试' }}</h2>
+                        <div class="info-badges">
+                            <span class="badge" id="badge-status">🔴 进行中</span>
+                            <span class="badge" id="badge-section">{{ interview.plan.sections[0].section_name if interview.plan.sections else '准备中' }}</span>
+                            <span class="badge">⏱ <span id="timer-display">00:00</span> / {{ interview.plan.total_duration_minutes }}:00</span>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-end" id="btn-end-interview" onclick="endInterview()">⏹ 结束面试</button>
+                        {% if interview.status == '已完成' and interview._profile %}
+                        <button class="btn-restart-header" id="btn-restart-interview" onclick="restartInterview()">🔄 重新开始</button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 对话区域 -->
+                <div class="chat-container" id="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- 欢迎消息 -->
+                        <div class="message ai-message">
+                            <div class="avatar">🤖</div>
+                            <div class="bubble">
+                                <div class="bubble-header">AI 面试官</div>
+                                <div class="bubble-content">
+                                    您好！欢迎参加本次 AI 面试。我是您的 AI 面试官，将根据您的能力和经历进行综合评估。
+                                    请放松心态，如实作答。我们现在开始吧！
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部输入区域 -->
+                <div class="input-area">
+                    <div class="voice-indicator" id="voice-indicator">
+                        <div class="waveform" id="waveform">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <span id="voice-status">语音识别中...</span>
+                    </div>
+                    <div class="input-row">
+                        <textarea id="answer-input" placeholder="输入您的回答...（按 Enter 发送，Shift+Enter 换行）" rows="2"></textarea>
+                        <div class="input-actions">
+                            <button class="btn-voice" id="btn-voice" onclick="toggleVoice()" title="语音输入">
+                                🎤
+                            </button>
+                            <button class="btn-send" id="btn-send" onclick="sendAnswer()">
+                                发送 →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：面试面板 -->
+            <div class="interview-sidebar">
+                <!-- 进度概览 -->
+                <div class="sidebar-card">
+                    <h3>📊 面试进度</h3>
+                    <div class="progress-overview" id="progress-overview">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span>已用: <strong id="elapsed-display">00:00</strong></span>
+                            <span>剩余: <strong id="remaining-display">{{ interview.plan.total_duration_minutes }}:00</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 面试方案 -->
+                <div class="sidebar-card">
+                    <h3>📝 面试方案</h3>
+                    <div class="plan-list" id="plan-list">
+                        {% for section in interview.plan.sections %}
+                        <div class="plan-item" data-section="{{ section.section_name }}">
+                            <div class="plan-item-header">
+                                <span class="plan-name">{{ section.section_name }}</span>
+                                <span class="plan-time">{{ section.duration_minutes }}分钟</span>
+                            </div>
+                            <div class="plan-questions">
+                                {% if section.questions %}
+                                <span class="question-count">{{ section.questions|length }} 个问题</span>
+                                {% else %}
+                                <span class="question-count">开放式环节</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 当前问题 -->
+                <div class="sidebar-card" id="current-question-card">
+                    <h3>❓ 当前问题</h3>
+                    <div id="current-question-display" class="current-question">
+                        <p>等待开始...</p>
+                    </div>
+                </div>
+
+                <!-- 追问提示 -->
+                <div class="sidebar-card" id="follow-up-card" style="display:none;">
+                    <h3>💡 AI 正在思考追问...</h3>
+                    <div id="follow-up-display" class="follow-up-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 面试状态 ====================
+        const INTERVIEW_ID = '{{ interview.interview_id }}';
+        const TOTAL_DURATION = {{ interview.plan.total_duration_minutes }};
+        const VOICE_ENABLED = new URLSearchParams(window.location.search).get('voice') === 'true';
+
+        let currentQuestion = null;
+        let elapsedSeconds = 0;
+        let isWaitingForAnswer = false;
+        let isInterviewEnding = false;
+        let timerInterval = null;
+        let voiceRecognition = null;
+        let isVoiceActive = false;
+
+        // ==================== 语音交互 ====================
+        if (VOICE_ENABLED && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            voiceRecognition = new SpeechRecognition();
+            voiceRecognition.lang = 'zh-CN';
+            voiceRecognition.continuous = false;  // 非连续模式，更稳定
+            voiceRecognition.interimResults = true;
+            voiceRecognition.maxAlternatives = 1;
+
+            voiceRecognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                if (finalTranscript) {
+                    const input = document.getElementById('answer-input');
+                    input.value = input.value ? input.value + finalTranscript : finalTranscript;
+                }
+                const status = document.getElementById('voice-status');
+                if (status) {
+                    status.textContent = interimTranscript
+                        ? '正在识别: ' + interimTranscript
+                        : '🎤 聆听中...';
+                }
+            };
+
+            voiceRecognition.onerror = (event) => {
+                console.error('ASR Error:', event.error);
+                if (event.error === 'not-allowed') {
+                    // 用户拒绝了麦克风权限
+                    deactivateVoice();
+                    const status = document.getElementById('voice-status');
+                    if (status) status.textContent = '⚠️ 麦克风权限被拒绝';
+                    return;
+                }
+                if (event.error === 'no-speech' || event.error === 'aborted') {
+                    // 没有声音或正常中断，无需处理，onend 会重启
+                    return;
+                }
+                // 其他错误
+                deactivateVoice();
+                const status = document.getElementById('voice-status');
+                if (status) status.textContent = '语音识别出错: ' + event.error;
+            };
+
+            voiceRecognition.onend = () => {
+                // 用户主动开启麦克风后，自动保持连接
+                // Chrome 允许 onend 中再次 start（即使非用户手势）
+                if (isVoiceActive && isWaitingForAnswer && !isInterviewEnding) {
+                    try {
+                        voiceRecognition.start();
+                    } catch(e) {
+                        console.warn('语音重启失败:', e);
+                        deactivateVoice();
+                    }
+                }
+            };
+        }
+
+        /** 显示"点击麦克风"提示（不自动开启，等待用户点击） */
+        function showVoiceHint() {
+            if (!VOICE_ENABLED || !voiceRecognition || isInterviewEnding) return;
+            // 如果麦克风已开启，无需显示提示
+            if (isVoiceActive) return;
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (indicator && status) {
+                indicator.classList.remove('active');
+                indicator.classList.add('hint');
+                indicator.style.display = 'flex';
+                status.textContent = '🎤 点击🎤按钮开始语音输入';
+            }
+        }
+
+        /** 隐藏语音提示 */
+        function hideVoiceHint() {
+            const indicator = document.getElementById('voice-indicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+                indicator.classList.remove('active', 'hint');
+            }
+        }
+
+        function toggleVoice() {
+            if (isVoiceActive) {
+                deactivateVoice();
+                // 关闭后显示提示，让用户知道可以再次点击开启
+                showVoiceHint();
+            } else {
+                activateVoice();
+            }
+        }
+
+        function activateVoice() {
+            if (!voiceRecognition) {
+                alert('您的浏览器不支持语音识别，请使用 Chrome 浏览器');
+                return;
+            }
+            isVoiceActive = true;
+            const btn = document.getElementById('btn-voice');
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (btn) btn.classList.add('active');
+            if (indicator) indicator.classList.add('active');
+            if (status) status.textContent = '🎤 聆听中...';
+            try {
+                voiceRecognition.start();
+            } catch(e) {
+                console.error('麦克风启动失败:', e);
+                isVoiceActive = false;
+                if (btn) btn.classList.remove('active');
+                if (indicator) indicator.classList.remove('active');
+                if (status) status.textContent = '❌ 麦克风启动失败，请重试';
+            }
+        }
+
+        function deactivateVoice() {
+            isVoiceActive = false;
+            const btn = document.getElementById('btn-voice');
+            const indicator = document.getElementById('voice-indicator');
+            const status = document.getElementById('voice-status');
+            if (btn) btn.classList.remove('active');
+            if (indicator) indicator.classList.remove('active');
+            if (status) status.textContent = '语音已关闭';
+            if (voiceRecognition) {
+                try { voiceRecognition.stop(); } catch(e) {}
+            }
+        }
+
+        // ==================== TTS 播报 ====================
+        function speak(text) {
+            if (!VOICE_ENABLED || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ==================== 计时器 ====================
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                updateTimerDisplay();
+                checkTimeStatus();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const totalSec = elapsedSeconds;
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            document.getElementById('timer-display').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('elapsed-display').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const remaining = Math.max(0, TOTAL_DURATION * 60 - totalSec);
+            const rMins = Math.floor(remaining / 60);
+            const rSecs = remaining % 60;
+            document.getElementById('remaining-display').textContent = `${String(rMins).padStart(2, '0')}:${String(rSecs).padStart(2, '0')}`;
+
+            // 进度条
+            const progress = Math.min(100, (totalSec / (TOTAL_DURATION * 60)) * 100);
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            if (progress > 85) {
+                document.getElementById('progress-bar').style.background = '#e74c3c';
+            } else if (progress > 65) {
+                document.getElementById('progress-bar').style.background = '#f39c12';
+            }
+        }
+
+        async function checkTimeStatus() {
+            const elapsed = elapsedSeconds / 60;
+            try {
+                const resp = await fetch('/api/interview/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ elapsed_minutes: elapsed })
+                });
+                const data = await resp.json();
+                if (data.success && data.time_status) {
+                    const ts = data.time_status;
+                    if (ts.current_section) {
+                        document.getElementById('badge-section').textContent = ts.current_section.section_name;
+                    }
+                    if (ts.should_wrap_up && !isInterviewEnding) {
+                        addSystemMessage('⏰ 面试即将结束，请准备收尾。');
+                    }
+                    if (ts.suggested_action === '紧急收尾' && !isInterviewEnding) {
+                        await endInterview();
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // ==================== 对话管理 ====================
+        function addMessage(speaker, text, isFollowUp = false) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            const isAI = speaker === 'AI';
+            div.className = `message ${isAI ? 'ai-message' : 'user-message'} ${isFollowUp ? 'follow-up' : ''}`;
+
+            const avatar = isAI ? '🤖' : '👤';
+            const name = isAI ? 'AI 面试官' : '我';
+
+            div.innerHTML = `
+                <div class="avatar">${avatar}</div>
+                <div class="bubble">
+                    <div class="bubble-header">${name}</div>
+                    <div class="bubble-content">${text}</div>
+                </div>
+            `;
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+
+            if (isAI && VOICE_ENABLED) {
+                speak(text);
+            }
+        }
+
+        function addSystemMessage(text) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = 'message system-message';
+            div.innerHTML = `<div class="bubble system-bubble">${text}</div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // ==================== 问题流程 ====================
+        async function askNextQuestion() {
+            if (isInterviewEnding) return;
+
+            const elapsed = elapsedSeconds / 60;
+            try {
+                const resp = await fetch('/api/interview/next-question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ elapsed_minutes: elapsed })
+                });
+                const data = await resp.json();
+
+                if (data.success && data.question) {
+                    currentQuestion = data.question;
+                    const q = data.question;
+                    addMessage('AI', q.question_text);
+
+                    // 更新侧边栏当前问题
+                    document.getElementById('current-question-display').innerHTML = `
+                        <p class="question-category">[${q.category}] ${q.difficulty}</p>
+                        <p class="question-text">${q.question_text}</p>
+                    `;
+
+                    isWaitingForAnswer = true;
+                    document.getElementById('answer-input').focus();
+                    // 显示语音提示，等待用户点击开启
+                    showVoiceHint();
+                } else {
+                    // 没有更多问题，结束面试
+                    await endInterview();
+                }
+            } catch (e) {
+                console.error('获取问题失败:', e);
+            }
+        }
+
+        async function sendAnswer() {
+            if (!isWaitingForAnswer || !currentQuestion || isInterviewEnding) return;
+
+            const input = document.getElementById('answer-input');
+            const answer = input.value.trim();
+            if (!answer) return;
+
+            isWaitingForAnswer = false;
+            addMessage('候选人', answer);
+            input.value = '';
+            document.getElementById('btn-send').disabled = true;
+            deactivateVoice();
+            hideVoiceHint();
+
+            try {
+                // 处理回答
+                const resp = await fetch('/api/interview/answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question_id: currentQuestion.question_id,
+                        answer: answer
+                    })
+                });
+                const data = await resp.json();
+
+                if (data.success && data.result.follow_up) {
+                    // AI 追问
+                    document.getElementById('follow-up-card').style.display = 'block';
+                    document.getElementById('follow-up-display').innerHTML = `<p>${data.result.follow_up}</p>`;
+
+                    setTimeout(async () => {
+                        const followUpResp = await fetch('/api/interview/ask-follow-up', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ question: data.result.follow_up })
+                        });
+                        const followUpData = await followUpResp.json();
+
+                        if (followUpData.success) {
+                            addMessage('AI', data.result.follow_up, true);
+                            currentQuestion = { ...currentQuestion, follow_up: true };
+                            isWaitingForAnswer = true;
+                            document.getElementById('answer-input').focus();
+                            // 显示语音提示，等待用户点击开启
+                            showVoiceHint();
+                        }
+                        document.getElementById('follow-up-card').style.display = 'none';
+                    }, 1500);
+                } else {
+                    // 下一问题
+                    setTimeout(() => askNextQuestion(), 1000);
+                }
+            } catch (e) {
+                console.error('发送回答失败:', e);
+            } finally {
+                document.getElementById('btn-send').disabled = false;
+            }
+        }
+
+        async function endInterview() {
+            if (isInterviewEnding) return;
+            isInterviewEnding = true;
+
+            if (timerInterval) clearInterval(timerInterval);
+            deactivateVoice();
+
+            try {
+                const resp = await fetch('/api/interview/end', { method: 'POST' });
+                const data = await resp.json();
+
+                if (data.success) {
+                    addSystemMessage('✅ 面试已结束，感谢您的参与！');
+                    document.getElementById('badge-status').textContent = '✅ 已完成';
+                    document.getElementById('badge-status').style.background = '#27ae6033';
+                    document.getElementById('nav-status').textContent = '面试已完成';
+                    document.getElementById('btn-end-interview').disabled = true;
+                    // 显示重新开始按钮
+                    showRestartButton();
+                }
+            } catch (e) {
+                console.error('结束面试失败:', e);
+            }
+
+            document.querySelector('.input-area').style.display = 'none';
+        }
+
+        function showRestartButton() {
+            const header = document.querySelector('.header-actions');
+            if (header && !document.getElementById('btn-restart-interview')) {
+                const btn = document.createElement('button');
+                btn.className = 'btn-restart-header';
+                btn.id = 'btn-restart-interview';
+                btn.textContent = '🔄 重新开始';
+                btn.onclick = restartInterview;
+                header.appendChild(btn);
+            }
+        }
+
+        async function restartInterview() {
+            const interviewId = '{{ interview.interview_id }}';
+            try {
+                const resp = await fetch(`/api/interview/${interviewId}/restart`, {
+                    method: 'POST'
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    window.location.href = `/interview/${data.interview.interview_id}?voice=true`;
+                } else {
+                    alert('重新开始失败: ' + (data.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('网络错误: ' + e.message);
+            }
+        }
+
+        // ==================== 输入框事件 ====================
+        document.getElementById('answer-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAnswer();
+            }
+        });
+
+        // ==================== 初始化 ====================
+        window.onload = async () => {
+            const status = '{{ interview.status }}';
+            if (status === '已完成') {
+                // 已完成的面试：只展示历史记录，不自动提问
+                document.getElementById('badge-status').textContent = '✅ 已完成';
+                document.getElementById('badge-status').style.background = '#27ae6033';
+                document.getElementById('nav-status').textContent = '面试已完成';
+                document.getElementById('btn-end-interview').style.display = 'none';
+                document.querySelector('.input-area').style.display = 'none';
+                startTimer();
+            } else {
+                startTimer();
+                setTimeout(() => askNextQuestion(), 5000);
+            }
+        };
+
+        // 页面离开时清理
+        window.addEventListener('beforeunload', () => {
+            if (timerInterval) clearInterval(timerInterval);
+            deactivateVoice();
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>

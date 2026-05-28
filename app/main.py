@@ -3,9 +3,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 import os
 
 from app.routers import portrait, resume, interview, llm_config
+
+
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    """为静态资源添加不缓存头"""
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        if request.url.path == '/' or request.url.path.startswith('/static/js/') or request.url.path.startswith('/static/css/'):
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+        return response
 
 
 def create_app() -> FastAPI:
@@ -19,6 +33,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # 禁用静态文件缓存（开发环境）
+    app.add_middleware(NoCacheMiddleware)
 
     # 注册路由
     app.include_router(portrait.router, prefix="/api/portrait", tags=["画像"])

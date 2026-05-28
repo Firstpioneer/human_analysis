@@ -1,0 +1,317 @@
+{
+  "interview_id": "INT_F6681654",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-17T23:42:43.858298",
+  "end_time": null,
+  "status": "进行中",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术考察",
+        "duration_minutes": 20,
+        "focus_area": "核心技能评估",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请详细介绍一下您在 Python 方面的技术积累和项目实践经验。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Python"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在 Python 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Python"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "您如何评估自己在 Python 方面的水平？请举例说明。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Python"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0004",
+            "question_text": "如果让您设计一个基于 Python 的系统架构，您会考虑哪些关键因素？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Python"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "请详细介绍一下您在 Flask 方面的技术积累和项目实践经验。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Flask"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "在 Flask 领域，您遇到过最具挑战性的技术问题是什么？是如何解决的？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Flask"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "遇到过",
+              "优化",
+              "方案",
+              "架构"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验",
+        "duration_minutes": 11,
+        "focus_area": "实战能力评估",
+        "questions": [
+          {
+            "question_id": "Q0013",
+            "question_text": "请介绍一下您曾在 最近的一个 项目中承担的角色和主要贡献。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0014",
+            "question_text": "在 最近的一个 项目中，最让您自豪的技术决策是什么？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "具体",
+              "细节",
+              "数据",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 9,
+        "focus_area": "综合素质评估",
+        "questions": [
+          {
+            "question_id": "Q0015",
+            "question_text": "当项目进度紧张时，您如何平衡质量和效率？",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0016",
+            "question_text": "有没有一个决策您后来觉得是错的？您从中学到了什么？",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0017",
+            "question_text": "请分享一次您主动发现并解决问题的经历。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0018",
+            "question_text": "请描述一次您快速适应新环境或新技术的经历。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [],
+            "follow_up_triggers": [
+              "举例",
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ]
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-17T23:43:02.926371",
+      "speaker": "候选人",
+      "text": "我不会python",
+      "transcript": "我不会python",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:43:04.443731",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:43:16.120472",
+      "speaker": "候选人",
+      "text": "不行，我不会python",
+      "transcript": "不行，我不会python",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:43:17.641316",
+      "speaker": "AI",
+      "text": "您对这方面还有什么补充吗？",
+      "transcript": "您对这方面还有什么补充吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:43:28.432301",
+      "speaker": "候选人",
+      "text": "没有，因为我不会python",
+      "transcript": "没有，因为我不会python",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:43:29.954574",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:44:23.019562",
+      "speaker": "候选人",
+      "text": "不是我不会python啊",
+      "transcript": "不是我不会python啊",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:44:24.536804",
+      "speaker": "AI",
+      "text": "从中学到了什么？",
+      "transcript": "从中学到了什么？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:44:33.874607",
+      "speaker": "候选人",
+      "text": "我不会python怎么学",
+      "transcript": "我不会python怎么学",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:44:35.384540",
+      "speaker": "AI",
+      "text": "您对这方面还有什么补充吗？",
+      "transcript": "您对这方面还有什么补充吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:45:08.488557",
+      "speaker": "候选人",
+      "text": "傻逼",
+      "transcript": "傻逼",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-17T23:45:09.995480",
+      "speaker": "AI",
+      "text": "这个很有意思，能再多聊聊吗？",
+      "transcript": "这个很有意思，能再多聊聊吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": null,
+  "audio_records": []
+}

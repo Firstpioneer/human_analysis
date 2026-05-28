@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面试记录 - AI 面试引擎</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-brand">AI 面试引擎</div>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/records" class="active">面试记录</a>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>📋 面试记录</h1>
+                <p class="subtitle">查看历史面试记录与评估结果</p>
+            </div>
+
+            <div class="records-list" id="records-list">
+                {% if interviews %}
+                    {% for interview in interviews %}
+                    <div class="record-card" data-id="{{ interview.interview_id }}">
+                        <div class="record-header" onclick="window.location.href='/interview/{{ interview.interview_id }}'">
+                            <h3>{{ interview.candidate.profile_ref or 'AI 面试' }}</h3>
+                            <span class="record-status status-{{ interview.status }}">
+                                {{ interview.status }}
+                            </span>
+                        </div>
+                        <div class="record-body" onclick="window.location.href='/interview/{{ interview.interview_id }}'">
+                            <div class="record-info">
+                                <span>🆔 {{ interview.interview_id }}</span>
+                                <span>👤 {{ interview.candidate.name or '匿名' }}</span>
+                                <span>📅 {{ interview.start_time[:19] if interview.start_time else '--' }}</span>
+                            </div>
+                            {% if interview.evaluation %}
+                            <div class="record-score">
+                                <span class="score-value">{{ interview.evaluation.overall_score }}</span>
+                                <span class="score-label">综合评分</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="record-footer">
+                            <span class="record-detail" onclick="event.stopPropagation(); window.location.href='/interview/{{ interview.interview_id }}'">查看详情 →</span>
+                            {% if interview.status == '已完成' and interview._profile %}
+                            <button class="btn-restart" onclick="event.stopPropagation(); restartInterview('{{ interview.interview_id }}', this)">🔄 重新开始</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3>暂无面试记录</h3>
+                        <p>完成一次 AI 面试后，记录将在此显示</p>
+                        <a href="/" class="btn-back">🏠 返回首页开始面试</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function restartInterview(interviewId, btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ 重新创建中...';
+
+            try {
+                const resp = await fetch(`/api/interview/${interviewId}/restart`, {
+                    method: 'POST'
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    window.location.href = `/interview/${data.interview.interview_id}?voice=true`;
+                } else if (data.need_llm) {
+                    alert('需要先配置大语言模型：' + data.error);
+                    window.location.href = '/';
+                } else {
+                    alert('重新开始失败: ' + (data.error || '未知错误'));
+                    btn.disabled = false;
+                    btn.textContent = '🔄 重新开始';
+                }
+            } catch (e) {
+                alert('网络错误: ' + e.message);
+                btn.disabled = false;
+                btn.textContent = '🔄 重新开始';
+            }
+        }
+    </script>
+</body>
+</html>
