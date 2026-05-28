@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "人才画像",
+  "description": "基于需求描述生成的结构化人才画像",
+  "type": "object",
+  "required": ["position", "requirements", "qualifications"],
+  "properties": {
+    "position": {
+      "type": "object",
+      "description": "岗位基本信息",
+      "properties": {
+        "title": { "type": "string", "description": "岗位名称" },
+        "department": { "type": "string", "description": "所属部门" },
+        "level": { "type": "string", "description": "职级要求", "enum": ["初级", "中级", "高级", "专家", "架构师"] },
+        "salary_range": { "type": "string", "description": "薪资范围" }
+      },
+      "required": ["title"]
+    },
+    "requirements": {
+      "type": "object",
+      "description": "核心要求",
+      "properties": {
+        "education": {
+          "type": "object",
+          "properties": {
+            "min_degree": { "type": "string", "description": "最低学历", "enum": ["高中", "大专", "本科", "硕士", "博士"] },
+            "preferred_majors": { "type": "array", "items": { "type": "string" }, "description": "优先专业" }
+          }
+        },
+        "experience": {
+          "type": "object",
+          "properties": {
+            "min_years": { "type": "integer", "description": "最低工作年限" },
+            "preferred_industries": { "type": "array", "items": { "type": "string" }, "description": "优先行业" }
+          }
+        },
+        "skills": {
+          "type": "array",
+          "description": "技能要求（含权重）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "level": { "type": "string", "enum": ["了解", "熟悉", "精通"] },
+              "weight": { "type": "integer", "minimum": 1, "maximum": 10 }
+            },
+            "required": ["name", "level"]
+          }
+        },
+        "soft_skills": {
+          "type": "array",
+          "description": "软技能要求",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "qualifications": {
+      "type": "object",
+      "description": "加分项",
+      "properties": {
+        "certifications": { "type": "array", "items": { "type": "string" }, "description": "证书要求" },
+        "projects": { "type": "array", "items": { "type": "string" }, "description": "项目经验要求" },
+        "other": { "type": "array", "items": { "type": "string" }, "description": "其他加分项" }
+      }
+    },
+    "culture_fit": {
+      "type": "object",
+      "description": "文化契合度",
+      "properties": {
+        "team_size": { "type": "string", "description": "团队规模" },
+        "work_style": { "type": "string", "description": "工作风格偏好" },
+        "values": { "type": "array", "items": { "type": "string" }, "description": "核心价值观" }
+      }
+    }
+  }
+}

@@ -1,0 +1,345 @@
+{
+  "interview_id": "INT_E20B6330",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-26T22:22:38.866347",
+  "end_time": "2026-05-26T22:23:12.236092",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础与深度（Python 与 Flask）",
+        "duration_minutes": 15,
+        "focus_area": "考察 Python 语言核心掌握程度以及 Flask 框架的实战理解，从基础概念到进阶应用",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请解释 Python 中装饰器的工作原理，并给出一个实际场景（如 Flask 中的路由注册）说明其用途。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "函数对象",
+              "高阶函数",
+              "@语法糖",
+              "闭包",
+              "functools.wraps",
+              "Flask路由装饰器",
+              "权限校验"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "Flask 的请求处理生命周期是怎样的？从客户端发送请求到返回响应期间，蓝图（Blueprint）、上下文（Application Context / Request Context）以及错误处理分别在哪个阶段起作用？",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "WSGI",
+              "请求进入",
+              "路由匹配",
+              "视图函数",
+              "请求钩子(before_request/after_request)",
+              "蓝图注册",
+              "应用上下文",
+              "请求上下文",
+              "错误处理(app.errorhandler)"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "优化",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "假设你需要在 Flask 中实现一个高并发 API，用于处理大量数据库写入请求。你会如何设计异步任务队列（如 Celery）与 Flask 的集成？请重点说明如何确保数据一致性和避免重复写入。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Celery",
+              "Redis/RabbitMQ",
+              "任务队列",
+              "唯一ID去重",
+              "幂等性设计",
+              "事务边界",
+              "重试机制",
+              "异步结果回调"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "优化",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "数据库与系统设计（MySQL）",
+        "duration_minutes": 10,
+        "focus_area": "考察 MySQL 索引、查询优化、事务隔离等级以及在实际后端项目中的应用",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请解释 MySQL 中聚簇索引和非聚簇索引的区别，并结合一个实际业务表（例如用户订单表）说明如何选择合适的索引来优化查询。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "聚簇索引:数据与索引一起",
+              "非聚簇索引:索引存储主键",
+              "覆盖索引",
+              "回表",
+              "联合索引最左前缀"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在一个 Flask + MySQL 的系统中，你发现一个查询响应缓慢，explain 显示使用了 filesort 并且扫描行数很大。请分析可能的原因并给出至少两种优化方案（SQL 层面或表结构层面）。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "文件排序(filesort)",
+              "索引失效",
+              "order by未走索引",
+              "查询范围大",
+              "添加复合索引",
+              "改写SQL减少排序",
+              "分页优化",
+              "子查询转为JOIN"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验与问题解决",
+        "duration_minutes": 15,
+        "focus_area": "通过候选人实际经历验证其技术深度、问题拆解能力及结果导向的思维",
+        "questions": [
+          {
+            "question_id": "Q0006",
+            "question_text": "请描述一个你过去参与的最具挑战性的后端项目，包括项目背景、你的角色、使用的技术栈（特别是 Python/Flask/MySQL）以及你个人贡献最大的技术决策。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "项目规模",
+              "技术栈",
+              "个人角色",
+              "关键决策",
+              "解决方案",
+              "性能指标"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0007",
+            "question_text": "在上述项目中，你提到遇到过一个棘手的技术难题（例如性能瓶颈、数据不一致、第三方集成问题）。请详细说明你是如何定位问题根源的？你考虑了哪些备选方案？最终选择了哪个方案，为什么？结果如何？",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "问题现象",
+              "根因分析",
+              "日志/profile",
+              "压力测试",
+              "方案对比",
+              "权衡",
+              "效果量化"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "在敏捷开发环境中，产品需求频繁变更。请举例你是如何平衡快速迭代与代码质量的？是否曾经因为赶进度而引入过技术债务？你是如何处理的？",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "技术债务",
+              "重构计划",
+              "测试覆盖",
+              "代码review",
+              "持续集成",
+              "优先级排序"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 5,
+        "focus_area": "考察团队协作、沟通表达、结果导向的思维，以及对技术驱动文化的适应度",
+        "questions": [
+          {
+            "question_id": "Q0009",
+            "question_text": "我们团队采用敏捷开发，5-10人规模。请描述你在过去团队中如何与其他后端、前端或产品人员高效协作？遇到意见分歧时，你通常如何推动达成共识？",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "每日站会",
+              "沟通主动",
+              "数据/原型说服",
+              "妥协与共赢",
+              "文档记录"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0010",
+            "question_text": "我们公司文化强调“技术驱动，结果导向”。请举一个例子说明你为了达成业务目标，主动探索新技术或改进架构的经历。最终结果是否量化了收益？",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "主动调研",
+              "技术选型",
+              "性能提升",
+              "成本降低",
+              "指标对比",
+              "结果数据"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-26T22:22:58.277361",
+      "speaker": "候选人",
+      "text": "呃，我不会这个。",
+      "transcript": "呃，我不会这个。",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-26T22:23:02.432426",
+      "speaker": "AI",
+      "text": "没关系，我们换个角度。你在实际的后端开发中是否使用过类似装饰器这样的模式？比如在Django中间件或自定义函数包装中？可以分享一个你熟悉的例子吗？",
+      "transcript": "没关系，我们换个角度。你在实际的后端开发中是否使用过类似装饰器这样的模式？比如在Django中间件或自定义函数包装中？可以分享一个你熟悉的例子吗？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 45,
+    "dimension_scores": {
+      "技术能力": 30,
+      "项目经验": 50,
+      "沟通表达": 40,
+      "文化契合": 60
+    },
+    "strengths": [
+      "能坦诚承认不足",
+      "愿意接受引导"
+    ],
+    "weaknesses": [
+      "缺乏装饰器模式基础知识",
+      "面对技术问题准备不足",
+      "未能展示高级后端工程师应有的思维深度"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "候选人在面试中表现出了明显的技术短板：当被问及装饰器模式时直接回答'不会这个'，未能进一步阐述跨框架的应用经验或类比能力，这对于高级后端开发岗位来说是严重缺陷。虽然面试官给予了引导，但候选人没有把握住机会展示迁移思考。鉴于岗位要求较高，候选人技术储备不足，且沟通中缺乏主动拓展的意愿，综合评估不推荐录用。"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}

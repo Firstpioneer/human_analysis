@@ -1,0 +1,291 @@
+{
+  "interview_id": "INT_13228ED4",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-18T00:33:00.793557",
+  "end_time": "2026-05-18T00:35:00.205422",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础与深度考察",
+        "duration_minutes": 20,
+        "focus_area": "Python、Flask、MySQL核心能力验证，从基础到实践再到深度思考",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请解释Python中装饰器的实现原理，并给出一个你在Flask项目中实际使用装饰器的例子（如权限校验或日志记录），说明其设计思路。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "闭包",
+              "函数作为参数",
+              "@语法糖",
+              "Flask路由装饰器",
+              "自定义装饰器",
+              "functools.wraps"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在Flask中处理数据库事务时，你如何确保MySQL操作的一致性和隔离性？请结合一个具体场景（如订单创建）描述你的实现方案，并讨论可能遇到的并发问题。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "Flask-SQLAlchemy",
+              "事务提交与回滚",
+              "隔离级别",
+              "悲观锁/乐观锁",
+              "死锁处理",
+              "重试机制"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "假设你负责一个高并发的API接口，使用Flask和MySQL，用户请求频繁导致数据库连接池耗尽。请分析可能的原因，并给出至少两种优化方案及其权衡。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "连接池配置",
+              "SQL慢查询优化",
+              "索引优化",
+              "缓存（Redis）",
+              "异步/协程",
+              "读写分离",
+              "限流"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验深度挖掘",
+        "duration_minutes": 15,
+        "focus_area": "验证候选人简历中声称的项目能力和实际问题解决能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请详细介绍你最有挑战的一个Flask项目，包括项目规模、你的角色、架构设计，以及你如何用MySQL优化数据查询性能。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "项目背景",
+              "团队协作",
+              "Flask蓝图",
+              "ORM优化",
+              "索引设计",
+              "慢查询日志",
+              "性能指标"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在那个项目中，你提到解决了某个性能瓶颈。请具体描述你如何定位问题、设计了哪些方案、为什么选择该方案，以及最终结果如何。",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "性能瓶颈定位",
+              "profiling工具",
+              "方案对比",
+              "权衡取舍",
+              "优化前后对比",
+              "数据支撑"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 10,
+        "focus_area": "评估团队协作、沟通表达、问题解决能力以及与敏捷开发和技术驱动文化的匹配度",
+        "questions": [
+          {
+            "question_id": "Q0006",
+            "question_text": "在敏捷开发团队中，如果你和产品经理对一个需求的技术实现方案有分歧，你会如何沟通并推动决策？请举例说明。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "主动沟通",
+              "数据/原型支撑",
+              "权衡利弊",
+              "折中方案",
+              "尊重决策",
+              "结果导向"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0007",
+            "question_text": "我们团队强调技术驱动和结果导向。请分享一个你主动引入新技术或工具来提升团队效率或产品质量的例子，以及如何衡量其效果。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "技术调研",
+              "推动落地",
+              "团队培训",
+              "效率提升",
+              "量化指标",
+              "复盘"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-18T00:33:15.495297",
+      "speaker": "候选人",
+      "text": "我不会",
+      "transcript": "我不会",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:18.841409",
+      "speaker": "AI",
+      "text": "没关系，我们可以从基础开始。装饰器本质上是一个函数，它接受一个函数作为参数并返回一个新函数。你了解Python中函数作为一等公民的概念吗？比如函数可以赋值给变量或作为参数传递。基于这个理解，我们可以一步步分析装饰器的工作原理。如果你愿意，我可以先给你一个简单的例子，比如计时装饰器，然后我们再讨论你在项目中可能遇到的场景。",
+      "transcript": "没关系，我们可以从基础开始。装饰器本质上是一个函数，它接受一个函数作为参数并返回一个新函数。你了解Python中函数作为一等公民的概念吗？比如函数可以赋值给变量或作为参数传递。基于这个理解，我们可以一步步分析装饰器的工作原理。如果你愿意，我可以先给你一个简单的例子，比如计时装饰器，然后我们再讨论你在项目中可能遇到的场景。",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:35.841993",
+      "speaker": "候选人",
+      "text": "我不会python",
+      "transcript": "我不会python",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:44.066337",
+      "speaker": "候选人",
+      "text": "这个也不会",
+      "transcript": "这个也不会",
+      "question_ref": "Q0002",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:47.011873",
+      "speaker": "AI",
+      "text": "虽然您不熟悉Flask和Python，但作为高级后端工程师，您在其他语言或框架中是如何处理数据库事务和并发问题的？比如在订单创建场景中，如何确保数据一致性和隔离性？可以分享一个您熟悉的实现方案。",
+      "transcript": "虽然您不熟悉Flask和Python，但作为高级后端工程师，您在其他语言或框架中是如何处理数据库事务和并发问题的？比如在订单创建场景中，如何确保数据一致性和隔离性？可以分享一个您熟悉的实现方案。",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:54.914179",
+      "speaker": "候选人",
+      "text": "我是二次元",
+      "transcript": "我是二次元",
+      "question_ref": "Q0002",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:33:57.708817",
+      "speaker": "AI",
+      "text": "虽然你提到自己是二次元，但作为高级后端开发工程师，我们还是需要探讨技术问题。能否重新回答一下关于Flask中数据库事务处理的问题？比如，在订单创建场景中，你会如何设计事务来保证数据一致性？",
+      "transcript": "虽然你提到自己是二次元，但作为高级后端开发工程师，我们还是需要探讨技术问题。能否重新回答一下关于Flask中数据库事务处理的问题？比如，在订单创建场景中，你会如何设计事务来保证数据一致性？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:34:10.681627",
+      "speaker": "候选人",
+      "text": "我不设计，我都是用ai做的",
+      "transcript": "我不设计，我都是用ai做的",
+      "question_ref": "Q0002",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:34:14.098667",
+      "speaker": "AI",
+      "text": "我理解你使用AI工具来辅助开发，但作为高级后端工程师，我们需要深入理解事务管理的原理。能具体说说你在使用AI生成的代码时，是如何验证或调整事务隔离级别的吗？比如在订单创建场景中，如何处理库存扣减和订单状态更新的原子性？",
+      "transcript": "我理解你使用AI工具来辅助开发，但作为高级后端工程师，我们需要深入理解事务管理的原理。能具体说说你在使用AI生成的代码时，是如何验证或调整事务隔离级别的吗？比如在订单创建场景中，如何处理库存扣减和订单状态更新的原子性？",
+      "question_ref": null,
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:34:25.127892",
+      "speaker": "候选人",
+      "text": "结束面试吧，我啥也不会",
+      "transcript": "结束面试吧，我啥也不会",
+      "question_ref": "Q0002",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:34:58.548369",
+      "speaker": "候选人",
+      "text": "我不会",
+      "transcript": "我不会",
+      "question_ref": "Q0003",
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 15,
+    "dimension_scores": {
+      "技术能力": 10,
+      "项目经验": 5,
+      "沟通表达": 20,
+      "文化契合": 25
+    },
+    "strengths": [
+      "无"
+    ],
+    "weaknesses": [
+      "缺乏基本技术能力，无法回答任何技术问题",
+      "沟通态度消极，多次拒绝回答并提前结束面试",
+      "无实际项目经验，依赖AI且无法验证代码"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "候选人在面试中表现出严重的技术能力不足，对Python、Flask及后端核心概念（如事务、并发）完全不了解，且多次以“我不会”“我是二次元”等消极态度回应，缺乏职业素养和沟通意愿。作为高级后端工程师，候选人未能展示任何相关经验或学习能力，依赖AI且无法深入讨论技术原理。整体表现远低于岗位要求，建议不予录用。"
+  },
+  "audio_records": []
+}

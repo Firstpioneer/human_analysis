@@ -1,0 +1,299 @@
+{
+  "interview_id": "INT_3E0BF8BB",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-18T00:38:08.820001",
+  "end_time": "2026-05-18T00:38:24.507235",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础考察",
+        "duration_minutes": 15,
+        "focus_area": "考察Python和Flask的深入理解，以及MySQL的实践应用",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "在Python中，GIL（全局解释器锁）对多线程性能有何影响？你是如何在实际项目中规避这个问题的？",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "GIL限制CPU密集型多线程",
+              "使用多进程或协程",
+              "I/O密集型场景影响小",
+              "具体项目例子"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "优化",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "请解释Flask中请求上下文和应用上下文的区别，并说明在什么场景下你会自定义上下文处理器？",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "请求上下文是每个请求的临时数据",
+              "应用上下文是应用实例的全局数据",
+              "自定义上下文处理器用于模板传递变量",
+              "用户认证信息或配置"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "在MySQL中，你如何优化一个慢查询？请结合一个你曾遇到的真实案例说明分析过程。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "使用EXPLAIN分析执行计划",
+              "索引优化",
+              "减少JOIN或子查询",
+              "分页优化",
+              "具体案例描述"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验深入",
+        "duration_minutes": 15,
+        "focus_area": "验证候选人声称的项目经验和问题解决能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请描述一个你使用Flask开发的最复杂的后端服务，包括它的架构设计、关键模块和你的贡献。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "Flask应用架构",
+              "模块划分",
+              "API设计",
+              "个人角色",
+              "技术挑战"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在那个项目中，你如何确保高并发下的数据一致性？比如处理用户并发请求时的库存扣减问题。",
+            "category": "项目经验",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "数据库事务",
+              "乐观锁或悲观锁",
+              "Redis分布式锁",
+              "最终一致性方案",
+              "具体实现细节"
+            ],
+            "follow_up_triggers": [
+              "为什么",
+              "优化",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "你提到使用MySQL作为数据存储，请分享一次你设计数据库表结构时遇到的权衡，比如反规范化的决策。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "规范化与反规范化权衡",
+              "查询性能与写入性能",
+              "冗余字段设计",
+              "索引策略",
+              "具体案例"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合",
+        "duration_minutes": 15,
+        "focus_area": "考察团队协作、沟通表达和结果导向的价值观",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "在敏捷开发团队中，你如何与前端工程师和产品经理协作，确保一个复杂功能按时交付？请举一个具体例子。",
+            "category": "软技能",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "每日站会",
+              "需求澄清",
+              "接口文档",
+              "解决冲突",
+              "按时交付",
+              "具体例子"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "举例"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "当你的技术方案与团队其他成员的意见不一致时，你通常如何处理？请描述一个实际案例。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "倾听理解",
+              "数据或原型论证",
+              "妥协或折中",
+              "团队目标优先",
+              "具体案例"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "为什么",
+              "结果"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "我们团队注重结果导向，请分享一个你推动项目上线后，通过数据验证取得显著业务成效的例子。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "量化指标",
+              "性能提升或业务增长",
+              "A/B测试",
+              "上线后监控",
+              "具体数据"
+            ],
+            "follow_up_triggers": [
+              "具体",
+              "结果",
+              "优化"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [
+    {
+      "timestamp": "2026-05-18T00:38:18.277049",
+      "speaker": "候选人",
+      "text": "操你妈",
+      "transcript": "操你妈",
+      "question_ref": "Q0001",
+      "duration_seconds": null
+    },
+    {
+      "timestamp": "2026-05-18T00:38:21.250430",
+      "speaker": "AI",
+      "text": "我理解这个问题可能有些敏感，但作为面试官，我希望我们能保持专业和尊重。关于GIL的影响，你能从技术角度谈谈你的理解吗？比如你在实际项目中是否遇到过相关性能问题，以及你是如何通过多进程、协程或其他方式来解决的？",
+      "transcript": "我理解这个问题可能有些敏感，但作为面试官，我希望我们能保持专业和尊重。关于GIL的影响，你能从技术角度谈谈你的理解吗？比如你在实际项目中是否遇到过相关性能问题，以及你是如何通过多进程、协程或其他方式来解决的？",
+      "question_ref": null,
+      "duration_seconds": null
+    }
+  ],
+  "evaluation": {
+    "overall_score": 0,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 0,
+      "文化契合": 0
+    },
+    "strengths": [],
+    "weaknesses": [
+      "缺乏基本职业素养和尊重",
+      "无法进行有效技术沟通"
+    ],
+    "recommendation": "不推荐",
+    "ai_comment": "候选人在面试中表现出极不专业的行为，使用侮辱性语言，完全无法进行技术交流。这严重违反了职场基本准则，表明其缺乏团队协作和职业素养。即使有技术能力，也无法胜任任何需要专业沟通的岗位。建议不予录用。"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}

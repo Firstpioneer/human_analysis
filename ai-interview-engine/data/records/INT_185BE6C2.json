@@ -1,0 +1,284 @@
+{
+  "interview_id": "INT_185BE6C2",
+  "candidate": {
+    "name": "未知",
+    "profile_ref": "高级后端开发工程师",
+    "candidate_ref": ""
+  },
+  "start_time": "2026-05-20T20:11:07.797765",
+  "end_time": "2026-05-20T20:11:22.668164",
+  "status": "已完成",
+  "plan": {
+    "total_duration_minutes": 45,
+    "sections": [
+      {
+        "section_name": "技术基础与深度考察",
+        "duration_minutes": 20,
+        "focus_area": "Python语言核心、Flask框架原理、MySQL数据库设计与优化",
+        "questions": [
+          {
+            "question_id": "Q0001",
+            "question_text": "请解释Python中装饰器的工作原理，并给出一个实际使用装饰器解决Flask中权限校验问题的例子。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "闭包",
+              "函数作为参数",
+              "@语法糖",
+              "Flask before_request",
+              "权限校验装饰器"
+            ],
+            "follow_up_triggers": [
+              "具体实现",
+              "如果装饰器需要参数如何调整",
+              "性能影响"
+            ]
+          },
+          {
+            "question_id": "Q0002",
+            "question_text": "在Flask应用中，如何处理数据库连接的生命周期？请对比Flask-SQLAlchemy与原生MySQL驱动在连接管理上的区别。",
+            "category": "技术",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "应用上下文",
+              "请求上下文",
+              "连接池",
+              "g对象",
+              "Flask-SQLAlchemy自动管理",
+              "原生驱动手动管理"
+            ],
+            "follow_up_triggers": [
+              "连接泄漏如何避免",
+              "高并发下的连接池配置"
+            ]
+          },
+          {
+            "question_id": "Q0003",
+            "question_text": "假设有一个用户表（百万级数据），经常需要按创建时间排序并分页查询。请设计一个高效的MySQL方案，并说明索引如何优化。",
+            "category": "技术",
+            "difficulty": "困难",
+            "expected_answer_keywords": [
+              "覆盖索引",
+              "复合索引(create_time, id)",
+              "延迟关联",
+              "分页优化（游标分页）",
+              "explain分析"
+            ],
+            "follow_up_triggers": [
+              "如果排序字段有多个怎么办",
+              "数据量增长到千万级如何扩展",
+              "具体SQL写法"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "项目经验深度验证",
+        "duration_minutes": 15,
+        "focus_area": "候选人简历中的实际项目经验，验证其技术决策、问题解决与团队协作能力",
+        "questions": [
+          {
+            "question_id": "Q0004",
+            "question_text": "请详细描述你最近参与的一个Flask后端项目，包括你负责的模块、技术选型的原因以及遇到的挑战。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "具体项目名称",
+              "模块功能",
+              "Flask蓝图",
+              "技术选型权衡",
+              "挑战描述"
+            ],
+            "follow_up_triggers": [
+              "具体如何解决挑战",
+              "结果如何量化",
+              "如果重新设计会怎么做"
+            ]
+          },
+          {
+            "question_id": "Q0005",
+            "question_text": "在你负责的项目中，有没有遇到过数据库性能瓶颈？你是如何定位和解决的？请举例说明。",
+            "category": "项目经验",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "慢查询日志",
+              "explain分析",
+              "索引优化",
+              "SQL重构",
+              "缓存引入"
+            ],
+            "follow_up_triggers": [
+              "具体慢查询是什么",
+              "优化前后对比",
+              "团队如何协作排查"
+            ]
+          },
+          {
+            "question_id": "Q0006",
+            "question_text": "在敏捷开发团队中，你如何与前端、产品等其他角色协作完成一个迭代？请分享一个具体案例，说明你如何推动问题解决。",
+            "category": "软技能",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "每日站会",
+              "接口文档",
+              "沟通协调",
+              "冲突解决",
+              "迭代回顾"
+            ],
+            "follow_up_triggers": [
+              "具体冲突是什么",
+              "如何达成共识",
+              "结果如何"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "软技能与文化契合评估",
+        "duration_minutes": 10,
+        "focus_area": "团队协作、沟通表达、问题解决能力，以及是否适应技术驱动、结果导向的敏捷团队",
+        "questions": [
+          {
+            "question_id": "Q0007",
+            "question_text": "请分享一个你主动推动技术改进或性能优化的例子，最终结果如何？",
+            "category": "行为",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "主动发现",
+              "方案设计",
+              "推动落地",
+              "量化成果",
+              "团队认可"
+            ],
+            "follow_up_triggers": [
+              "遇到什么阻力",
+              "如何说服他人",
+              "优化效果"
+            ]
+          },
+          {
+            "question_id": "Q0008",
+            "question_text": "在团队中，如果有成员对你的技术方案提出强烈反对，你会如何处理？请举例。",
+            "category": "文化契合",
+            "difficulty": "中等",
+            "expected_answer_keywords": [
+              "倾听",
+              "数据论证",
+              "寻求第三方意见",
+              "妥协方案",
+              "以结果为导向"
+            ],
+            "follow_up_triggers": [
+              "具体分歧点",
+              "最终方案",
+              "关系如何维护"
+            ]
+          },
+          {
+            "question_id": "Q0009",
+            "question_text": "你对我们团队技术驱动和结果导向的文化怎么看？请结合你的工作风格谈谈。",
+            "category": "文化契合",
+            "difficulty": "简单",
+            "expected_answer_keywords": [
+              "认同",
+              "技术学习",
+              "成果衡量",
+              "持续改进",
+              "团队贡献"
+            ],
+            "follow_up_triggers": [
+              "举例说明你的技术驱动行为",
+              "如何定义结果"
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "候选人提问",
+        "duration_minutes": 5,
+        "focus_area": "候选人疑问解答",
+        "questions": []
+      }
+    ],
+    "_generated_by": "llm"
+  },
+  "dialogues": [],
+  "evaluation": {
+    "overall_score": 60,
+    "dimension_scores": {
+      "技术能力": 0,
+      "项目经验": 0,
+      "沟通表达": 0,
+      "文化契合": 0
+    },
+    "strengths": [
+      "待面试完成后补充"
+    ],
+    "weaknesses": [
+      "待面试完成后补充"
+    ],
+    "recommendation": "待定",
+    "ai_comment": "面试记录已保存，详细评估待人工审核"
+  },
+  "audio_records": [],
+  "_profile": {
+    "position": {
+      "title": "高级后端开发工程师",
+      "department": "技术部",
+      "level": "高级",
+      "salary_range": "面议"
+    },
+    "requirements": {
+      "education": {
+        "min_degree": "本科",
+        "preferred_majors": [
+          "计算机科学",
+          "软件工程"
+        ]
+      },
+      "experience": {
+        "min_years": 3,
+        "preferred_industries": [
+          "互联网"
+        ]
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "Flask",
+          "level": "精通",
+          "weight": 9
+        },
+        {
+          "name": "MySQL",
+          "level": "熟悉",
+          "weight": 6
+        }
+      ],
+      "soft_skills": [
+        "团队协作",
+        "沟通表达",
+        "问题解决"
+      ]
+    },
+    "qualifications": {
+      "certifications": [],
+      "projects": [],
+      "other": []
+    },
+    "culture_fit": {
+      "team_size": "5-10人",
+      "work_style": "敏捷开发",
+      "values": [
+        "技术驱动",
+        "结果导向"
+      ]
+    }
+  },
+  "_candidate": null,
+  "_duration": 45
+}
