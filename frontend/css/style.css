@@ -2100,6 +2100,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   background: var(--color-background);
 }
 
@@ -2171,8 +2172,10 @@ body {
 /* Interview Chat */
 .interview-chat {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-6);
+  scroll-behavior: smooth;
 }
 
 .interview-chat-messages {
@@ -2941,6 +2944,27 @@ body {
 
 .btn-restart-record:hover:not(:disabled) { background: var(--color-primary-dark); }
 .btn-restart-record:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.record-footer-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.btn-delete-record {
+  padding: var(--space-1) var(--space-4);
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.btn-delete-record:hover:not(:disabled) { background: #e74c3c; color: white; }
+.btn-delete-record:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Empty State */
 .empty-state {

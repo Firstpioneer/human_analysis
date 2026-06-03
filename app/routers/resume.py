@@ -29,6 +29,7 @@ async def parse_resume(file: UploadFile = File(...)):
         result = engine.run_pipeline(file_path, original_filename=original_filename)
         if result.get("status") == "success":
             candidate = resume_to_interview_candidate(result)
+            candidate["_resume_id"] = result.get("resume_id", "")
             saved_candidate = pc_storage.save_candidate(candidate)
             result["candidate_id"] = saved_candidate.get("_id")
             save_resume_result(result)

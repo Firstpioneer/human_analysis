@@ -345,7 +345,8 @@ class InterviewRoom {
     `;
 
     container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+    const chatArea = container.closest('.interview-chat');
+    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   _addSystemMessage(text) {
@@ -354,7 +355,8 @@ class InterviewRoom {
     div.className = 'interview-msg system-msg';
     div.innerHTML = `<div class="system-bubble">${text}</div>`;
     container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+    const chatArea = container.closest('.interview-chat');
+    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
   }
 
   async askNextQuestion() {

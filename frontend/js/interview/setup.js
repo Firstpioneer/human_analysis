@@ -301,7 +301,7 @@ class InterviewSetup {
 
       const list = container.querySelector('#profile-list');
       const count = container.querySelector('#profile-count');
-      this.profiles = data.success ? data.profiles : [];
+      this.profiles = (data.success ? data.profiles : []).filter(p => p._source === 'portrait');
       if (this.profiles.length) {
         count.textContent = this.profiles.length;
         list.innerHTML = this.profiles.map(p => this._renderProfileItem(p)).join('');
@@ -365,7 +365,7 @@ class InterviewSetup {
 
       const list = container.querySelector('#candidate-list');
       const count = container.querySelector('#candidate-count');
-      this.candidates = data.success ? data.candidates : [];
+      this.candidates = (data.success ? data.candidates : []).filter(c => c._source === 'resume_parser');
       if (this.candidates.length) {
         count.textContent = this.candidates.length;
         list.innerHTML = this.candidates.map(c => this._renderCandidateItem(c)).join('');

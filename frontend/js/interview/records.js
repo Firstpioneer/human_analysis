@@ -65,7 +65,10 @@ class InterviewRecords {
             </div>
             <div class="record-footer">
               <span class="record-detail" onclick="window.location.hash='#/interview/${interview.interview_id}'">查看详情 →</span>
-              ${canRestart ? `<button class="btn-restart-record" onclick="event.stopPropagation(); window.interviewRecords.restartInterview('${interview.interview_id}', this)">🔄 重新开始</button>` : ''}
+              <div class="record-footer-actions">
+                ${canRestart ? `<button class="btn-restart-record" onclick="event.stopPropagation(); window.interviewRecords.restartInterview('${interview.interview_id}', this)">🔄 重新开始</button>` : ''}
+                <button class="btn-delete-record" onclick="event.stopPropagation(); window.interviewRecords.deleteInterview('${interview.interview_id}', this)" title="删除此记录">🗑️ 删除</button>
+              </div>
             </div>
           </div>
         `;
@@ -94,6 +97,32 @@ class InterviewRecords {
       alert('网络错误: ' + e.message);
       btn.disabled = false;
       btn.textContent = '🔄 重新开始';
+    }
+  }
+
+  async deleteInterview(interviewId, btn) {
+    if (!confirm('确定要删除这条面试记录吗？此操作不可恢复。')) return;
+    btn.disabled = true;
+    btn.textContent = '⏳ 删除中...';
+    try {
+      const data = await api.deleteInterview(interviewId);
+      if (data.success) {
+        const card = btn.closest('.record-card');
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(20px)';
+          setTimeout(() => card.remove(), 300);
+        }
+      } else {
+        alert('删除失败: ' + (data.error || '未知错误'));
+        btn.disabled = false;
+        btn.textContent = '🗑️ 删除';
+      }
+    } catch (e) {
+      alert('网络错误: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = '🗑️ 删除';
     }
   }
 
