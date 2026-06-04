@@ -1,12 +1,12 @@
 """AI 面试引擎核心模块"""
-import json
 import uuid
 from datetime import datetime
 from typing import Optional
 
+from .evaluation_engine import NarrativeEvaluationEngine
 from .question_generator import QuestionGenerator
 from .follow_up_strategy import FollowUpStrategy, TimeController
-from .llm_service import get_llm_service
+from .quality_validator import JudgmentQualityValidator
 
 
 class InterviewEngine:
@@ -17,6 +17,8 @@ class InterviewEngine:
         self._current_interview: Optional[dict] = None
         self._use_llm = use_llm
         self._storage = None
+        self._evaluation_engine = NarrativeEvaluationEngine()
+        self._quality_validator = JudgmentQualityValidator()
 
     def _get_storage(self):
         if self._storage is None:
@@ -57,19 +59,34 @@ class InterviewEngine:
     def get_next_question(self, elapsed_minutes: float) -> Optional[dict]:
         if not self._current_interview:
             return None
-        current_section = self._time_controller.get_current_section(elapsed_minutes)
-        if not current_section:
-            return self._wrap_up_question()
-        section_name = current_section["section_name"]
-        asked_ids = set()
+        answered_ids = set()
+        seen_ids = set()
         for d in self._current_interview.get("dialogues", []):
             if d.get("question_ref"):
-                asked_ids.add(d["question_ref"])
-        for section in self._current_interview["plan"]["sections"]:
-            if section["section_name"] == section_name:
-                for q in section.get("questions", []):
-                    if q["question_id"] not in asked_ids:
-                        return q
+                seen_ids.add(d["question_ref"])
+            if d.get("speaker") == "候选人" and d.get("question_ref"):
+                answered_ids.add(d["question_ref"])
+
+        current_section = self._time_controller.get_current_section(elapsed_minutes)
+        if not current_section:
+            if "WRAP_UP" in seen_ids:
+                return None
+            question = self._wrap_up_question()
+            self._record_ai_question(question)
+            return question
+
+        sections = self._current_interview["plan"].get("sections", [])
+        current_idx = next(
+            (idx for idx, section in enumerate(sections) if section["section_name"] == current_section["section_name"]),
+            0,
+        )
+
+        for offset in range(len(sections)):
+            section = sections[(current_idx + offset) % len(sections)]
+            for q in section.get("questions", []):
+                if q["question_id"] not in answered_ids:
+                    self._record_ai_question(q)
+                    return q
         return None
 
     def process_answer(self, question_id: str, user_answer: str,
@@ -88,6 +105,7 @@ class InterviewEngine:
             "text": user_answer,
             "transcript": user_answer,
             "question_ref": question_id,
+            "question_snapshot": question.get("question_text", "") if question else "",
             "duration_seconds": None,
             "is_follow_up_answer": is_follow_up_answer,
             "elapsed_seconds": elapsed_seconds,
@@ -117,7 +135,7 @@ class InterviewEngine:
             "max_follow_ups": 2,
         }
 
-    def ask_follow_up(self, question: str) -> dict:
+    def ask_follow_up(self, question: str, question_ref: Optional[str] = None) -> dict:
         if not self._current_interview:
             return {"error": "没有正在进行的面试"}
         entry = {
@@ -125,8 +143,9 @@ class InterviewEngine:
             "speaker": "AI",
             "text": question,
             "transcript": question,
-            "question_ref": None,
+            "question_ref": question_ref,
             "duration_seconds": None,
+            "is_follow_up": True,
         }
         self._current_interview["dialogues"].append(entry)
         self._get_storage().save_interview(self._current_interview)
@@ -152,28 +171,25 @@ class InterviewEngine:
         }
 
     def _generate_evaluation(self) -> dict:
-        llm = get_llm_service()
-        if self._use_llm and llm.is_available:
-            try:
-                result = llm.evaluate_interview(self._current_interview)
-                if result:
-                    return result
-            except Exception:
-                pass
-        dialogues = self._current_interview.get("dialogues", [])
-        candidate_responses = [d for d in dialogues if d["speaker"] == "候选人"]
-        total_answers = len(candidate_responses)
-        avg_answer_length = (
-            sum(len(d.get("text", "")) for d in candidate_responses) / max(total_answers, 1)
+        return self.generate_assessment(self._current_interview)
+
+    def generate_assessment(self, interview: dict) -> dict:
+        evaluation = self._evaluation_engine.build_evaluation(interview)
+        all_interviews = self._get_storage().list_interviews(limit=None)
+        evaluation["quality_validation"] = self._quality_validator.validate(
+            interview=interview,
+            evaluation=evaluation,
+            all_interviews=all_interviews,
         )
-        return {
-            "overall_score": min(100, int(avg_answer_length / 5 + 60)),
-            "dimension_scores": {"技术能力": 0, "项目经验": 0, "沟通表达": 0, "文化契合": 0},
-            "strengths": ["待面试完成后补充"],
-            "weaknesses": ["待面试完成后补充"],
-            "recommendation": "待定",
-            "ai_comment": "面试记录已保存，详细评估待人工审核",
-        }
+        return evaluation
+
+    def revalidate_interview(self, interview_id: str) -> Optional[dict]:
+        interview = self._get_storage().get_interview(interview_id)
+        if not interview:
+            return None
+        interview["evaluation"] = self.generate_assessment(interview)
+        self._get_storage().save_interview(interview)
+        return interview
 
     def _wrap_up_question(self) -> Optional[dict]:
         return {
@@ -187,3 +203,23 @@ class InterviewEngine:
 
     def get_current_interview(self) -> Optional[dict]:
         return self._current_interview
+
+    def _record_ai_question(self, question: Optional[dict]):
+        if not self._current_interview or not question:
+            return
+        question_id = question.get("question_id")
+        dialogues = self._current_interview.setdefault("dialogues", [])
+        if dialogues:
+            last = dialogues[-1]
+            if last.get("speaker") == "AI" and last.get("question_ref") == question_id and last.get("text") == question.get("question_text"):
+                return
+        dialogues.append({
+            "timestamp": datetime.now().isoformat(),
+            "speaker": "AI",
+            "text": question.get("question_text", ""),
+            "transcript": question.get("question_text", ""),
+            "question_ref": question_id,
+            "duration_seconds": None,
+            "is_follow_up": False,
+        })
+        self._get_storage().save_interview(self._current_interview)

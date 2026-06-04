@@ -136,7 +136,7 @@ async def process_answer(request: AnswerRequest):
 
 @router.post("/ask-follow-up")
 async def ask_follow_up(request: FollowUpRequest):
-    result = engine.ask_follow_up(request.question)
+    result = engine.ask_follow_up(request.question, question_ref=request.question_id)
     return {"success": True, "result": result}
 
 
@@ -173,6 +173,42 @@ async def get_interview(interview_id: str):
     raise HTTPException(status_code=404, detail="未找到")
 
 
+@router.get("/detail/{interview_id}/quality")
+async def get_interview_quality(interview_id: str):
+    interview = storage.get_interview(interview_id)
+    if not interview:
+        raise HTTPException(status_code=404, detail="未找到")
+    evaluation = interview.get("evaluation")
+    if not evaluation or not evaluation.get("quality_validation"):
+        evaluation = engine.generate_assessment(interview)
+        interview["evaluation"] = evaluation
+        storage.save_interview(interview)
+    return {
+        "success": True,
+        "quality": evaluation.get("quality_validation"),
+        "evaluation": evaluation,
+    }
+
+
+@router.get("/detail/{interview_id}/report")
+async def get_interview_report(interview_id: str):
+    interview = storage.get_interview(interview_id)
+    if not interview:
+        raise HTTPException(status_code=404, detail="未找到")
+    evaluation = interview.get("evaluation")
+    if not evaluation or not evaluation.get("overall_report"):
+        evaluation = engine.generate_assessment(interview)
+        interview["evaluation"] = evaluation
+        storage.save_interview(interview)
+    return {
+        "success": True,
+        "report": evaluation.get("overall_report"),
+        "analysis_process": evaluation.get("analysis_process"),
+        "jd_match_report": evaluation.get("jd_match_report"),
+        "evaluation": evaluation,
+    }
+
+
 @router.delete("/detail/{interview_id}")
 async def delete_interview(interview_id: str):
     result = storage.delete_interview(interview_id)
@@ -199,6 +235,14 @@ async def restart_interview(interview_id: str):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/revalidate/{interview_id}")
+async def revalidate_interview(interview_id: str):
+    interview = engine.revalidate_interview(interview_id)
+    if not interview:
+        raise HTTPException(status_code=404, detail="面试记录不存在")
+    return {"success": True, "interview": interview}
 
 
 # ==================== 语音 API (阿里云 NLS) ====================

@@ -43,9 +43,11 @@ class InterviewStorage:
                 return i
         return None
 
-    def list_interviews(self, limit: int = 20) -> list:
+    def list_interviews(self, limit: int | None = 20) -> list:
         interviews = self._load_all_interviews()
         interviews.sort(key=lambda x: x.get("start_time", ""), reverse=True)
+        if limit is None:
+            return interviews
         return interviews[:limit]
 
     def delete_interview(self, interview_id: str) -> bool:

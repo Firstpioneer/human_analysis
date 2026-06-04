@@ -130,8 +130,11 @@ class ApiClient {
   }
   async listInterviews() { return this._request('/api/interview/list'); }
   async getInterview(id) { return this._request(`/api/interview/detail/${id}`); }
+  async getInterviewQuality(id) { return this._request(`/api/interview/detail/${id}/quality`); }
+  async getInterviewReport(id) { return this._request(`/api/interview/detail/${id}/report`); }
   async deleteInterview(id) { return this._request(`/api/interview/detail/${id}`, { method: 'DELETE' }); }
   async restartInterview(id) { return this._request(`/api/interview/restart/${id}`, { method: 'POST' }); }
+  async revalidateInterview(id) { return this._request(`/api/interview/revalidate/${id}`, { method: 'POST' }); }
 
   // ---- 语音 API (阿里云 NLS) ----
   async textToSpeech(text, voice = 'xiaoyun', format = 'wav') {

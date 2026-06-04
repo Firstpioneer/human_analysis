@@ -60,7 +60,12 @@
           "text": { "type": "string" },
           "transcript": { "type": "string", "description": "ASR 转写文本" },
           "question_ref": { "type": "string", "description": "关联的问题 ID" },
-          "duration_seconds": { "type": "number" }
+          "question_snapshot": { "type": "string", "description": "回答时对应的问题快照" },
+          "duration_seconds": { "type": "number" },
+          "is_follow_up": { "type": "boolean" },
+          "is_follow_up_answer": { "type": "boolean" },
+          "elapsed_seconds": { "type": "number" },
+          "client_latency_ms": { "type": "number" }
         }
       }
     },
@@ -68,7 +73,7 @@
       "type": "object",
       "description": "面试评估",
       "properties": {
-        "overall_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "overall_score": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
         "dimension_scores": {
           "type": "object",
           "additionalProperties": { "type": "number" }
@@ -76,7 +81,18 @@
         "strengths": { "type": "array", "items": { "type": "string" } },
         "weaknesses": { "type": "array", "items": { "type": "string" } },
         "recommendation": { "type": "string", "enum": ["强烈推荐", "推荐", "待定", "不推荐"] },
-        "ai_comment": { "type": "string" }
+        "ai_comment": { "type": "string" },
+        "overview": { "type": "object" },
+        "unexpected_signals": { "type": "array", "items": { "type": "object" } },
+        "dimension_reports": { "type": "array", "items": { "type": "object" } },
+        "risks": { "type": "array", "items": { "type": "object" } },
+        "overall_judgment": { "type": "object" },
+        "system_feedback": { "type": "object" },
+        "analysis_process": { "type": "array", "items": { "type": "object" } },
+        "jd_match_report": { "type": "object" },
+        "overall_report": { "type": "object" },
+        "traceability": { "type": "object" },
+        "quality_validation": { "type": "object" }
       }
     },
     "audio_records": {

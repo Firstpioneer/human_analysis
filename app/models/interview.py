@@ -25,6 +25,7 @@ class AnswerRequest(BaseModel):
 
 class FollowUpRequest(BaseModel):
     question: str
+    question_id: Optional[str] = None
 
 
 class StatusRequest(BaseModel):

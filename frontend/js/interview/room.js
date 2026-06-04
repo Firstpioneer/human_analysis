@@ -18,6 +18,8 @@ class InterviewRoom {
     this.audioChunks = [];
     this.isRecording = false;
     this.totalDuration = 45;
+    this.reportData = null;
+    this.reportLoaded = false;
   }
 
   init(container, interviewId) {
@@ -41,6 +43,7 @@ class InterviewRoom {
             </div>
             <div class="top-bar-actions">
               <button class="btn-end-interview" id="btn-end-interview">⏹ 结束面试</button>
+              <button class="btn-report-view" id="btn-view-report" style="display:none;">📄 查看评价报告</button>
             </div>
           </div>
 
@@ -95,6 +98,12 @@ class InterviewRoom {
             <h3>💡 AI 正在思考追问...</h3>
             <div id="follow-up-display"></div>
           </div>
+
+          <div class="sidebar-card" id="report-card" style="display:none;">
+            <h3>📄 整体评价报告</h3>
+            <div id="report-summary" class="report-summary">面试结束后自动生成，并展示整体结论、分析过程、证据链和 JD 差距分析。</div>
+            <button class="btn-report-panel" id="btn-open-report">查看完整报告</button>
+          </div>
         </div>
       </div>
     `;
@@ -110,6 +119,7 @@ class InterviewRoom {
 
   _bindEvents(container) {
     container.querySelector('#btn-end-interview').addEventListener('click', () => this.endInterview());
+    container.querySelector('#btn-view-report').addEventListener('click', () => this.openReportModal());
 
     container.querySelector('#btn-send').addEventListener('click', () => this.sendAnswer());
 
@@ -121,6 +131,7 @@ class InterviewRoom {
     });
 
     container.querySelector('#btn-voice').addEventListener('click', () => this.toggleVoice());
+    container.querySelector('#btn-open-report').addEventListener('click', () => this.openReportModal());
   }
 
   async _startInterview() {
@@ -380,13 +391,21 @@ class InterviewRoom {
         }
 
         this.isWaitingForAnswer = true;
+        this._setAnswerControlsDisabled(false);
         const input = document.getElementById('answer-input');
         if (input) input.focus();
       } else {
-        await this.endInterview();
+        this._addSystemMessage('✅ 面试问题已全部完成，系统正在自动结束并生成评估报告...');
+        await this.endInterview('面试问答已完成，系统已自动结束。');
       }
     } catch (e) {
       console.error('获取问题失败:', e);
+      if (e.message && e.message.includes('所有问题已问完')) {
+        this._addSystemMessage('✅ 面试问题已全部完成，系统正在自动结束并生成评估报告...');
+        await this.endInterview('面试问答已完成，系统已自动结束。');
+        return;
+      }
+      showToast('获取下一题失败: ' + e.message, 'error');
     }
   }
 
@@ -415,51 +434,78 @@ class InterviewRoom {
     const answer = input.value.trim();
     if (!answer) return;
 
+    const submittedQuestion = { ...this.currentQuestion };
     this.isWaitingForAnswer = false;
+    this._setAnswerControlsDisabled(true);
     this._addMessage('候选人', answer);
     input.value = '';
     this.deactivateVoice();
 
     try {
-      const data = await api.submitAnswer(this.currentQuestion.question_id, answer);
+      const data = await api.submitAnswer(submittedQuestion.question_id, answer);
+      if (!data.success || data.result?.error) {
+        throw new Error(data.result?.error || '回答提交失败');
+      }
 
       if (data.success && data.result.follow_up) {
         const followUpCard = document.getElementById('follow-up-card');
         if (followUpCard) followUpCard.style.display = 'block';
 
         setTimeout(async () => {
-          const followUpData = await api.askFollowUp(data.result.follow_up);
-          if (followUpData.success) {
-            this._addMessage('AI', data.result.follow_up, true);
-            // TTS 播报追问
-            if (this.ttsEnabled) {
-              this._playTTS(data.result.follow_up);
+          try {
+            const followUpData = await api.askFollowUp(data.result.follow_up, { question_id: submittedQuestion.question_id });
+            if (followUpData.success) {
+              this._addMessage('AI', data.result.follow_up, true);
+              if (this.ttsEnabled) {
+                this._playTTS(data.result.follow_up);
+              }
+              this.currentQuestion = { ...submittedQuestion, follow_up: true };
+              this.isWaitingForAnswer = true;
+              this._setAnswerControlsDisabled(false);
+              const inp = document.getElementById('answer-input');
+              if (inp) inp.focus();
             }
-            this.currentQuestion = { ...this.currentQuestion, follow_up: true };
-            this.isWaitingForAnswer = true;
-            const inp = document.getElementById('answer-input');
-            if (inp) inp.focus();
+          } catch (e) {
+            console.error('追问生成失败:', e);
+            showToast('追问生成失败，系统将继续下一题', 'error');
+            setTimeout(() => this.askNextQuestion(), 300);
+          } finally {
+            if (followUpCard) followUpCard.style.display = 'none';
           }
-          if (followUpCard) followUpCard.style.display = 'none';
         }, 1500);
+      } else if (submittedQuestion.question_id === 'WRAP_UP') {
+        this._addSystemMessage('✅ 面试问答已完成，系统正在自动结束并生成评估报告...');
+        await this.endInterview('面试问答已完成，系统已自动结束。');
       } else {
         setTimeout(() => this.askNextQuestion(), 1000);
       }
     } catch (e) {
       console.error('发送回答失败:', e);
+      showToast('发送回答失败: ' + e.message, 'error');
+      if (!this.isInterviewEnding) {
+        this.isWaitingForAnswer = true;
+        this.currentQuestion = submittedQuestion;
+        this._setAnswerControlsDisabled(false);
+        input.value = answer;
+        input.focus();
+      }
     }
   }
 
-  async endInterview() {
+  async endInterview(autoReason = '') {
     if (this.isInterviewEnding) return;
     this.isInterviewEnding = true;
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.deactivateVoice();
+    this._setAnswerControlsDisabled(true);
 
     try {
       const data = await api.endInterview();
       if (data.success) {
-        this._addSystemMessage('✅ 面试已结束，感谢您的参与！');
+        const message = autoReason
+          ? `✅ ${autoReason} 系统正在展示评估结果。`
+          : '✅ 面试已结束，感谢您的参与！系统正在生成并展示评估结果。';
+        this._addSystemMessage(message);
         const badgeStatus = document.getElementById('badge-status');
         if (badgeStatus) {
           badgeStatus.textContent = '✅ 已完成';
@@ -469,12 +515,17 @@ class InterviewRoom {
         if (btnEnd) btnEnd.disabled = true;
 
         this._showRestartButton();
+        this._showReportAccess();
 
         // 显示评估结果
         setTimeout(() => this._renderSavedDialogues(), 500);
       }
     } catch (e) {
       console.error('结束面试失败:', e);
+      showToast('结束面试失败: ' + e.message, 'error');
+      this.isInterviewEnding = false;
+      this._setAnswerControlsDisabled(false);
+      return;
     }
 
     const inputArea = document.getElementById('interview-input-area');
@@ -491,6 +542,14 @@ class InterviewRoom {
       btn.onclick = () => this._restartInterview();
       actions.appendChild(btn);
     }
+  }
+
+  _showReportAccess() {
+    const btn = document.getElementById('btn-view-report');
+    if (btn) btn.style.display = 'inline-flex';
+    const card = document.getElementById('report-card');
+    if (card) card.style.display = 'block';
+    this._renderReportPreview();
   }
 
   async _restartInterview() {
@@ -517,6 +576,7 @@ class InterviewRoom {
     const inputArea = document.getElementById('interview-input-area');
     if (inputArea) inputArea.style.display = 'none';
     this._showRestartButton();
+    this._showReportAccess();
 
     // 渲染已保存的对话记录
     this._renderSavedDialogues();
@@ -542,8 +602,8 @@ class InterviewRoom {
       // 渲染评估结果
       const hasEvalMsg = container && container.querySelector('.system-msg')?.textContent.includes('面试评估');
       if (evaluation && !hasEvalMsg) {
-        const scoreText = evaluation.overall_score != null
-          ? `综合评分: ${evaluation.overall_score}/100`
+        const takeaway = evaluation.overview?.one_line_takeaway
+          ? `一句话判断: ${evaluation.overview.one_line_takeaway}`
           : '';
         const recText = evaluation.recommendation
           ? `推荐结论: ${evaluation.recommendation}`
@@ -551,7 +611,11 @@ class InterviewRoom {
         const commentText = evaluation.ai_comment
           ? `AI 评语: ${evaluation.ai_comment}`
           : '';
-        const lines = [scoreText, recText, commentText].filter(Boolean).join('\n');
+        const quality = evaluation.quality_validation?.summary;
+        const qualityText = quality
+          ? `质量验证: 证据链${quality.evidence_chain_health} / 稳定性${quality.stability_status} / 区分度${quality.discrimination_status}`
+          : '';
+        const lines = [takeaway, recText, commentText, qualityText].filter(Boolean).join('\n');
         if (lines) {
           this._addSystemMessage('📊 面试评估\n' + lines);
         }
@@ -563,6 +627,115 @@ class InterviewRoom {
     } catch (e) {
       console.error('加载对话记录失败:', e);
     }
+  }
+
+  async _renderReportPreview() {
+    const summaryEl = document.getElementById('report-summary');
+    if (!summaryEl) return;
+    summaryEl.textContent = '报告生成中...';
+    try {
+      const data = await this._ensureReportLoaded();
+      const summary = data.report?.summary || data.evaluation?.overview?.one_line_takeaway || '报告已生成，可查看完整内容。';
+      const jdSummary = data.jd_match_report?.summary || '';
+      summaryEl.innerHTML = `
+        <div class="report-summary-main">${this._escapeHtml(summary)}</div>
+        ${jdSummary ? `<div class="report-summary-sub">${this._escapeHtml(jdSummary)}</div>` : ''}
+      `;
+    } catch (e) {
+      summaryEl.textContent = '报告加载失败，请稍后重试。';
+    }
+  }
+
+  async _ensureReportLoaded(force = false) {
+    if (this.reportLoaded && this.reportData && !force) return this.reportData;
+    const data = await api.getInterviewReport(this.interviewId);
+    if (!data.success) throw new Error('整体评价报告加载失败');
+    this.reportData = data;
+    this.reportLoaded = true;
+    return data;
+  }
+
+  async openReportModal() {
+    try {
+      const data = await this._ensureReportLoaded();
+      this._closeReportModal();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay report-modal-overlay';
+      overlay.id = 'report-modal-overlay';
+      const analysisSteps = (data.analysis_process || []).map(step => `
+        <div class="report-step">
+          <div class="report-step-title">${step.step}. ${this._escapeHtml(step.name || '')}</div>
+          <div class="report-step-desc">${this._escapeHtml(step.purpose || '')}</div>
+          <div class="report-step-method">方法：${this._escapeHtml(step.method || '')}</div>
+          <div class="report-step-output">输出：${this._escapeHtml(step.output || '')}</div>
+        </div>
+      `).join('');
+      const gaps = (data.jd_match_report?.gap_requirements || []).slice(0, 6).map(item => `
+        <div class="report-gap-item">
+          <strong>${this._escapeHtml(item.requirement || '')}</strong>
+          <div>${this._escapeHtml(item.basis || item.judgment || '证据不足')}</div>
+        </div>
+      `).join('') || '<div class="report-gap-item">暂无明确 JD 缺口。</div>';
+
+      overlay.innerHTML = `
+        <div class="modal report-modal">
+          <div class="modal-header">
+            <div>
+              <div class="modal-title">整体评价报告</div>
+              <div class="modal-desc">${this._escapeHtml(data.report?.title || '面试评估结果')}</div>
+            </div>
+            <button class="panel-action-btn" id="btn-close-report">关闭</button>
+          </div>
+          <div class="modal-body report-modal-body">
+            <div class="report-modal-section">
+              <h4>摘要</h4>
+              <div class="report-modal-summary">${this._escapeHtml(data.report?.summary || '')}</div>
+            </div>
+            <div class="report-modal-section">
+              <h4>分析过程</h4>
+              <div class="report-steps">${analysisSteps || '<div class="report-step">暂无分析过程。</div>'}</div>
+            </div>
+            <div class="report-modal-section">
+              <h4>JD 差距与不足</h4>
+              <div class="report-gap-list">${gaps}</div>
+            </div>
+            <div class="report-modal-section">
+              <h4>完整报告</h4>
+              <pre class="report-markdown">${this._escapeHtml(data.report?.markdown || '暂无完整报告。')}</pre>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) this._closeReportModal();
+      });
+      const closeBtn = overlay.querySelector('#btn-close-report');
+      if (closeBtn) closeBtn.addEventListener('click', () => this._closeReportModal());
+    } catch (e) {
+      console.error('打开整体评价报告失败:', e);
+      showToast('整体评价报告加载失败: ' + e.message, 'error');
+    }
+  }
+
+  _closeReportModal() {
+    const existing = document.getElementById('report-modal-overlay');
+    if (existing) existing.remove();
+  }
+
+  _setAnswerControlsDisabled(disabled) {
+    const input = document.getElementById('answer-input');
+    const sendBtn = document.getElementById('btn-send');
+    const voiceBtn = document.getElementById('btn-voice');
+    if (input) input.disabled = disabled;
+    if (sendBtn) sendBtn.disabled = disabled;
+    if (voiceBtn) voiceBtn.disabled = disabled;
+  }
+
+  _escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
   }
 
   // ── 后端 ASR 录音 ──
@@ -651,6 +824,7 @@ class InterviewRoom {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.stopRecording();
     this.deactivateVoice();
+    this._closeReportModal();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
 }
