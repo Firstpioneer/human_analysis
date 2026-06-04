@@ -4,7 +4,7 @@ data/profiles/
 data/resumes/
 data/interviews/
 data/candidates/
-
+defense_showcase/
 # Keep schemas (structural definitions)
 !data/schemas/
 

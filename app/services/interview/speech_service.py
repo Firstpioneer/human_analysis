@@ -23,10 +23,17 @@ from datetime import datetime
 from typing import Optional
 
 import requests
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.request import CommonRequest
+
+try:
+    from aliyunsdkcore.client import AcsClient
+    from aliyunsdkcore.request import CommonRequest
+except ImportError:
+    AcsClient = None
+    CommonRequest = None
 
 logger = logging.getLogger(__name__)
+
+ALIYUN_SDK_INSTALL_HINT = "请先安装 aliyun-python-sdk-core：pip install aliyun-python-sdk-core"
 
 
 # ──────────────────────────────────────────────
@@ -37,6 +44,9 @@ class AliyunTokenManager:
     """管理阿里云 NLS 服务的临时 Token（使用 SDK 认证）"""
 
     def __init__(self, access_key_id: str, access_key_secret: str):
+        if AcsClient is None:
+            raise RuntimeError(f"阿里云 SDK 未安装，无法获取 NLS Token。{ALIYUN_SDK_INSTALL_HINT}")
+
         self._ak_id = access_key_id
         self._ak_secret = access_key_secret
         self._token: Optional[str] = None
@@ -115,7 +125,11 @@ class AliyunNLSService:
         self._tts_url = f"https://nls-gateway-{self._region}.aliyuncs.com/stream/v1/tts"
         self._asr_url = f"https://nls-gateway-{self._region}.aliyuncs.com/stream/v1/asr"
 
-        self._token_mgr = AliyunTokenManager(self._ak_id, self._ak_secret)
+        self._token_mgr = None
+        if self._ak_id and self._ak_secret and AcsClient is not None:
+            self._token_mgr = AliyunTokenManager(self._ak_id, self._ak_secret)
+        elif self._ak_id and self._ak_secret:
+            logger.warning("阿里云 SDK 未安装，TTS/ASR 功能不可用。%s", ALIYUN_SDK_INSTALL_HINT)
 
         import config
         self._records_dir = records_dir or os.path.join(config.INTERVIEWS_DIR, "records")
@@ -125,7 +139,9 @@ class AliyunNLSService:
     def is_configured(self) -> bool:
         """检查是否配置了有效的阿里云 NLS 凭证"""
         return bool(
-            self._ak_id and self._ak_secret and self._app_key
+            AcsClient is not None
+            and self._token_mgr is not None
+            and self._ak_id and self._ak_secret and self._app_key
             and not self._ak_id.startswith("你的")
             and not self._ak_secret.startswith("你的")
             and not self._app_key.startswith("你的")

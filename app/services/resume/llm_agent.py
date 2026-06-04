@@ -29,7 +29,16 @@ class SemanticAnalyzerAgent:
            - company, title, start_date, end_date, description
            - signal_strength (1-5): 数据指标越具体、事实越清晰，得分越高。
            - star_completeness: "high", "medium", "low"。
-        3. "project_experiences" (项目经历): 从简历中抽取项目，不要大段复述原文。
+        3. "project_experiences" (项目经历): 请通篇阅读简历后抽取真实项目/科研/竞赛/论文工程实践，不要只依赖"项目经历"标题。
+           抽取标准：必须能看出一个具体工作对象（项目/系统/平台/课题/论文/算法实验/竞赛作品/开源仓库等）以及候选人的动作、职责、技术方案、研究方法或成果之一。
+           严格排除：姓名、电话、邮箱、学校、专业、学历、核心课程/相关课程、技能清单、证书、荣誉奖项、求职意向、自我评价、普通工作职责列表。
+           如果某段只是"操作系统/数据库/Python"等课程或技能关键词，不得作为项目。无法确认是项目时不要编造，返回空数组也可以。
+           项目边界规则：
+           - 项目名称通常出现在一行开头，并可能带日期，如"XXX研究(2025.10 - 至今)"。必须保留该行中的完整项目名，去掉日期即可。
+           - "研究目标"、"管线设计与沙箱工程"、"个人贡献与成果"、"技术栈"等是项目小节，不得当作项目名称，也不得拆成多个项目。
+           - 同一个项目下的多条职责/研究目标/成果要合并为同一条 project_experiences。
+           - role 只能来自"角色/职责/担任/职位"等明确表述；不要因为出现"测试用例"就输出"测试"。
+           - tech_stack 只能总结工具、框架、语言、数据格式、评测基准和工程技术，如 SWE-bench、Parquet、Pytest、JSON Schema、LLM、SFT、虚拟沙箱、Git。
            - name: 项目名称，无法判断时用业务/系统名称概括
            - summary: 80字以内的项目经历总结，说明候选人做了什么和产生了什么结果
            - role: 候选人在项目中的角色或责任，无法判断则为空字符串
@@ -41,12 +50,21 @@ class SemanticAnalyzerAgent:
            - items: 该类别下的能力关键词或短句
            - evidence: 简短证据或来源说明，无法判断则为空字符串
            - signal_strength: 1-5
-        5. "suitable_roles" (适合投递岗位): 根据项目、能力声明和外部足迹推荐3-5个岗位。
+        5. "multidimensional_profile" (多维履历画像): 像 MBTI 维度一样，根据简历证据给出候选人的职业倾向坐标。
+           - dimensions: 4-8个维度。每个维度包含 key、left_label、right_label、score、summary、evidence、confidence。
+             score 为 0-100，越接近 0 越偏 left_label，越接近 100 越偏 right_label；50 表示证据不足或中性。
+             必须至少覆盖：软件实现/硬件工程、技术深耕/业务管理、独立产出/协作沟通、数据分析/人际服务。
+             可按候选人经历增加：探索创新/流程执行、规划推进/灵活适应、内部平台/客户现场等维度。
+           - overall_tags: 3-6个画像标签，如"软件工程型"、"数据驱动"、"跨部门协同"。
+           - summary: 120字以内总结画像，不要做心理诊断，只描述履历证据呈现出的工作倾向。
+        6. "suitable_roles" (适合投递岗位): 根据项目、能力声明和多维画像推荐3-5个岗位。岗位池可由企业数据库替换，此处先输出通用岗位建议。
            - title: 岗位名称
            - reason: 60字以内推荐理由
            - matching_skills: 3-6个匹配技能
+           - fit_score: 0-100契合度，综合技能证据、项目经历、多维画像和信息盲区得出
+           - fit_reason: 40字以内说明契合度的主要依据
            - risk: 需要面试确认的风险点，无法判断则为空字符串
-        6. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
+        7. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
            - question: 问题内容
            - purpose: 考察目的
            - based_on: 关联的项目/技能/盲区
@@ -103,6 +121,11 @@ class SemanticAnalyzerAgent:
         fallback = self._heuristic_response(clean_text)
         contact = fallback.get("contact", {})
         contact.update(result.get("contact") or {})
+        heuristic_projects = fallback.get("project_experiences", [])
+        llm_projects = self._normalize_projects(result.get("project_experiences") or [], clean_text)
+        projects = self._merge_projects(heuristic_projects, llm_projects)
+        if not projects:
+            projects = heuristic_projects
         return {
             "name": result.get("name") or fallback.get("name", ""),
             "contact": contact,
@@ -111,8 +134,9 @@ class SemanticAnalyzerAgent:
                 result.get("formatted_claims") or fallback.get("formatted_claims", [])
             ),
             "objective_experiences": result.get("objective_experiences") or fallback.get("objective_experiences", []),
-            "project_experiences": self._normalize_projects(
-                result.get("project_experiences") or fallback.get("project_experiences", [])
+            "project_experiences": projects,
+            "multidimensional_profile": self._normalize_multidimensional_profile(
+                result.get("multidimensional_profile") or fallback.get("multidimensional_profile", {})
             ),
             "suitable_roles": self._normalize_roles(
                 result.get("suitable_roles") or fallback.get("suitable_roles", [])
@@ -131,7 +155,8 @@ class SemanticAnalyzerAgent:
         experiences = self._extract_experiences(lines)
         projects = self._build_project_experiences(experiences, lines)
         formatted_claims = self._format_claims(claims)
-        roles = self._suggest_roles(projects, formatted_claims)
+        multidimensional_profile = self._build_multidimensional_profile(clean_text, projects, formatted_claims, experiences, claims)
+        roles = self._suggest_roles(projects, formatted_claims, multidimensional_profile)
         blind_spots = self._build_blind_spots(experiences, claims)
         return {
             "name": name,
@@ -140,6 +165,7 @@ class SemanticAnalyzerAgent:
             "formatted_claims": formatted_claims,
             "objective_experiences": experiences,
             "project_experiences": projects,
+            "multidimensional_profile": multidimensional_profile,
             "suitable_roles": roles,
             "interview_questions": self._build_interview_questions(projects, roles, blind_spots),
             "blind_spots": blind_spots,
@@ -184,9 +210,11 @@ class SemanticAnalyzerAgent:
 
     def _extract_experiences(self, lines: list[str]) -> list[dict]:
         experiences = []
-        company_pattern = re.compile(r"([\u4e00-\u9fa5A-Za-z0-9（）()·.\-]{2,30}(?:公司|科技|集团|银行|大学|学院|实验室|工作室))")
+        company_pattern = re.compile(r"([\u4e00-\u9fa5A-Za-z0-9（）()·.\-]{2,30}(?:公司|科技|集团|银行|实验室|工作室))")
         current = None
         for line in lines:
+            if self._is_non_project_text(line):
+                continue
             company_match = company_pattern.search(line)
             has_project_signal = any(k in line for k in ("项目", "系统", "平台", "负责", "参与", "开发", "设计", "优化", "上线"))
             if company_match or has_project_signal:
@@ -245,7 +273,7 @@ class SemanticAnalyzerAgent:
             blind_spots.append("简历中技能声明较多，但缺少对应项目证据支撑。")
         return blind_spots[:4]
 
-    def _normalize_projects(self, projects: list[dict]) -> list[dict]:
+    def _normalize_projects(self, projects: list[dict], clean_text: str = "") -> list[dict]:
         normalized = []
         for idx, project in enumerate(projects or [], start=1):
             if not isinstance(project, dict):
@@ -253,15 +281,79 @@ class SemanticAnalyzerAgent:
             tech_stack = project.get("tech_stack") or []
             if isinstance(tech_stack, str):
                 tech_stack = [item.strip() for item in re.split(r"[,，/、\s]+", tech_stack) if item.strip()]
-            normalized.append({
-                "name": str(project.get("name") or f"项目 {idx}")[:80],
+            evidence = str(project.get("evidence") or "").strip()
+            raw_name = str(project.get("name") or "").strip()
+            name = self._repair_project_name(raw_name, evidence, idx)
+            item = {
+                "name": name[:80],
                 "summary": str(project.get("summary") or "")[:180],
                 "role": str(project.get("role") or "")[:80],
                 "tech_stack": [str(item)[:30] for item in tech_stack[:8]],
                 "impact": str(project.get("impact") or "")[:120],
-                "evidence": str(project.get("evidence") or "")[:160],
-            })
+                "evidence": evidence[:220],
+            }
+            if item["role"] and not self._has_explicit_role_signal(item["role"], item["evidence"]):
+                item["role"] = ""
+            if not item["tech_stack"] and item["evidence"]:
+                item["tech_stack"] = self._extract_tech_stack(item["evidence"])
+            if not item["impact"] and item["evidence"]:
+                item["impact"] = self._extract_impact(item["evidence"])
+            if self._is_valid_project(item, clean_text):
+                normalized.append(item)
         return normalized[:8]
+
+    def _merge_projects(self, primary: list[dict], secondary: list[dict]) -> list[dict]:
+        merged = []
+
+        def signature(project: dict) -> str:
+            name = self._normalize_key(project.get("name", ""))
+            evidence = self._normalize_key(project.get("evidence", ""))[:60]
+            return name or evidence
+
+        for project in (primary or []) + (secondary or []):
+            if not project:
+                continue
+            sig = signature(project)
+            if not sig:
+                continue
+            existing = next(
+                (
+                    item for item in merged
+                    if sig == signature(item)
+                    or self._project_names_similar(project.get("name", ""), item.get("name", ""))
+                    or (
+                        project.get("evidence")
+                        and item.get("evidence")
+                        and self._normalize_key(project["evidence"])[:50] in self._normalize_key(item["evidence"])
+                    )
+                ),
+                None,
+            )
+            if existing:
+                self._fill_project_gaps(existing, project)
+            else:
+                merged.append(dict(project))
+        return merged[:8]
+
+    def _fill_project_gaps(self, target: dict, source: dict) -> None:
+        for key in ("summary", "role", "impact", "evidence"):
+            if not target.get(key) and source.get(key):
+                target[key] = source[key]
+        techs = target.get("tech_stack") or []
+        for tech in source.get("tech_stack") or []:
+            if tech not in techs:
+                techs.append(tech)
+        target["tech_stack"] = techs[:8]
+
+    def _normalize_key(self, text: str) -> str:
+        return re.sub(r"[\s:：，,。；;（）()\[\]【】《》<>「」\-—_/]+", "", str(text).lower())
+
+    def _project_names_similar(self, left: str, right: str) -> bool:
+        left_key = self._normalize_key(left)
+        right_key = self._normalize_key(right)
+        if not left_key or not right_key:
+            return False
+        return left_key in right_key or right_key in left_key
 
     def _normalize_formatted_claims(self, formatted_claims: list[dict]) -> list[dict]:
         normalized = []
@@ -291,9 +383,41 @@ class SemanticAnalyzerAgent:
                 "title": str(role.get("title") or "")[:60],
                 "reason": str(role.get("reason") or "")[:140],
                 "matching_skills": [str(item)[:30] for item in skills[:6]],
+                "fit_score": self._clamp_percent(role.get("fit_score", 70)),
+                "fit_reason": str(role.get("fit_reason") or "")[:80],
                 "risk": str(role.get("risk") or "")[:120],
             })
         return [role for role in normalized if role["title"]][:5]
+
+    def _normalize_multidimensional_profile(self, profile: dict) -> dict:
+        if not isinstance(profile, dict):
+            profile = {}
+        dimensions = []
+        for dim in profile.get("dimensions", []) or []:
+            if not isinstance(dim, dict):
+                continue
+            left = str(dim.get("left_label") or "")[:20]
+            right = str(dim.get("right_label") or "")[:20]
+            if not left or not right:
+                continue
+            dimensions.append({
+                "key": str(dim.get("key") or f"{left}_{right}")[:40],
+                "left_label": left,
+                "right_label": right,
+                "score": self._clamp_percent(dim.get("score", 50)),
+                "summary": str(dim.get("summary") or "")[:120],
+                "evidence": str(dim.get("evidence") or "")[:160],
+                "confidence": self._clamp_score(dim.get("confidence", 3)),
+            })
+        tags = profile.get("overall_tags") or []
+        if isinstance(tags, str):
+            tags = [item.strip() for item in re.split(r"[,，/、\s]+", tags) if item.strip()]
+        normalized = {
+            "dimensions": dimensions[:8],
+            "overall_tags": [str(tag)[:20] for tag in tags[:6]],
+            "summary": str(profile.get("summary") or "")[:160],
+        }
+        return normalized
 
     def _normalize_questions(self, questions: list[dict]) -> list[dict]:
         normalized = []
@@ -319,15 +443,21 @@ class SemanticAnalyzerAgent:
         except (TypeError, ValueError):
             return 3
 
+    def _clamp_percent(self, value) -> int:
+        try:
+            return max(0, min(100, int(round(float(value)))))
+        except (TypeError, ValueError):
+            return 50
+
     def _build_project_experiences(self, experiences: list[dict], lines: list[str]) -> list[dict]:
         projects = []
-        source_experiences = experiences or []
+        project_blocks = self._extract_project_blocks(lines)
+        source_experiences = project_blocks or [
+            exp for exp in (experiences or [])
+            if self._looks_like_project_block(exp.get("description", ""))
+        ]
         if not source_experiences:
-            source_experiences = [
-                {"description": line, "title": self._guess_title(line)}
-                for line in lines
-                if any(k in line for k in ("项目", "系统", "平台", "开发", "设计", "优化"))
-            ][:6]
+            source_experiences = self._extract_project_blocks(lines)
         for idx, exp in enumerate(source_experiences[:8], start=1):
             desc = exp.get("description", "")
             if not desc:
@@ -335,23 +465,184 @@ class SemanticAnalyzerAgent:
             projects.append({
                 "name": self._guess_project_name(desc, idx),
                 "summary": self._summarize_project(desc),
-                "role": exp.get("title", ""),
+                "role": self._extract_project_role(desc),
                 "tech_stack": self._extract_tech_stack(desc),
                 "impact": self._extract_impact(desc),
-                "evidence": desc[:160],
+                "evidence": desc[:220],
             })
-        return self._normalize_projects(projects)
+        return self._normalize_projects(projects, "\n".join(lines))
+
+    def _extract_project_blocks(self, lines: list[str]) -> list[dict]:
+        blocks = []
+        active_heading = ""
+        current: list[str] = []
+        project_headings = ("项目经历", "项目经验", "科研经历", "科研项目", "研究经历", "竞赛经历", "比赛经历", "论文", "开源", "实践经历")
+        stop_headings = ("教育经历", "教育背景", "个人信息", "基本信息", "联系方式", "专业技能", "技能清单", "核心课程", "相关课程", "自我评价", "求职意向", "荣誉奖项", "证书")
+
+        def flush():
+            nonlocal current
+            text = " ".join(current).strip()
+            if self._looks_like_project_block(text):
+                blocks.append({"description": text, "title": self._guess_title(text)})
+            current = []
+
+        for raw_line in lines:
+            line = raw_line.strip()
+            compact = re.sub(r"\s+", "", line)
+            if not compact:
+                flush()
+                continue
+            if self._is_section_heading(compact, stop_headings):
+                flush()
+                active_heading = ""
+                continue
+            if self._is_section_heading(compact, project_headings):
+                flush()
+                active_heading = compact
+                continue
+
+            has_action = any(k in line for k in ("负责", "参与", "开发", "设计", "实现", "优化", "搭建", "训练", "部署", "上线", "发表", "获得", "完成", "提出", "构建", "验证"))
+            starts_new = self._line_starts_project(line) and not (current and has_action)
+            if starts_new and current:
+                flush()
+            if active_heading or starts_new or current:
+                current.append(line)
+                if len(" ".join(current)) > 700:
+                    flush()
+
+        flush()
+
+        if blocks:
+            return blocks[:8]
+
+        # 没有显式项目标题时，通篇扫描包含项目/科研动作的相邻短块，适配标题缺失的简历。
+        for idx, line in enumerate(lines):
+            if not self._line_starts_project(line):
+                continue
+            window = [line]
+            for next_line in lines[idx + 1: idx + 4]:
+                if self._is_non_project_text(next_line) or self._line_starts_project(next_line):
+                    break
+                if any(k in next_line for k in ("负责", "参与", "开发", "设计", "实现", "优化", "训练", "实验", "发表", "获得", "部署", "上线", "算法", "模型", "数据")):
+                    window.append(next_line)
+            text = " ".join(window)
+            if self._looks_like_project_block(text):
+                blocks.append({"description": text, "title": self._guess_title(text)})
+        return blocks[:8]
+
+    def _is_section_heading(self, compact_line: str, headings: tuple[str, ...]) -> bool:
+        if not compact_line:
+            return False
+        normalized = compact_line.strip("：:|_-—")
+        return any(
+            normalized == heading
+            or normalized.startswith(f"{heading}：")
+            or normalized.startswith(f"{heading}:")
+            for heading in headings
+        )
+
+    def _line_starts_project(self, line: str) -> bool:
+        if self._is_non_project_text(line):
+            return False
+        compact = re.sub(r"\s+", "", line)
+        if re.search(r"^(?:研究目标|项目背景|技术方案|主要工作|个人贡献|成果|职责|管线设计|沙箱工程|技术栈|难点)[:：]", compact):
+            return False
+        if re.search(r"^[\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{4,80}(?:\((?:19|20)\d{2}[./年-]?.*?\)|（(?:19|20)\d{2}[./年-]?.*?）)$", compact):
+            return True
+        if re.search(r"(?:项目|课题|系统|平台|小程序|网站|应用|论文|竞赛|比赛|开源|研究)[:：\-—]", compact):
+            return True
+        if re.search(r"[\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80}(?:项目|系统|平台|小程序|网站|应用|算法|模型|课题|论文|竞赛|比赛|研究)", compact):
+            return True
+        return False
+
+    def _looks_like_project_block(self, text: str) -> bool:
+        if not text or self._is_non_project_text(text):
+            return False
+        project_anchor = any(k in text for k in ("项目", "系统", "平台", "小程序", "网站", "应用", "课题", "科研", "研究", "论文", "竞赛", "比赛", "开源", "实验室", "框架", "管线", "沙箱"))
+        action_or_result = any(k in text for k in ("负责", "参与", "开发", "设计", "实现", "优化", "搭建", "训练", "部署", "上线", "发表", "获得", "完成", "提出", "构建", "验证"))
+        technical_or_research = bool(self._extract_tech_stack(text)) or any(k in text for k in ("算法", "模型", "数据集", "指标", "准确率", "召回率", "实验", "专利", "论文", "框架", "接口", "数据库", "评测", "缺陷", "复现", "修复"))
+        return project_anchor and action_or_result and technical_or_research
+
+    def _is_valid_project(self, project: dict, clean_text: str = "") -> bool:
+        combined = " ".join(str(project.get(key, "")) for key in ("name", "summary", "role", "impact", "evidence"))
+        if self._is_non_project_text(combined):
+            return False
+        if not self._looks_like_project_block(combined):
+            return False
+        evidence = str(project.get("evidence") or "").strip()
+        if evidence and clean_text and evidence not in clean_text and len(evidence) > 20:
+            # 模型偶尔会把零散关键词拼成不存在的项目，证据无法回指原文时降低信任。
+            compact_resume = re.sub(r"\s+", "", clean_text)
+            compact_evidence = re.sub(r"\s+", "", evidence)
+            if compact_evidence[:40] not in compact_resume:
+                return False
+        return True
+
+    def _is_non_project_text(self, text: str) -> bool:
+        if not text:
+            return True
+        compact = re.sub(r"\s+", "", text)
+        if re.search(r"(电话|手机|邮箱|Email|E-mail|微信|地址|籍贯|政治面貌|出生|性别)[:：]?", compact, re.I):
+            return True
+        if re.search(r"(毕业院校|院校|学校|学历|专业|本科|硕士|博士|学士|教育经历|教育背景)[:：]?", compact):
+            if not any(k in compact for k in ("项目", "课题", "科研", "实验室", "论文")):
+                return True
+        if re.search(r"(核心课程|相关课程|主修课程|课程)[:：]?", compact):
+            return True
+        if re.fullmatch(r"(?:操作系统|数据库原理|数据结构|计算机网络|软件工程|机器学习|深度学习|自然语言处理|计算机视觉|数据挖掘|Python程序设计|Java/C\+\+程序设计)[、，,A-Za-z0-9/+\u4e00-\u9fa5]*", compact):
+            return True
+        if re.search(r"(求职意向|自我评价|个人优势|荣誉奖项|获奖情况|证书|技能清单|专业技能)[:：]?", compact):
+            if not any(k in compact for k in ("项目", "系统", "平台", "课题", "论文", "竞赛")):
+                return True
+        return False
 
     def _guess_project_name(self, text: str, idx: int) -> str:
+        heading = self._extract_project_heading_name(text)
+        if heading:
+            return heading
         patterns = [
-            r"([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30}(?:项目|系统|平台|网站|小程序|应用|服务))",
-            r"(?:项目名称|项目)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.-]{2,30})",
+            r"(?:项目名称|项目|课题|论文|研究)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80})",
+            r"^([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,80}(?:项目|系统|平台|网站|小程序|应用|服务|课题|论文|竞赛|比赛|研究))",
         ]
         for pattern in patterns:
             match = re.search(pattern, text)
             if match:
-                return match.group(1)
+                name = self._clean_project_name(match.group(1))
+                if name:
+                    return name
         return f"项目 {idx}"
+
+    def _extract_project_heading_name(self, text: str) -> str:
+        first_sentence = re.split(r"[。；;\n]", text.strip())[0]
+        first_sentence = re.sub(r"\s+", " ", first_sentence).strip()
+        date_pattern = r"^(.{4,100}?)[（(]\s*(?:19|20)\d{2}[./年-]?.*?(?:至今|今|present|Present|CURRENT|Current|(?:19|20)\d{2})?\s*[）)]"
+        match = re.search(date_pattern, first_sentence)
+        if match:
+            return self._clean_project_name(match.group(1))
+        return ""
+
+    def _clean_project_name(self, name: str) -> str:
+        name = re.sub(r"^\s*(?:项目名称|项目|课题|论文|研究)[:：]\s*", "", name)
+        name = re.sub(r"[（(]\s*(?:19|20)\d{2}[./年-]?.*?[）)]", "", name)
+        name = re.split(r"\s+(?:研究目标|项目背景|主要工作|职责|技术栈|个人贡献)[:：]", name)[0]
+        name = name.strip(" ：:-—|，,。；;")
+        invalid = ("研究目标", "项目背景", "主要工作", "个人贡献", "管线设计", "沙箱工程", "技术栈")
+        if any(name.startswith(word) for word in invalid):
+            return ""
+        return name[:80]
+
+    def _repair_project_name(self, name: str, evidence: str, idx: int) -> str:
+        cleaned = self._clean_project_name(name)
+        invalid_name = (
+            not cleaned
+            or cleaned in {"项目", "项目经历", "项目经验"}
+            or any(cleaned.startswith(word) for word in ("缺乏", "研究目标", "管线设计", "沙箱工程", "个人贡献", "技术栈"))
+        )
+        if invalid_name and evidence:
+            guessed = self._guess_project_name(evidence, idx)
+            if guessed:
+                return guessed
+        return cleaned or f"项目 {idx}"
 
     def _summarize_project(self, text: str) -> str:
         text = re.sub(r"\s+", " ", text).strip()
@@ -365,12 +656,20 @@ class SemanticAnalyzerAgent:
             "Python", "Java", "Go", "Golang", "C++", "JavaScript", "TypeScript", "Vue", "React",
             "Node.js", "FastAPI", "Django", "Flask", "Spring", "Spring Boot", "MySQL", "PostgreSQL",
             "Redis", "MongoDB", "Elasticsearch", "Docker", "Kubernetes", "Linux", "Nginx",
-            "Pytorch", "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy",
+            "PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Pandas", "NumPy", "SWE-bench",
+            "Parquet", "Pytest", "pytest", "JSON Schema", "SFT", "Git", "OpenAI SDK",
+            "DashScope", "Qwen", "虚拟沙箱", "Virtual Sandbox", "venv", "virtualenv",
+            "C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器",
         ]
         found = []
         lower = text.lower()
         for tech in known:
-            if tech.lower() in lower and tech not in found:
+            tech_lower = tech.lower()
+            if re.fullmatch(r"[a-z0-9][a-z0-9 .+#-]*", tech_lower):
+                present = bool(re.search(rf"(?<![a-z0-9]){re.escape(tech_lower)}(?![a-z0-9])", lower))
+            else:
+                present = tech_lower in lower
+            if present and not any(tech_lower == item.lower() for item in found):
                 found.append("Go" if tech == "Golang" else tech)
         chinese_tech = re.findall(r"(?:使用|基于|采用|技术栈[:：]?)([\u4e00-\u9fa5A-Za-z0-9+_.#/\-、，,\s]{2,80})", text)
         for chunk in chinese_tech:
@@ -378,17 +677,65 @@ class SemanticAnalyzerAgent:
             for item in re.split(r"[,，/、\s]+", chunk):
                 item = item.strip()
                 if (
-                    1 < len(item) <= 24
+                    self._looks_like_tech_token(item)
                     and item not in found
-                    and not any(k in item for k in ("负责", "参与", "开发", "设计", "实现", "优化", "上线", "提升", "降低"))
                 ):
                     found.append(item)
                 if len(found) >= 8:
                     return found
         return found[:8]
 
+    def _looks_like_tech_token(self, item: str) -> bool:
+        if not (1 < len(item) <= 24):
+            return False
+        reject_words = (
+            "负责", "参与", "开发", "设计", "实现", "优化", "上线", "提升", "降低", "构建",
+            "模块", "系统", "平台", "简历", "画像", "面试", "分析", "原生", "和", "及",
+        )
+        if any(word in item for word in reject_words):
+            return False
+        chinese_allow = ("虚拟沙箱", "单片机", "嵌入式", "传感器")
+        return bool(re.search(r"[A-Za-z0-9+#.-]", item)) or item in chinese_allow
+
+    def _extract_project_role(self, text: str) -> str:
+        patterns = [
+            r"(?:角色|担任|职位|责任|职责)[:：]\s*([\u4e00-\u9fa5A-Za-z0-9/+\- ]{2,30})",
+            r"(?:作为|担任)([\u4e00-\u9fa5A-Za-z0-9/+\- ]{2,20})(?:，|,|。|；|;)",
+            r"(独立完成|主导|负责|参与)(?:该|本)?(?:项目|课题|系统|平台|研究)",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                role = match.group(1).strip(" ，,。；;")
+                if role in ("独立完成", "主导", "负责", "参与"):
+                    return role
+                if not any(word in role for word in ("测试用例", "测试脚本", "单元测试", "缺陷触发")):
+                    return role[:30]
+        return ""
+
+    def _has_explicit_role_signal(self, role: str, evidence: str) -> bool:
+        if not role:
+            return False
+        if any(word in role for word in ("测试用例", "测试脚本", "单元测试", "缺陷触发")):
+            return False
+        return (
+            role in evidence
+            or any(word in evidence for word in ("角色", "担任", "职位", "职责", "责任", "独立完成", "主导", "负责", "参与"))
+        )
+
     def _extract_impact(self, text: str) -> str:
-        match = re.search(r"([^。；;]*(?:提升|降低|节省|增长|稳定|上线|落地|支持|减少|优化)[^。；;]*\d*[^。；;]*)", text)
+        clauses = [clause.strip() for clause in re.split(r"[。；;]\s*", text) if clause.strip()]
+        preferred = []
+        for clause in clauses:
+            if "研究目标" in clause:
+                continue
+            has_result = any(k in clause for k in ("提升", "降低", "节省", "增长", "稳定", "上线", "落地", "支持", "减少", "优化", "沉淀", "修复", "完成", "成功"))
+            has_strength = bool(re.search(r"\d+|显著|高质量|高纯度|复杂", clause))
+            if has_result and has_strength:
+                preferred.append(clause)
+        if preferred:
+            return preferred[-1][:120]
+        match = re.search(r"([^。；;]*(?:提升|降低|节省|增长|稳定|上线|落地|支持|减少|优化)[^。；;]*)", text)
         return match.group(1).strip()[:120] if match else ""
 
     def _format_claims(self, claims: list[dict]) -> list[dict]:
@@ -423,36 +770,182 @@ class SemanticAnalyzerAgent:
             return "协作管理"
         return "综合能力"
 
-    def _suggest_roles(self, projects: list[dict], formatted_claims: list[dict]) -> list[dict]:
+    def _build_multidimensional_profile(
+        self,
+        clean_text: str,
+        projects: list[dict],
+        formatted_claims: list[dict],
+        experiences: list[dict],
+        claims: list[dict],
+    ) -> dict:
+        text = clean_text.lower()
         techs = {tech for project in projects for tech in project.get("tech_stack", [])}
         categories = {claim.get("category") for claim in formatted_claims}
+        evidence = self._pick_evidence(projects, experiences, claims)
+
+        def score(left_words, right_words, default=50):
+            left_hits = sum(1 for word in left_words if word.lower() in text)
+            right_hits = sum(1 for word in right_words if word.lower() in text)
+            if left_hits == right_hits == 0:
+                return default
+            raw = 50 + (right_hits - left_hits) * 14
+            return self._clamp_percent(raw)
+
+        sw_hw = score(
+            ["python", "java", "go", "javascript", "typescript", "vue", "react", "后端", "前端", "软件", "系统", "平台", "算法", "api"],
+            ["硬件", "嵌入式", "单片机", "pcb", "fpga", "电路", "芯片", "传感器", "机械", "自动化"],
+            35 if techs or categories & {"后端开发", "前端开发", "AI/算法"} else 50,
+        )
+        tech_biz = score(
+            ["架构", "算法", "开发", "性能", "数据库", "模型", "技术栈", "代码", "接口"],
+            ["产品", "运营", "业务", "销售", "市场", "管理", "预算", "增长", "商业"],
+        )
+        solo_collab = score(
+            ["独立", "个人", "负责模块", "开发实现", "编码"],
+            ["协作", "团队", "跨部门", "沟通", "推进", "管理", "组织", "协调", "客户"],
+        )
+        data_people = score(
+            ["数据", "分析", "指标", "报表", "建模", "统计", "实验", "a/b", "量化"],
+            ["人事", "hr", "招聘", "培训", "员工", "客户", "用户访谈", "沟通", "关系"],
+        )
+        innovation_process = score(
+            ["创新", "探索", "研究", "从0到1", "原型", "论文", "专利"],
+            ["流程", "规范", "交付", "执行", "维护", "测试", "运营", "标准化"],
+        )
+        planning_flex = score(
+            ["计划", "排期", "项目管理", "里程碑", "规划", "落地"],
+            ["快速响应", "灵活", "迭代", "敏捷", "适应", "临时", "应急"],
+        )
+
+        dimensions = [
+            self._dimension("software_hardware", "软件实现", "硬件工程", sw_hw, evidence),
+            self._dimension("technical_business", "技术深耕", "业务管理", tech_biz, evidence),
+            self._dimension("solo_collaboration", "独立产出", "协作沟通", solo_collab, evidence),
+            self._dimension("data_people", "数据分析", "人际服务", data_people, evidence),
+            self._dimension("innovation_process", "探索创新", "流程执行", innovation_process, evidence),
+            self._dimension("planning_flexible", "规划推进", "灵活适应", planning_flex, evidence),
+        ]
+        tags = []
+        if sw_hw < 40:
+            tags.append("软件工程型")
+        elif sw_hw > 60:
+            tags.append("硬件工程型")
+        if tech_biz < 45:
+            tags.append("技术深耕")
+        elif tech_biz > 60:
+            tags.append("业务管理")
+        if solo_collab > 58 or data_people > 58:
+            tags.append("沟通协同")
+        if data_people < 42:
+            tags.append("数据驱动")
+        if innovation_process < 42:
+            tags.append("探索创新")
+        if not tags:
+            tags = ["综合发展型"]
+        summary = "；".join(tags[:3]) + "，建议结合岗位要求继续验证关键项目中的个人贡献和产出指标。"
+        return self._normalize_multidimensional_profile({
+            "dimensions": dimensions,
+            "overall_tags": tags,
+            "summary": summary,
+        })
+
+    def _dimension(self, key: str, left: str, right: str, score: int, evidence: str) -> dict:
+        leaning = left if score < 45 else (right if score > 55 else "均衡")
+        return {
+            "key": key,
+            "left_label": left,
+            "right_label": right,
+            "score": score,
+            "summary": f"当前证据偏向{leaning}。",
+            "evidence": evidence,
+            "confidence": 4 if evidence else 2,
+        }
+
+    def _pick_evidence(self, projects: list[dict], experiences: list[dict], claims: list[dict]) -> str:
+        for project in projects:
+            if project.get("summary"):
+                return project["summary"][:160]
+            if project.get("evidence"):
+                return project["evidence"][:160]
+        for exp in experiences:
+            if exp.get("description"):
+                return exp["description"][:160]
+        for claim in claims:
+            if claim.get("content"):
+                return claim["content"][:160]
+        return ""
+
+    def _profile_score(self, profile: dict, key: str, default: int = 50) -> int:
+        for dim in (profile or {}).get("dimensions", []):
+            if dim.get("key") == key:
+                return self._clamp_percent(dim.get("score", default))
+        return default
+
+    def _suggest_roles(self, projects: list[dict], formatted_claims: list[dict], multidimensional_profile: dict | None = None) -> list[dict]:
+        techs = {tech for project in projects for tech in project.get("tech_stack", [])}
+        categories = {claim.get("category") for claim in formatted_claims}
+        profile = multidimensional_profile or {}
+        software_hardware = self._profile_score(profile, "software_hardware", 50)
+        technical_business = self._profile_score(profile, "technical_business", 50)
+        solo_collab = self._profile_score(profile, "solo_collaboration", 50)
+        data_people = self._profile_score(profile, "data_people", 50)
         roles = []
         if categories & {"后端开发"} or techs & {"Python", "Java", "Go", "FastAPI", "Spring Boot", "MySQL", "Redis"}:
+            fit = self._clamp_percent(82 - max(0, software_hardware - 40) + max(0, 50 - technical_business) // 3)
             roles.append({
                 "title": "后端开发工程师",
                 "reason": "项目和技能中出现服务端开发、数据库或接口实现相关信号。",
                 "matching_skills": list((techs & {"Python", "Java", "Go", "FastAPI", "Spring Boot", "MySQL", "Redis"}) or ["服务端开发"]),
+                "fit_score": fit,
+                "fit_reason": "软件实现和技术深耕信号较强。",
                 "risk": "需要确认系统设计深度、性能指标和个人贡献边界。",
             })
         if categories & {"前端开发"} or techs & {"Vue", "React", "JavaScript", "TypeScript"}:
+            fit = self._clamp_percent(78 - max(0, software_hardware - 45) + max(0, solo_collab - 55) // 4)
             roles.append({
                 "title": "前端开发工程师",
                 "reason": "简历体现前端框架、页面开发或交互实现经验。",
                 "matching_skills": list((techs & {"Vue", "React", "JavaScript", "TypeScript"}) or ["前端工程化"]),
+                "fit_score": fit,
+                "fit_reason": "前端技能和协作交付信号匹配。",
                 "risk": "需要确认组件设计、状态管理和工程化实践。",
             })
         if categories & {"AI/算法"} or techs & {"PyTorch", "TensorFlow", "LLM", "RAG", "OCR"}:
+            fit = self._clamp_percent(80 - max(0, software_hardware - 45) + max(0, 45 - data_people) // 4)
             roles.append({
                 "title": "AI应用开发工程师",
                 "reason": "存在模型、LLM、OCR或AI应用落地相关信号。",
                 "matching_skills": list((techs & {"PyTorch", "TensorFlow", "LLM", "RAG", "OCR", "Python"}) or ["AI应用"]),
+                "fit_score": fit,
+                "fit_reason": "AI技术栈和数据分析倾向支撑岗位匹配。",
                 "risk": "需要确认模型调用、数据处理和效果评估是否为本人完成。",
+            })
+        if software_hardware > 60 or techs & {"C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器"}:
+            hardware_skills = techs & {"C语言", "C++", "STM32", "FPGA", "PCB", "嵌入式", "单片机", "传感器"}
+            roles.append({
+                "title": "嵌入式/硬件工程师",
+                "reason": "简历中出现硬件、嵌入式、电路或设备调试相关信号。",
+                "matching_skills": list(hardware_skills)[:6] or ["硬件工程", "嵌入式开发"],
+                "fit_score": self._clamp_percent(70 + max(0, software_hardware - 60) // 2),
+                "fit_reason": "软件-硬件画像明显偏硬件工程侧。",
+                "risk": "需要确认硬件设计、调试记录和量产/交付经验。",
+            })
+        if data_people > 60 or categories & {"协作管理"}:
+            roles.append({
+                "title": "HR/人才发展专员",
+                "reason": "简历呈现人际沟通、组织协调或人事相关信号。",
+                "matching_skills": ["沟通协调", "人员支持", "流程推进"],
+                "fit_score": self._clamp_percent(68 + max(0, data_people - 60) // 2 + max(0, solo_collab - 55) // 3),
+                "fit_reason": "人际服务和协作沟通信号较明显。",
+                "risk": "需要确认人事制度、招聘流程或员工关系经验深度。",
             })
         if not roles:
             roles.append({
                 "title": "软件开发工程师",
                 "reason": "简历中存在项目开发经历，但岗位方向需要通过面试进一步聚焦。",
                 "matching_skills": list(techs)[:6] or ["项目开发"],
+                "fit_score": self._clamp_percent(62 + max(0, 50 - software_hardware) // 3),
+                "fit_reason": "项目开发证据存在，但方向聚焦度一般。",
                 "risk": "简历技术栈和项目结果不够清晰。",
             })
         return self._normalize_roles(roles)
