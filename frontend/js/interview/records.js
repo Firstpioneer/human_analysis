@@ -43,6 +43,7 @@ class InterviewRecords {
         const startTime = interview.start_time ? interview.start_time.slice(0, 19).replace('T', ' ') : '--';
         const recommendation = interview.evaluation?.recommendation;
         const qualityHealth = interview.evaluation?.quality_validation?.summary?.evidence_chain_health;
+        const suitability = interview.evaluation?.suitability;
         const canRestart = interview.status === '已完成' && interview._profile;
 
         return `
@@ -57,19 +58,20 @@ class InterviewRecords {
                 <span>👤 ${this._escape(name)}</span>
                 <span>📅 ${startTime}</span>
               </div>
-              ${recommendation ? `
+              ${suitability ? `
+                <div class="record-score">
+                  <span class="score-value" style="color:${suitability === '适合' ? '#10b981' : '#ef4444'}">${suitability}</span>
+                  <span class="score-label">${qualityHealth ? '证据链:' + this._escape(qualityHealth) : '评估结论'}</span>
+                </div>
+              ` : recommendation ? `
                 <div class="record-score">
                   <span class="score-value">${this._escape(recommendation)}</span>
                   <span class="score-label">${qualityHealth ? '证据链:' + this._escape(qualityHealth) : '综合结论'}</span>
-                </div>
               ` : ''}
             </div>
             <div class="record-footer">
               <span class="record-detail" onclick="window.location.hash='#/interview/${interview.interview_id}'">查看详情 →</span>
-              <div class="record-footer-actions">
-                ${canRestart ? `<button class="btn-restart-record" onclick="event.stopPropagation(); window.interviewRecords.restartInterview('${interview.interview_id}', this)">🔄 重新开始</button>` : ''}
-                <button class="btn-delete-record" onclick="event.stopPropagation(); window.interviewRecords.deleteInterview('${interview.interview_id}', this)" title="删除此记录">🗑️ 删除</button>
-              </div>
+              ${canRestart ? `<button class="btn-restart-record" onclick="event.stopPropagation(); window.interviewRecords.restartInterview('${interview.interview_id}', this)">🔄 重新开始</button>` : ''}
             </div>
           </div>
         `;
@@ -98,32 +100,6 @@ class InterviewRecords {
       alert('网络错误: ' + e.message);
       btn.disabled = false;
       btn.textContent = '🔄 重新开始';
-    }
-  }
-
-  async deleteInterview(interviewId, btn) {
-    if (!confirm('确定要删除这条面试记录吗？此操作不可恢复。')) return;
-    btn.disabled = true;
-    btn.textContent = '⏳ 删除中...';
-    try {
-      const data = await api.deleteInterview(interviewId);
-      if (data.success) {
-        const card = btn.closest('.record-card');
-        if (card) {
-          card.style.transition = 'opacity 0.3s, transform 0.3s';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(20px)';
-          setTimeout(() => card.remove(), 300);
-        }
-      } else {
-        alert('删除失败: ' + (data.error || '未知错误'));
-        btn.disabled = false;
-        btn.textContent = '🗑️ 删除';
-      }
-    } catch (e) {
-      alert('网络错误: ' + e.message);
-      btn.disabled = false;
-      btn.textContent = '🗑️ 删除';
     }
   }
 

@@ -1,11 +1,7 @@
 """面试模块路由（Flask → FastAPI 迁移）"""
-import json
-import os
-
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import Response
 
-import config
 from app.models.interview import (
     StartInterviewRequest, NextQuestionRequest, AnswerRequest,
     FollowUpRequest, StatusRequest, ProfileRequest, CandidateRequest, TTSRequest
@@ -15,66 +11,6 @@ from app.services.interview.speech_service import AliyunNLSService, create_speec
 from app.storage.interview_store import InterviewStorage, ProfileCandidateStorage
 
 router = APIRouter()
-
-
-def _resolve_profile_from_source(profile_id: str) -> dict | None:
-    """从画像源模块（data/profiles/ 或 data/conversations/）查找画像并转为面试格式。"""
-    from app.converters.profile_converter import portrait_to_interview_profile
-
-    # 1. 从 data/profiles/ 查找
-    portrait_path = os.path.join(config.PROFILES_DIR, f"{profile_id}.json")
-    if os.path.isfile(portrait_path):
-        try:
-            with open(portrait_path, "r", encoding="utf-8") as f:
-                portrait = json.load(f)
-            profile = portrait_to_interview_profile(portrait)
-            profile["_portrait_id"] = profile_id
-            return profile
-        except (json.JSONDecodeError, OSError):
-            pass
-
-    # 2. 从 data/conversations/ 的 profile_draft 中查找
-    conv_dir = config.CONVERSATIONS_DIR
-    if os.path.isdir(conv_dir):
-        for fname in os.listdir(conv_dir):
-            if not fname.endswith(".json"):
-                continue
-            try:
-                with open(os.path.join(conv_dir, fname), "r", encoding="utf-8") as f:
-                    conv = json.load(f)
-                draft = conv.get("profile_draft")
-                if draft and draft.get("id") == profile_id:
-                    profile = portrait_to_interview_profile(draft)
-                    profile["_portrait_id"] = profile_id
-                    return profile
-            except (json.JSONDecodeError, OSError):
-                continue
-
-    return None
-
-
-def _resolve_candidate_from_source(candidate_id: str) -> dict | None:
-    """从简历源模块（data/resumes/）查找候选人并转为面试格式。"""
-    from app.converters.candidate_converter import resume_to_interview_candidate
-
-    # 通过 candidate_id 反查简历文件
-    resumes_dir = config.RESUMES_DIR
-    if not os.path.isdir(resumes_dir):
-        return None
-    for fname in os.listdir(resumes_dir):
-        if not fname.endswith(".json"):
-            continue
-        try:
-            with open(os.path.join(resumes_dir, fname), "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if data.get("candidate_id") == candidate_id:
-                candidate = resume_to_interview_candidate(data)
-                candidate["_id"] = candidate_id
-                candidate["_resume_id"] = data.get("resume_id", "")
-                return candidate
-        except (json.JSONDecodeError, OSError):
-            continue
-    return None
 
 engine = InterviewEngine()
 storage = InterviewStorage()
@@ -92,11 +28,11 @@ async def start_interview(request: StartInterviewRequest):
     profile = request.profile
     candidate = request.candidate
     if not profile and request.profile_id:
-        profile = pc_storage.get_profile(request.profile_id) or _resolve_profile_from_source(request.profile_id)
+        profile = pc_storage.get_profile(request.profile_id)
         if not profile:
             raise HTTPException(status_code=404, detail="所选人才画像不存在，请重新选择")
     if not candidate and request.candidate_id:
-        candidate = pc_storage.get_candidate(request.candidate_id) or _resolve_candidate_from_source(request.candidate_id)
+        candidate = pc_storage.get_candidate(request.candidate_id)
         if not candidate:
             raise HTTPException(status_code=404, detail="所选简历分析结果不存在，请重新选择")
     if not profile or not candidate:
@@ -136,7 +72,7 @@ async def process_answer(request: AnswerRequest):
 
 @router.post("/ask-follow-up")
 async def ask_follow_up(request: FollowUpRequest):
-    result = engine.ask_follow_up(request.question, question_ref=request.question_id)
+    result = engine.ask_follow_up(request.question)
     return {"success": True, "result": result}
 
 
@@ -173,42 +109,6 @@ async def get_interview(interview_id: str):
     raise HTTPException(status_code=404, detail="未找到")
 
 
-@router.get("/detail/{interview_id}/quality")
-async def get_interview_quality(interview_id: str):
-    interview = storage.get_interview(interview_id)
-    if not interview:
-        raise HTTPException(status_code=404, detail="未找到")
-    evaluation = interview.get("evaluation")
-    if not evaluation or not evaluation.get("quality_validation"):
-        evaluation = engine.generate_assessment(interview)
-        interview["evaluation"] = evaluation
-        storage.save_interview(interview)
-    return {
-        "success": True,
-        "quality": evaluation.get("quality_validation"),
-        "evaluation": evaluation,
-    }
-
-
-@router.get("/detail/{interview_id}/report")
-async def get_interview_report(interview_id: str):
-    interview = storage.get_interview(interview_id)
-    if not interview:
-        raise HTTPException(status_code=404, detail="未找到")
-    evaluation = interview.get("evaluation")
-    if not evaluation or not evaluation.get("overall_report"):
-        evaluation = engine.generate_assessment(interview)
-        interview["evaluation"] = evaluation
-        storage.save_interview(interview)
-    return {
-        "success": True,
-        "report": evaluation.get("overall_report"),
-        "analysis_process": evaluation.get("analysis_process"),
-        "jd_match_report": evaluation.get("jd_match_report"),
-        "evaluation": evaluation,
-    }
-
-
 @router.delete("/detail/{interview_id}")
 async def delete_interview(interview_id: str):
     result = storage.delete_interview(interview_id)
@@ -235,14 +135,6 @@ async def restart_interview(interview_id: str):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/revalidate/{interview_id}")
-async def revalidate_interview(interview_id: str):
-    interview = engine.revalidate_interview(interview_id)
-    if not interview:
-        raise HTTPException(status_code=404, detail="面试记录不存在")
-    return {"success": True, "interview": interview}
 
 
 # ==================== 语音 API (阿里云 NLS) ====================
@@ -280,9 +172,14 @@ async def speech_to_text(file: UploadFile = File(...)):
         audio_data = await file.read()
         if not audio_data:
             raise HTTPException(status_code=400, detail="音频数据为空")
-        filename = file.filename or "audio.wav"
-        audio_format = filename.rsplit(".", 1)[-1].lower() if "." in filename else "wav"
-        if audio_format not in ("wav", "mp3", "pcm", "m4a", "ogg", "amr"):
+        filename = file.filename or "audio.webm"
+        audio_format = filename.rsplit(".", 1)[-1].lower() if "." in filename else "webm"
+        # 映射别名到阿里云支持的格式
+        format_map = {
+            "webm": "opus",    # webm 容器内为 opus 编码
+        }
+        audio_format = format_map.get(audio_format, audio_format)
+        if audio_format not in ("wav", "mp3", "pcm", "m4a", "ogg", "amr", "opus"):
             audio_format = "wav"
         text = speech_service.transcribe_speech_bytes(audio_data=audio_data, format=audio_format)
         return {"success": True, "text": text or ""}
@@ -304,67 +201,7 @@ async def list_voices():
 
 @router.get("/profiles")
 async def list_profiles():
-    """从画像模块动态构建可用画像列表，确保与画像历史页面一致。
-
-    画像来源优先级：
-      1. data/profiles/ 中已确认保存的画像（且对话仍存在）
-      2. data/conversations/ 中 profile_draft 里的画像（未点"保存"但有草稿）
-    """
-    from app.converters.profile_converter import portrait_to_interview_profile
-
-    seen_ids = set()
-    profiles = []
-
-    # 1. 扫描对话，收集有 profile_draft 的对话
-    conv_dir = config.CONVERSATIONS_DIR
-    conversations_with_draft = []
-    if os.path.isdir(conv_dir):
-        for fname in os.listdir(conv_dir):
-            if not fname.endswith(".json"):
-                continue
-            try:
-                with open(os.path.join(conv_dir, fname), "r", encoding="utf-8") as f:
-                    conv = json.load(f)
-                draft = conv.get("profile_draft")
-                if draft and isinstance(draft, dict) and draft.get("job_title"):
-                    conversations_with_draft.append((conv, draft))
-            except (json.JSONDecodeError, OSError):
-                continue
-
-    # 2. 优先从 data/profiles/ 加载已确认的画像
-    profiles_dir = config.PROFILES_DIR
-    confirmed_portrait_ids = set()
-    if os.path.isdir(profiles_dir):
-        for fname in os.listdir(profiles_dir):
-            if fname.endswith(".json"):
-                confirmed_portrait_ids.add(fname[:-5])
-
-    for conv, draft in conversations_with_draft:
-        portrait_id = draft.get("id", "")
-        if portrait_id and portrait_id in confirmed_portrait_ids:
-            try:
-                with open(os.path.join(profiles_dir, f"{portrait_id}.json"), "r", encoding="utf-8") as f:
-                    portrait = json.load(f)
-                interview_profile = portrait_to_interview_profile(portrait)
-                interview_profile["_id"] = portrait_id
-                interview_profile["_portrait_id"] = portrait_id
-                profiles.append(interview_profile)
-                seen_ids.add(portrait_id)
-            except (json.JSONDecodeError, OSError):
-                pass
-
-    # 3. 对话中有 profile_draft 但未保存到 data/profiles/ 的，从草稿构建
-    for conv, draft in conversations_with_draft:
-        portrait_id = draft.get("id", "")
-        if portrait_id in seen_ids:
-            continue
-        interview_profile = portrait_to_interview_profile(draft)
-        pid = portrait_id or conv.get("id", "")
-        interview_profile["_id"] = pid
-        interview_profile["_portrait_id"] = pid
-        profiles.append(interview_profile)
-
-    profiles.sort(key=lambda x: x.get("_updated_at", ""), reverse=True)
+    profiles = pc_storage.list_profiles()
     return {"success": True, "profiles": profiles}
 
 
@@ -393,28 +230,6 @@ async def delete_profile(profile_id: str):
 @router.get("/candidates")
 async def list_candidates():
     candidates = pc_storage.list_candidates()
-    # 过滤：来自简历解析的记录，校验源简历文件是否仍存在
-    def _is_valid(c):
-        if c.get("_source") != "resume_parser":
-            return False
-        resume_id = c.get("_resume_id")
-        if resume_id:
-            safe_id = "".join(ch for ch in resume_id if ch.isalnum() or ch in ("_", "-"))
-            return os.path.exists(os.path.join(config.RESUMES_DIR, f"{safe_id}.json"))
-        # 兼容旧数据：通过 candidate_id 反查简历文件
-        c_id = c.get("_id", "")
-        for fname in os.listdir(config.RESUMES_DIR):
-            if fname.endswith(".json"):
-                fpath = os.path.join(config.RESUMES_DIR, fname)
-                try:
-                    with open(fpath, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                    if data.get("candidate_id") == c_id:
-                        return True
-                except (json.JSONDecodeError, OSError):
-                    continue
-        return False
-    candidates = [c for c in candidates if _is_valid(c)]
     return {"success": True, "candidates": candidates}
 
 
