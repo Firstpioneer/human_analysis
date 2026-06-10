@@ -172,9 +172,14 @@ async def speech_to_text(file: UploadFile = File(...)):
         audio_data = await file.read()
         if not audio_data:
             raise HTTPException(status_code=400, detail="音频数据为空")
-        filename = file.filename or "audio.wav"
-        audio_format = filename.rsplit(".", 1)[-1].lower() if "." in filename else "wav"
-        if audio_format not in ("wav", "mp3", "pcm", "m4a", "ogg", "amr"):
+        filename = file.filename or "audio.webm"
+        audio_format = filename.rsplit(".", 1)[-1].lower() if "." in filename else "webm"
+        # 映射别名到阿里云支持的格式
+        format_map = {
+            "webm": "opus",    # webm 容器内为 opus 编码
+        }
+        audio_format = format_map.get(audio_format, audio_format)
+        if audio_format not in ("wav", "mp3", "pcm", "m4a", "ogg", "amr", "opus"):
             audio_format = "wav"
         text = speech_service.transcribe_speech_bytes(audio_data=audio_data, format=audio_format)
         return {"success": True, "text": text or ""}

@@ -192,24 +192,16 @@ class LLMService:
 
 请严格按照以下 JSON 格式返回评估结果：
 {
-  "overall_score": 0-100,
-  "dimension_scores": {
-    "技术能力": 0-100,
-    "项目经验": 0-100,
-    "沟通表达": 0-100,
-    "文化契合": 0-100
-  },
+  "suitability": "适合",
   "strengths": ["优势1", "优势2", "优势3"],
   "weaknesses": ["不足1", "不足2"],
-  "recommendation": "强烈推荐|推荐|待定|不推荐",
+  "recommendation": "推荐|不推荐",
   "ai_comment": "综合评价意见，300字以内"
 }
 
-评分标准：
-- 90-100: 超出预期，强烈推荐
-- 75-89: 符合要求，推荐
-- 60-74: 基本符合，待定
-- <60: 不符合要求，不推荐"""
+判断标准：
+- 适合：候选人在关键维度上满足岗位要求，面试回答显示其能力与经验匹配
+- 不适合：候选人在关键维度上明显不满足要求，或存在重大风险点"""
         transcript_text = "\n".join(transcript)
         position_name = interview.get('candidate', {}).get('profile_ref', '未知')
         user_prompt = f"""以下是本次面试的完整记录，请进行评估：

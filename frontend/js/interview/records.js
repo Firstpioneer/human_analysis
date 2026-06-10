@@ -41,7 +41,9 @@ class InterviewRecords {
         const title = interview.candidate?.profile_ref || interview._profile?.position?.title || 'AI 面试';
         const name = interview.candidate?.name || '匿名';
         const startTime = interview.start_time ? interview.start_time.slice(0, 19).replace('T', ' ') : '--';
-        const score = interview.evaluation?.overall_score;
+        const recommendation = interview.evaluation?.recommendation;
+        const qualityHealth = interview.evaluation?.quality_validation?.summary?.evidence_chain_health;
+        const suitability = interview.evaluation?.suitability;
         const canRestart = interview.status === '已完成' && interview._profile;
 
         return `
@@ -56,11 +58,15 @@ class InterviewRecords {
                 <span>👤 ${this._escape(name)}</span>
                 <span>📅 ${startTime}</span>
               </div>
-              ${score ? `
+              ${suitability ? `
                 <div class="record-score">
-                  <span class="score-value">${score}</span>
-                  <span class="score-label">综合评分</span>
+                  <span class="score-value" style="color:${suitability === '适合' ? '#10b981' : '#ef4444'}">${suitability}</span>
+                  <span class="score-label">${qualityHealth ? '证据链:' + this._escape(qualityHealth) : '评估结论'}</span>
                 </div>
+              ` : recommendation ? `
+                <div class="record-score">
+                  <span class="score-value">${this._escape(recommendation)}</span>
+                  <span class="score-label">${qualityHealth ? '证据链:' + this._escape(qualityHealth) : '综合结论'}</span>
               ` : ''}
             </div>
             <div class="record-footer">
