@@ -30,6 +30,7 @@ PROFILES_DIR = os.path.join(DATA_DIR, "profiles")
 CANDIDATES_DIR = os.path.join(DATA_DIR, "candidates")
 INTERVIEWS_DIR = os.path.join(DATA_DIR, "interviews")
 RESUMES_DIR = os.path.join(DATA_DIR, "resumes")
+CAREER_PROFILES_DIR = os.path.join(DATA_DIR, "career_profiles")
 
 # LLM 默认配置（面试引擎用）
 LLM_CONFIG_FILE = os.path.join(BASE_DIR, ".env.json")
@@ -55,5 +56,5 @@ PORTRAIT_LLM_MODEL = os.getenv("PORTRAIT_LLM_MODEL", "deepseek-chat")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 # 确保数据目录存在
-for d in [CONVERSATIONS_DIR, PROFILES_DIR, CANDIDATES_DIR, INTERVIEWS_DIR, RESUMES_DIR]:
+for d in [CONVERSATIONS_DIR, PROFILES_DIR, CANDIDATES_DIR, INTERVIEWS_DIR, RESUMES_DIR, CAREER_PROFILES_DIR]:
     os.makedirs(d, exist_ok=True)
