@@ -1,5 +1,5 @@
 /**
- * Interview Room 模块 — 面试进行中
+ * Interview Room 模块 - 纯语音面试房间
  */
 
 class InterviewRoom {
@@ -7,173 +7,110 @@ class InterviewRoom {
     this.interviewId = null;
     this.currentQuestion = null;
     this.elapsedSeconds = 0;
-    this.isWaitingForAnswer = false;
-    this.isInterviewEnding = false;
     this.timerInterval = null;
-    this.voiceRecognition = null;
-    this.isVoiceActive = false;
-    this.voiceEnabled = false;
-    this.ttsEnabled = true;             // 阿里云 TTS 播报开关
-    this.mediaRecorder = null;           // 后端 ASR 录音器
+    this.ttsEnabled = true;
+    this.isInterviewEnding = false;
+    this.isWaitingForAnswer = false;
+    this.voiceState = 'idle';
+    this.mediaStream = null;
+    this.audioContext = null;
+    this.analyser = null;
+    this.vadFrame = null;
+    this.mediaRecorder = null;
     this.audioChunks = [];
-    this.isRecording = false;
-    this.totalDuration = 45;
-    this.reportData = null;
-    this.reportLoaded = false;
+    this.answerStartedAt = 0;
+    this.silenceStartedAt = 0;
+    this.hasDetectedSpeech = false;
+    this.isMicMuted = false;
+    this.activeAudio = null;
+    this.vadConfig = { speechThreshold: 0.035, silenceMs: 2500, preSpeechSilenceMs: 10000, minAnswerMs: 1200, maxAnswerMs: 300000 };
   }
 
   init(container, interviewId) {
     this.interviewId = interviewId;
     this.elapsedSeconds = 0;
-    this.isWaitingForAnswer = false;
-    this.isInterviewEnding = false;
     this.currentQuestion = null;
+    this.isInterviewEnding = false;
+    this.isWaitingForAnswer = false;
+    this.voiceState = 'idle';
 
     container.innerHTML = `
-      <div class="interview-room">
+      <div class="interview-room voice-interview-room" data-state="idle">
         <div class="interview-main">
-          <div class="interview-top-bar">
+          <div class="interview-top-bar voice-top-bar">
             <div class="interview-top-info">
-              <h2 id="room-position-title">AI 面试</h2>
+              <h2 id="room-position-title">AI 语音面试</h2>
               <div class="info-badges">
-                <span class="badge" id="badge-status">🔴 进行中</span>
-                <span class="badge" id="badge-section">准备中</span>
-                <span class="badge">⏱ <span id="timer-display">00:00</span> / <span id="total-time">45</span>:00</span>
+                <span class="badge" id="badge-status">准备中</span>
+                <span class="badge"><span id="timer-display">00:00</span></span>
               </div>
             </div>
             <div class="top-bar-actions">
-              <button class="btn-end-interview" id="btn-end-interview">⏹ 结束面试</button>
-              <button class="btn-report-view" id="btn-view-report" style="display:none;">📄 查看评价报告</button>
+              <button class="btn-report-view" id="btn-view-report" style="display:none;">查看报告</button>
+              <button class="btn-end-interview" id="btn-end-interview">结束面试</button>
             </div>
           </div>
 
-          <div class="interview-chat">
-            <div class="interview-chat-messages" id="interview-messages">
-              <div class="interview-msg ai-msg">
-                <div class="interview-msg-avatar">🤖</div>
-                <div class="interview-msg-bubble">
-                  <div class="msg-header">AI 面试官</div>
-                  <div class="msg-content">您好！欢迎参加本次 AI 面试。我是您的 AI 面试官，将根据您的能力和经历进行综合评估。请放松心态，如实作答。我们现在开始吧！</div>
+          <main class="voice-room-stage" aria-live="polite">
+            <section class="ai-interviewer-card">
+              <div class="ai-avatar-wrap">
+                <div class="ai-avatar-ring"><div class="ai-avatar-core">AI</div></div>
+                <div class="ai-speaking-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+              </div>
+              <div class="ai-status-label">AI 面试官</div>
+              <h1 id="voice-room-title">线上语音面试</h1>
+              <p id="voice-room-status">点击开始后，面试官将通过语音与你交流。</p>
+              <button class="voice-start-session" id="btn-start-voice-session">开始面试</button>
+            </section>
+
+            <section class="candidate-voice-card">
+              <div class="candidate-card-header">
+                <div>
+                  <h3>候选人语音</h3>
+                  <p id="candidate-voice-hint">等待开始</p>
                 </div>
+                <span class="candidate-state-pill" id="candidate-state-pill">待开始</span>
               </div>
-            </div>
-          </div>
-
-          <div class="interview-input-area" id="interview-input-area">
-            <div class="voice-indicator" id="voice-indicator">
-              <div class="waveform"><span></span><span></span><span></span><span></span><span></span></div>
-              <span id="voice-status">语音识别中...</span>
-            </div>
-            <div class="interview-input-row">
-              <textarea id="answer-input" placeholder="输入您的回答...（按 Enter 发送，Shift+Enter 换行）" rows="2"></textarea>
-              <div class="interview-input-actions">
-                <button class="btn-voice" id="btn-voice" title="语音输入">🎤</button>
-                <button class="btn-send-answer" id="btn-send">发送 →</button>
+              <div class="voice-indicator" id="voice-indicator">
+                <div class="waveform"><span></span><span></span><span></span><span></span><span></span></div>
+                <span id="voice-status">麦克风未启用</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="interview-sidebar">
-          <div class="sidebar-card">
-            <h3>📊 面试进度</h3>
-            <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
-            <div class="progress-details">
-              <span>已用: <strong id="elapsed-display">00:00</strong></span>
-              <span>剩余: <strong id="remaining-display">45:00</strong></span>
-            </div>
-          </div>
-
-          <div class="sidebar-card">
-            <h3>📝 面试方案</h3>
-            <div class="plan-list" id="plan-list"></div>
-          </div>
-
-          <div class="sidebar-card" id="current-question-card">
-            <h3>❓ 当前问题</h3>
-            <div id="current-question-display" class="current-question"><p>等待开始...</p></div>
-          </div>
-
-          <div class="sidebar-card" id="follow-up-card" style="display:none;">
-            <h3>💡 AI 正在思考追问...</h3>
-            <div id="follow-up-display"></div>
-          </div>
-
-          <div class="sidebar-card" id="report-card" style="display:none;">
-            <h3>📄 整体评价报告</h3>
-            <div id="report-summary" class="report-summary">面试结束后自动生成，并展示整体结论、分析过程、证据链和 JD 差距分析。</div>
-            <button class="btn-report-panel" id="btn-open-report">查看完整报告</button>
-          </div>
+              <div class="answer-record-status">面试中不会显示问题或回答文本。</div>
+              <div class="voice-action-row">
+                <button class="voice-secondary-action" id="btn-toggle-mic" disabled>麦克风开启</button>
+              </div>
+            </section>
+          </main>
         </div>
       </div>
     `;
 
     this._bindEvents(container);
-    this._initVoice();
-    this._startInterview();
-
-    return () => {
-      this._cleanup();
-    };
+    this._loadInterview();
+    return () => this._cleanup();
   }
 
   _bindEvents(container) {
+    container.querySelector('#btn-start-voice-session').addEventListener('click', () => this.startVoiceInterview());
     container.querySelector('#btn-end-interview').addEventListener('click', () => this.endInterview());
+    container.querySelector('#btn-toggle-mic').addEventListener('click', () => this.toggleMic());
     container.querySelector('#btn-view-report').addEventListener('click', () => this.openReportModal());
-
-    container.querySelector('#btn-send').addEventListener('click', () => this.sendAnswer());
-
-    container.querySelector('#answer-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        this.sendAnswer();
-      }
-    });
-
-    container.querySelector('#btn-voice').addEventListener('click', () => this.toggleVoice());
-    container.querySelector('#btn-open-report').addEventListener('click', () => this.openReportModal());
   }
 
-  async _startInterview() {
+  async _loadInterview() {
     try {
-      // Load interview detail to get plan info
       const data = await api.getInterview(this.interviewId);
-      if (data.success && data.interview) {
-        const interview = data.interview;
-        this.totalDuration = interview.plan?.total_duration_minutes || 45;
-
-        const container = document.querySelector('.interview-room');
-        if (container) {
-          container.querySelector('#total-time').textContent = this.totalDuration;
-          container.querySelector('#room-position-title').textContent =
-            interview.candidate?.profile_ref || interview._profile?.position?.title || 'AI 面试';
-
-          // Render plan sections
-          const planList = container.querySelector('#plan-list');
-          if (interview.plan?.sections) {
-            planList.innerHTML = interview.plan.sections.map(s => `
-              <div class="plan-item" data-section="${s.section_name}">
-                <div class="plan-item-header">
-                  <span class="plan-name">${s.section_name}</span>
-                  <span class="plan-time">${s.duration_minutes}分钟</span>
-                </div>
-                <div class="question-count">${s.questions ? s.questions.length + ' 个问题' : '开放式环节'}</div>
-              </div>
-            `).join('');
-          }
-
-          // 检查阿里云 TTS/ASR 是否已配置
-          this._checkVoiceConfig();
-
-          if (interview.status === '已完成') {
-            this._showCompleted(container);
-            return;
-          }
-        }
-
-        this.startTimer();
-        setTimeout(() => this.askNextQuestion(), 3000);
+      if (!data.success || !data.interview) return;
+      const interview = data.interview;
+      const title = interview.candidate?.profile_ref || interview._profile?.position?.title || 'AI 语音面试';
+      const titleEl = document.getElementById('room-position-title');
+      if (titleEl) titleEl.textContent = title;
+      await this._checkVoiceConfig();
+      if (interview.status === '已完成') {
+        this._showCompleted();
+        return;
       }
+      this._setState('idle', '点击开始后，面试官将通过语音与你交流。', '待开始');
     } catch (e) {
       console.error('加载面试失败:', e);
       showToast('加载面试失败: ' + e.message, 'error');
@@ -183,553 +120,547 @@ class InterviewRoom {
   async _checkVoiceConfig() {
     try {
       const data = await api.getVoices();
-      if (data.success) {
-        this.ttsEnabled = data.configured;
-        console.log('阿里云 NLS 语音服务:', data.configured ? '已配置 ✓' : '未配置（跳过 TTS）');
-      }
+      this.ttsEnabled = !!data.configured;
+      if (!this.ttsEnabled) this._setVoiceStatus('语音服务未配置');
     } catch (e) {
       this.ttsEnabled = false;
     }
   }
 
-  _initVoice() {
-    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) return;
-    this._recreateRecognizer();
-  }
-
-  /** 创建新的 SpeechRecognition 实例（每次重新激活时重建，避免 stop 后无法重启） */
-  _recreateRecognizer() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SpeechRecognition();
-    rec.lang = 'zh-CN';
-    rec.continuous = false;
-    rec.interimResults = true;
-    rec.maxAlternatives = 1;
-
-    rec.onresult = (event) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-        else interimTranscript += event.results[i][0].transcript;
-      }
-      if (finalTranscript) {
-        const input = document.getElementById('answer-input');
-        input.value = input.value ? input.value + finalTranscript : finalTranscript;
-      }
-      const status = document.getElementById('voice-status');
-      if (status) status.textContent = interimTranscript ? '正在识别: ' + interimTranscript : '🎤 聆听中...';
-    };
-
-    rec.onerror = (event) => {
-      if (event.error === 'not-allowed') {
-        this.deactivateVoice();
-        const status = document.getElementById('voice-status');
-        if (status) status.textContent = '⚠️ 麦克风权限被拒绝';
-        return;
-      }
-      if (event.error === 'no-speech' || event.error === 'aborted') return;
-      this.deactivateVoice();
-    };
-
-    rec.onend = () => {
-      if (this.isVoiceActive && this.isWaitingForAnswer && !this.isInterviewEnding) {
-        // 每次重新开始时重建实例，确保状态正确
-        this._recreateRecognizer();
-        try { this.voiceRecognition.start(); } catch (e) { this.deactivateVoice(); }
-      }
-    };
-
-    this.voiceRecognition = rec;
-  }
-
-  toggleVoice() {
-    if (this.isVoiceActive) this.deactivateVoice();
-    else this.activateVoice();
-  }
-
-  activateVoice() {
-    if (!this.voiceRecognition) {
-      if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-        alert('您的浏览器不支持语音识别，请使用 Chrome 浏览器');
-        return;
-      }
-      this._recreateRecognizer();
-    }
-    this.isVoiceActive = true;
-    const btn = document.getElementById('btn-voice');
-    const indicator = document.getElementById('voice-indicator');
-    const status = document.getElementById('voice-status');
-    if (btn) btn.classList.add('active');
-    if (indicator) indicator.classList.add('active');
-    if (status) status.textContent = '🎤 聆听中...';
-    try { this.voiceRecognition.start(); } catch (e) {
-      // start 失败时重建实例再试一次
-      console.warn('语音识别 start 失败，重建实例重试:', e.message);
-      this._recreateRecognizer();
-      try {
-        this.voiceRecognition.start();
-      } catch (e2) {
-        console.error('语音识别重启失败:', e2.message);
-        this.isVoiceActive = false;
-        if (btn) btn.classList.remove('active');
-        if (indicator) indicator.classList.remove('active');
-        if (status) status.textContent = '⚠️ 启动失败';
-      }
+  async startVoiceInterview() {
+    if (this.voiceState !== 'idle') return;
+    const startBtn = document.getElementById('btn-start-voice-session');
+    if (startBtn) startBtn.disabled = true;
+    try {
+      await this._ensureMicrophone();
+      this.startTimer();
+      const micBtn = document.getElementById('btn-toggle-mic');
+      if (micBtn) micBtn.disabled = false;
+      await this.askNextQuestion();
+    } catch (e) {
+      console.error('启动语音面试失败:', e);
+      this._setState('idle', '无法启用麦克风，请检查浏览器权限后重试。', '麦克风异常');
+      if (startBtn) startBtn.disabled = false;
+      showToast('启动语音面试失败: ' + e.message, 'error');
     }
   }
 
-  deactivateVoice() {
-    this.isVoiceActive = false;
-    const btn = document.getElementById('btn-voice');
-    const indicator = document.getElementById('voice-indicator');
-    if (btn) btn.classList.remove('active');
-    if (indicator) indicator.classList.remove('active');
-    if (this.voiceRecognition) try { this.voiceRecognition.stop(); } catch (e) {}
+  async _ensureMicrophone() {
+    if (this.mediaStream) return;
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = 1024;
+    source.connect(this.analyser);
   }
 
   startTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => {
-      this.elapsedSeconds++;
+      this.elapsedSeconds += 1;
       this._updateTimerDisplay();
-      this._checkTimeStatus();
     }, 1000);
   }
 
   _updateTimerDisplay() {
-    const mins = Math.floor(this.elapsedSeconds / 60);
-    const secs = this.elapsedSeconds % 60;
-    const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
+    const min = Math.floor(this.elapsedSeconds / 60);
+    const sec = this.elapsedSeconds % 60;
     const timerDisplay = document.getElementById('timer-display');
-    const elapsedDisplay = document.getElementById('elapsed-display');
-    if (timerDisplay) timerDisplay.textContent = timeStr;
-    if (elapsedDisplay) elapsedDisplay.textContent = timeStr;
-
-    const remaining = Math.max(0, this.totalDuration * 60 - this.elapsedSeconds);
-    const rMins = Math.floor(remaining / 60);
-    const rSecs = remaining % 60;
-    const remainingDisplay = document.getElementById('remaining-display');
-    if (remainingDisplay) remainingDisplay.textContent = `${String(rMins).padStart(2, '0')}:${String(rSecs).padStart(2, '0')}`;
-
-    const progress = Math.min(100, (this.elapsedSeconds / (this.totalDuration * 60)) * 100);
-    const progressBar = document.getElementById('progress-bar');
-    if (progressBar) {
-      progressBar.style.width = progress + '%';
-      if (progress > 85) progressBar.style.background = '#e74c3c';
-      else if (progress > 65) progressBar.style.background = '#f39c12';
-    }
-  }
-
-  async _checkTimeStatus() {
-    const elapsed = this.elapsedSeconds / 60;
-    try {
-      const data = await api.getInterviewStatus(elapsed);
-      if (data.success && data.time_status) {
-        const ts = data.time_status;
-        if (ts.current_section) {
-          const badgeSection = document.getElementById('badge-section');
-          if (badgeSection) badgeSection.textContent = ts.current_section.section_name;
-        }
-        if (ts.should_wrap_up && !this.isInterviewEnding) {
-          this._addSystemMessage('⏰ 面试即将结束，请准备收尾。');
-        }
-        if (ts.suggested_action === '紧急收尾' && !this.isInterviewEnding) {
-          await this.endInterview();
-        }
-      }
-    } catch (e) {}
-  }
-
-  _addMessage(speaker, text, isFollowUp = false) {
-    const container = document.getElementById('interview-messages');
-    const div = document.createElement('div');
-    const isAI = speaker === 'AI';
-    div.className = `interview-msg ${isAI ? 'ai-msg' : 'candidate-msg'} ${isFollowUp ? 'follow-up' : ''}`;
-
-    div.innerHTML = `
-      <div class="interview-msg-avatar">${isAI ? '🤖' : '👤'}</div>
-      <div class="interview-msg-bubble">
-        <div class="msg-header">${isAI ? 'AI 面试官' : '我'}</div>
-        <div class="msg-content">${text}</div>
-      </div>
-    `;
-
-    container.appendChild(div);
-    const chatArea = container.closest('.interview-chat');
-    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-  }
-
-  _addSystemMessage(text) {
-    const container = document.getElementById('interview-messages');
-    const div = document.createElement('div');
-    div.className = 'interview-msg system-msg';
-    div.innerHTML = `<div class="system-bubble">${text}</div>`;
-    container.appendChild(div);
-    const chatArea = container.closest('.interview-chat');
-    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+    if (timerDisplay) timerDisplay.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   }
 
   async askNextQuestion() {
     if (this.isInterviewEnding) return;
-    const elapsed = this.elapsedSeconds / 60;
+    this._setState('ai_thinking', '面试官正在准备下一个问题。', '等待中');
     try {
-      const data = await api.getNextQuestion(elapsed);
+      const data = await api.getNextQuestion(this.elapsedSeconds / 60);
       if (data.success && data.question) {
         this.currentQuestion = data.question;
-        const q = data.question;
-        this._addMessage('AI', q.question_text);
-
-        const display = document.getElementById('current-question-display');
-        if (display) {
-          display.innerHTML = `<p class="question-category">[${q.category}] ${q.difficulty}</p><p class="question-text">${q.question_text}</p>`;
+        await this._speakInterviewerText(data.question.question_text);
+        if (data.question.question_id === 'WRAP_UP') {
+          await this._finishAfterSpokenWrapUp();
+          return;
         }
-
-        // TTS 播报 AI 问题
-        if (this.ttsEnabled) {
-          this._playTTS(q.question_text);
-        }
-
-        this.isWaitingForAnswer = true;
-        this._setAnswerControlsDisabled(false);
-        const input = document.getElementById('answer-input');
-        if (input) input.focus();
+        await this._beginAnswerCapture();
       } else {
-        this._addSystemMessage('✅ 面试问题已全部完成，系统正在自动结束并生成评估报告...');
-        await this.endInterview('面试问答已完成，系统已自动结束。');
+        await this._finishNaturally('今天的面试问题就到这里。感谢你的回答，接下来系统会生成本次面试反馈。');
       }
     } catch (e) {
-      console.error('获取问题失败:', e);
       if (e.message && e.message.includes('所有问题已问完')) {
-        this._addSystemMessage('✅ 面试问题已全部完成，系统正在自动结束并生成评估报告...');
-        await this.endInterview('面试问答已完成，系统已自动结束。');
+        await this._finishNaturally('今天的面试问题就到这里。感谢你的回答，接下来系统会生成本次面试反馈。');
         return;
       }
+      console.error('获取问题失败:', e);
+      this._setState('idle', '获取问题失败，请稍后重试。', '异常');
       showToast('获取下一题失败: ' + e.message, 'error');
     }
   }
 
-  // ── 阿里云 TTS 播报 ──
-
-  async _playTTS(text) {
-    try {
-      const audio = await api.playTTS(text);
-      const speakerIcon = document.querySelector('.interview-msg.ai-msg:last-child .msg-header');
-      if (speakerIcon) {
-        speakerIcon.innerHTML = 'AI 面试官 <span class="tts-indicator">🔊 播报中...</span>';
-      }
-      audio.onended = () => {
-        const indicator = document.querySelector('.tts-indicator');
-        if (indicator) indicator.remove();
-      };
-      audio.play().catch(e => console.warn('TTS 播放失败:', e.message));
-    } catch (e) {
-      console.warn('TTS 合成失败（可能未配置阿里云 NLS）:', e.message);
+  async _speakInterviewerText(text) {
+    this._stopAnswerCapture();
+    this._setState('ai_speaking', '面试官正在提问。', '请聆听');
+    this._setVoiceStatus('请聆听面试官语音');
+    if (!this.ttsEnabled) {
+      throw new Error('语音服务未配置');
     }
+    const audio = await api.playTTS(text);
+    this.activeAudio = audio;
+    await new Promise((resolve, reject) => {
+      audio.onended = () => { this.activeAudio = null; resolve(); };
+      audio.onerror = () => reject(new Error('TTS 播放失败'));
+      audio.play().catch(reject);
+    });
   }
 
-  async sendAnswer() {
-    if (!this.isWaitingForAnswer || !this.currentQuestion || this.isInterviewEnding) return;
-    const input = document.getElementById('answer-input');
-    const answer = input.value.trim();
-    if (!answer) return;
+  async _beginAnswerCapture() {
+    if (this.isInterviewEnding || this.isMicMuted) return;
+    await this._ensureMicrophone();
+    this.isWaitingForAnswer = true;
+    this.hasDetectedSpeech = false;
+    this.answerStartedAt = 0;
+    this.silenceStartedAt = performance.now();
+    this.audioChunks = [];
+    const recorderMimeType = this._getRecorderMimeType();
+    const recorderOptions = recorderMimeType ? { mimeType: recorderMimeType } : {};
+    this.mediaRecorder = new MediaRecorder(this.mediaStream, recorderOptions);
+    this.mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) this.audioChunks.push(event.data);
+    };
+    this.mediaRecorder.onstop = () => this._handleRecordedAnswer();
+    this.mediaRecorder.start();
+    this._setState('candidate_ready', '请开始回答。', '等待回答');
+    this._setVoiceStatus('等待你开始说话');
+    this._runVadLoop();
+  }
 
-    const submittedQuestion = { ...this.currentQuestion };
+  _getRecorderMimeType() {
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) return 'audio/webm;codecs=opus';
+    if (MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
+    return '';
+  }
+
+  _runVadLoop() {
+    if (!this.analyser || !this.isWaitingForAnswer) return;
+    const data = new Uint8Array(this.analyser.fftSize);
+    const tick = () => {
+      if (!this.isWaitingForAnswer || this.isInterviewEnding) return;
+      this.analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (const value of data) {
+        const normalized = (value - 128) / 128;
+        sum += normalized * normalized;
+      }
+      const volume = Math.sqrt(sum / data.length);
+      const now = performance.now();
+      const isSpeaking = volume > this.vadConfig.speechThreshold;
+      this._updateWaveform(volume, isSpeaking);
+      if (isSpeaking) {
+        if (!this.hasDetectedSpeech) {
+          this.hasDetectedSpeech = true;
+          this.answerStartedAt = now;
+          this._setState('candidate_answering', '正在聆听。', '回答中');
+          this._setVoiceStatus('正在聆听');
+        }
+        this.silenceStartedAt = 0;
+      } else if (this.hasDetectedSpeech) {
+        if (!this.silenceStartedAt) this.silenceStartedAt = now;
+        const answerMs = now - this.answerStartedAt;
+        const silenceMs = now - this.silenceStartedAt;
+        if ((silenceMs >= this.vadConfig.silenceMs && answerMs >= this.vadConfig.minAnswerMs) || answerMs >= this.vadConfig.maxAnswerMs) {
+          this._stopAnswerCapture();
+          return;
+        }
+      } else if (now - this.silenceStartedAt >= this.vadConfig.preSpeechSilenceMs) {
+        this._setVoiceStatus('可以直接开口回答');
+        this.silenceStartedAt = now;
+      }
+      this.vadFrame = requestAnimationFrame(tick);
+    };
+    this.vadFrame = requestAnimationFrame(tick);
+  }
+
+  _stopAnswerCapture() {
+    if (this.vadFrame) {
+      cancelAnimationFrame(this.vadFrame);
+      this.vadFrame = null;
+    }
     this.isWaitingForAnswer = false;
-    this._setAnswerControlsDisabled(true);
-    this._addMessage('候选人', answer);
-    input.value = '';
-    this.deactivateVoice();
+    this._updateWaveform(0, false);
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') this.mediaRecorder.stop();
+  }
 
+  async _handleRecordedAnswer() {
+    if (this.isInterviewEnding || !this.currentQuestion) return;
+    if (!this.audioChunks.length || !this.hasDetectedSpeech) {
+      this.audioChunks = [];
+      if (!this.isInterviewEnding) await this._beginAnswerCapture();
+      return;
+    }
+    const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+    const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+    this.audioChunks = [];
+    this._setState('ai_thinking', '正在整理回答。', '处理中');
+    this._setVoiceStatus('正在识别语音');
     try {
-      const data = await api.submitAnswer(submittedQuestion.question_id, answer);
-      if (!data.success || data.result?.error) {
-        throw new Error(data.result?.error || '回答提交失败');
+      const wavBlob = await this._convertBlobToWav(audioBlob);
+      const result = await api.speechToText(wavBlob, 'recording.wav');
+      const answer = (result.text || '').trim();
+      if (!answer) {
+        await this._speakInterviewerText('我刚才没有听清你的回答，可以再说一遍吗？');
+        await this._beginAnswerCapture();
+        return;
       }
-
-      if (data.success && data.result.follow_up) {
-        const followUpCard = document.getElementById('follow-up-card');
-        if (followUpCard) followUpCard.style.display = 'block';
-
-        setTimeout(async () => {
-          try {
-            const followUpData = await api.askFollowUp(data.result.follow_up, { question_id: submittedQuestion.question_id });
-            if (followUpData.success) {
-              this._addMessage('AI', data.result.follow_up, true);
-              if (this.ttsEnabled) {
-                this._playTTS(data.result.follow_up);
-              }
-              this.currentQuestion = { ...submittedQuestion, follow_up: true };
-              this.isWaitingForAnswer = true;
-              this._setAnswerControlsDisabled(false);
-              const inp = document.getElementById('answer-input');
-              if (inp) inp.focus();
-            }
-          } catch (e) {
-            console.error('追问生成失败:', e);
-            showToast('追问生成失败，系统将继续下一题', 'error');
-            setTimeout(() => this.askNextQuestion(), 300);
-          } finally {
-            if (followUpCard) followUpCard.style.display = 'none';
-          }
-        }, 1500);
-      } else if (submittedQuestion.question_id === 'WRAP_UP') {
-        this._addSystemMessage('✅ 面试问答已完成，系统正在自动结束并生成评估报告...');
-        await this.endInterview('面试问答已完成，系统已自动结束。');
-      } else {
-        setTimeout(() => this.askNextQuestion(), 1000);
+      if (this._isRepeatRequest(answer)) {
+        await this._speakInterviewerText(this.currentQuestion.question_text);
+        await this._beginAnswerCapture();
+        return;
       }
+      await this._submitHiddenAnswer(answer);
     } catch (e) {
-      console.error('发送回答失败:', e);
-      showToast('发送回答失败: ' + e.message, 'error');
-      if (!this.isInterviewEnding) {
-        this.isWaitingForAnswer = true;
-        this.currentQuestion = submittedQuestion;
-        this._setAnswerControlsDisabled(false);
-        input.value = answer;
-        input.focus();
-      }
+      console.error('语音识别失败:', e);
+      await this._speakInterviewerText('刚才的语音识别失败了，请你再回答一次。');
+      await this._beginAnswerCapture();
     }
   }
 
-  async endInterview(autoReason = '') {
+  _isRepeatRequest(answer) {
+    return /(?:再说一遍|重复|没听清|没听见|没明白|再讲一次|再问一次|解释一下|什么意思|什么问题)/.test(answer);
+  }
+
+  async _convertBlobToWav(audioBlob) {
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const decodeContext = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+      const audioBuffer = await decodeContext.decodeAudioData(arrayBuffer);
+      return this._encodeWav(audioBuffer, 16000);
+    } finally {
+      decodeContext.close().catch(() => {});
+    }
+  }
+
+  _encodeWav(audioBuffer, targetSampleRate) {
+    const source = audioBuffer.getChannelData(0);
+    const sampleRate = audioBuffer.sampleRate;
+    const ratio = sampleRate / targetSampleRate;
+    const length = Math.floor(source.length / ratio);
+    const pcm = new Int16Array(length);
+
+    for (let i = 0; i < length; i++) {
+      const sourceIndex = Math.min(Math.floor(i * ratio), source.length - 1);
+      const sample = Math.max(-1, Math.min(1, source[sourceIndex]));
+      pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+    }
+
+    const buffer = new ArrayBuffer(44 + pcm.length * 2);
+    const view = new DataView(buffer);
+    this._writeAscii(view, 0, 'RIFF');
+    view.setUint32(4, 36 + pcm.length * 2, true);
+    this._writeAscii(view, 8, 'WAVE');
+    this._writeAscii(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, targetSampleRate, true);
+    view.setUint32(28, targetSampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    this._writeAscii(view, 36, 'data');
+    view.setUint32(40, pcm.length * 2, true);
+
+    let offset = 44;
+    for (let i = 0; i < pcm.length; i++, offset += 2) {
+      view.setInt16(offset, pcm[i], true);
+    }
+
+    return new Blob([view], { type: 'audio/wav' });
+  }
+
+  _writeAscii(view, offset, text) {
+    for (let i = 0; i < text.length; i++) {
+      view.setUint8(offset + i, text.charCodeAt(i));
+    }
+  }
+
+  async _submitHiddenAnswer(answer) {
+    if (!this.currentQuestion || this.isInterviewEnding) return;
+    const submittedQuestion = { ...this.currentQuestion };
+    try {
+      const data = await api.submitAnswer(submittedQuestion.question_id, answer, {
+        is_follow_up_answer: !!submittedQuestion.follow_up,
+        elapsed_seconds: this.elapsedSeconds,
+      });
+      if (!data.success || data.result?.error) throw new Error(data.result?.error || '回答提交失败');
+      if (submittedQuestion.question_id === 'WRAP_UP') {
+        await this._finishAfterSpokenWrapUp();
+        return;
+      }
+      if (data.result?.follow_up) {
+        const followUpData = await api.askFollowUp(data.result.follow_up, { question_id: submittedQuestion.question_id });
+        if (followUpData.success) {
+          this.currentQuestion = { ...submittedQuestion, follow_up: true, question_text: data.result.follow_up };
+          await this._speakInterviewerText(data.result.follow_up);
+          await this._beginAnswerCapture();
+          return;
+        }
+      }
+      await this.askNextQuestion();
+    } catch (e) {
+      console.error('提交回答失败:', e);
+      showToast('提交回答失败: ' + e.message, 'error');
+      await this._speakInterviewerText('刚才的回答提交失败，请你再回答一次。');
+      await this._beginAnswerCapture();
+    }
+  }
+
+  async _finishAfterSpokenWrapUp() {
+    await this.endInterview('面试问答已完成，系统正在生成评估结果。', { skipConfirm: true, alreadySpoken: true });
+  }
+
+  async _finishNaturally(spokenText) {
+    await this._speakInterviewerText(spokenText);
+    await this.endInterview('面试问答已完成，系统正在生成评估结果。', { skipConfirm: true, alreadySpoken: true });
+  }
+
+  async endInterview(reason = '', options = {}) {
     if (this.isInterviewEnding) return;
+    if (!options.skipConfirm && !window.confirm('确认结束本次面试？')) return;
     this.isInterviewEnding = true;
     if (this.timerInterval) clearInterval(this.timerInterval);
-    this.deactivateVoice();
-    this._setAnswerControlsDisabled(true);
-
+    this._stopAnswerCapture();
+    this._setState('ai_thinking', reason || '正在结束面试。', '收尾中');
     try {
+      if (!options.alreadySpoken && !reason) await this._speakInterviewerText('好的，本次面试到这里结束。感谢你的参与。');
       const data = await api.endInterview();
       if (data.success) {
-        const message = autoReason
-          ? `✅ ${autoReason} 系统正在展示评估结果。`
-          : '✅ 面试已结束，感谢您的参与！系统正在生成并展示评估结果。';
-        this._addSystemMessage(message);
-        const badgeStatus = document.getElementById('badge-status');
-        if (badgeStatus) {
-          badgeStatus.textContent = '✅ 已完成';
-          badgeStatus.style.background = '#d1fae5';
-        }
-        const btnEnd = document.getElementById('btn-end-interview');
-        if (btnEnd) btnEnd.disabled = true;
-
-        this._showRestartButton();
-        this._showReportAccess();
-
-        // 显示评估结果
-        setTimeout(() => this._renderSavedDialogues(), 500);
+        this._showCompleted();
+        setTimeout(() => this.openReportModal(), 600);
       }
     } catch (e) {
       console.error('结束面试失败:', e);
       showToast('结束面试失败: ' + e.message, 'error');
       this.isInterviewEnding = false;
-      this._setAnswerControlsDisabled(false);
-      return;
-    }
-
-    const inputArea = document.getElementById('interview-input-area');
-    if (inputArea) inputArea.style.display = 'none';
-  }
-
-  _showRestartButton() {
-    const actions = document.querySelector('.top-bar-actions');
-    if (actions && !document.getElementById('btn-restart-interview')) {
-      const btn = document.createElement('button');
-      btn.className = 'btn-restart-interview';
-      btn.id = 'btn-restart-interview';
-      btn.textContent = '🔄 重新开始';
-      btn.onclick = () => this._restartInterview();
-      actions.appendChild(btn);
     }
   }
 
-  _showReportAccess() {
-    const btn = document.getElementById('btn-view-report');
-    if (btn) btn.style.display = 'inline-flex';
-    const card = document.getElementById('report-card');
-    if (card) card.style.display = 'block';
-    this._renderReportPreview();
-  }
-
-  async _restartInterview() {
-    try {
-      const data = await api.restartInterview(this.interviewId);
-      if (data.success) {
-        window.location.hash = '#/interview/' + data.interview.interview_id;
-      } else {
-        alert('重新开始失败: ' + (data.error || '未知错误'));
-      }
-    } catch (e) {
-      alert('网络错误: ' + e.message);
+  toggleMic() {
+    this.isMicMuted = !this.isMicMuted;
+    if (this.mediaStream) this.mediaStream.getAudioTracks().forEach(track => { track.enabled = !this.isMicMuted; });
+    const btn = document.getElementById('btn-toggle-mic');
+    if (btn) btn.textContent = this.isMicMuted ? '麦克风关闭' : '麦克风开启';
+    if (this.isMicMuted) {
+      this._stopAnswerCapture();
+      this._setVoiceStatus('麦克风已关闭');
+    } else if (this.currentQuestion && !this.isInterviewEnding && this.voiceState !== 'ai_speaking') {
+      this._beginAnswerCapture();
     }
   }
 
-  _showCompleted(container) {
-    const badgeStatus = document.getElementById('badge-status');
-    if (badgeStatus) {
-      badgeStatus.textContent = '✅ 已完成';
-      badgeStatus.style.background = '#d1fae5';
-    }
-    const btnEnd = document.getElementById('btn-end-interview');
-    if (btnEnd) btnEnd.style.display = 'none';
-    const inputArea = document.getElementById('interview-input-area');
-    if (inputArea) inputArea.style.display = 'none';
-    this._showRestartButton();
-    this._showReportAccess();
-
-    // 渲染已保存的对话记录
-    this._renderSavedDialogues();
+  _setState(state, statusText, candidateState) {
+    this.voiceState = state;
+    const room = document.querySelector('.voice-interview-room');
+    if (room) room.dataset.state = state;
+    const status = document.getElementById('voice-room-status');
+    if (status) status.textContent = statusText || '';
+    const badge = document.getElementById('badge-status');
+    if (badge) badge.textContent = candidateState || statusText || '';
+    const pill = document.getElementById('candidate-state-pill');
+    if (pill) pill.textContent = candidateState || '';
+    const hint = document.getElementById('candidate-voice-hint');
+    if (hint) hint.textContent = statusText || '';
   }
 
-  async _renderSavedDialogues() {
-    try {
-      const data = await api.getInterview(this.interviewId);
-      if (!data.success || !data.interview) return;
-      const interview = data.interview;
-      const dialogues = interview.dialogues || [];
-      const evaluation = interview.evaluation;
-
-      // 检查是否已有对话记录（避免面试结束时重复渲染）
-      const container = document.getElementById('interview-messages');
-      const hasExistingDialogues = container && container.querySelectorAll('.candidate-msg').length > 0;
-      if (!hasExistingDialogues) {
-        for (const msg of dialogues) {
-          this._addMessage(msg.speaker, msg.text);
-        }
-      }
-
-      // 渲染评估结果
-      const hasEvalMsg = container && container.querySelector('.system-msg')?.textContent.includes('面试评估');
-      if (evaluation && !hasEvalMsg) {
-        const takeaway = evaluation.overview?.one_line_takeaway
-          ? `一句话判断: ${evaluation.overview.one_line_takeaway}`
-          : '';
-        const recText = evaluation.recommendation
-          ? `推荐结论: ${evaluation.recommendation}`
-          : '';
-        const commentText = evaluation.ai_comment
-          ? `AI 评语: ${evaluation.ai_comment}`
-          : '';
-        const quality = evaluation.quality_validation?.summary;
-        const qualityText = quality
-          ? `质量验证: 证据链${quality.evidence_chain_health} / 稳定性${quality.stability_status} / 区分度${quality.discrimination_status}`
-          : '';
-        const lines = [takeaway, recText, commentText, qualityText].filter(Boolean).join('\n');
-        if (lines) {
-          this._addSystemMessage('📊 面试评估\n' + lines);
-        }
-      }
-
-      if (dialogues.length === 0 && !hasExistingDialogues) {
-        this._addSystemMessage('此面试无对话记录');
-      }
-    } catch (e) {
-      console.error('加载对话记录失败:', e);
-    }
+  _setVoiceStatus(text) {
+    const status = document.getElementById('voice-status');
+    if (status) status.textContent = text;
   }
 
-  async _renderReportPreview() {
-    const summaryEl = document.getElementById('report-summary');
-    if (!summaryEl) return;
-    summaryEl.textContent = '报告生成中...';
-    try {
-      const data = await this._ensureReportLoaded();
-      const summary = data.report?.summary || data.evaluation?.overview?.one_line_takeaway || '报告已生成，可查看完整内容。';
-      const jdSummary = data.jd_match_report?.summary || '';
-      summaryEl.innerHTML = `
-        <div class="report-summary-main">${this._escapeHtml(summary)}</div>
-        ${jdSummary ? `<div class="report-summary-sub">${this._escapeHtml(jdSummary)}</div>` : ''}
-      `;
-    } catch (e) {
-      summaryEl.textContent = '报告加载失败，请稍后重试。';
-    }
+  _updateWaveform(volume, active) {
+    const indicator = document.getElementById('voice-indicator');
+    if (!indicator) return;
+    indicator.classList.toggle('active', active);
+    const bars = indicator.querySelectorAll('.waveform span');
+    bars.forEach((bar, index) => {
+      const boost = 1 + (index % 3) * 0.45;
+      const height = Math.max(8, Math.min(34, 8 + volume * 380 * boost));
+      bar.style.height = `${height}px`;
+    });
   }
 
-  async _ensureReportLoaded(force = false) {
-    if (this.reportLoaded && this.reportData && !force) return this.reportData;
-    const data = await api.getInterviewReport(this.interviewId);
-    if (!data.success) throw new Error('整体评价报告加载失败');
-    this.reportData = data;
-    this.reportLoaded = true;
-    return data;
+  _showCompleted() {
+    this._setState('completed', '面试已完成，报告正在准备。', '已完成');
+    this._setVoiceStatus('面试已完成');
+    const endBtn = document.getElementById('btn-end-interview');
+    if (endBtn) endBtn.disabled = true;
+    const micBtn = document.getElementById('btn-toggle-mic');
+    if (micBtn) micBtn.disabled = true;
+    const startBtn = document.getElementById('btn-start-voice-session');
+    if (startBtn) startBtn.style.display = 'none';
+    const reportBtn = document.getElementById('btn-view-report');
+    if (reportBtn) reportBtn.style.display = 'inline-flex';
   }
 
   async openReportModal() {
     try {
-      const data = await this._ensureReportLoaded();
-      this._closeReportModal();
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay report-modal-overlay';
-      overlay.id = 'report-modal-overlay';
-      const analysisSteps = (data.analysis_process || []).map(step => `
-        <div class="report-step">
-          <div class="report-step-title">${step.step}. ${this._escapeHtml(step.name || '')}</div>
-          <div class="report-step-desc">${this._escapeHtml(step.purpose || '')}</div>
-          <div class="report-step-method">方法：${this._escapeHtml(step.method || '')}</div>
-          <div class="report-step-output">输出：${this._escapeHtml(step.output || '')}</div>
-        </div>
-      `).join('');
-      const gaps = (data.jd_match_report?.gap_requirements || []).slice(0, 6).map(item => `
-        <div class="report-gap-item">
-          <strong>${this._escapeHtml(item.requirement || '')}</strong>
-          <div>${this._escapeHtml(item.basis || item.judgment || '证据不足')}</div>
-        </div>
-      `).join('') || '<div class="report-gap-item">暂无明确 JD 缺口。</div>';
+      const data = await api.getInterviewReport(this.interviewId);
+      if (!data.success) throw new Error('报告加载失败');
+      const report = data.report || {};
+      const evaluation = data.evaluation || {};
+      const overview = evaluation.overview || {};
+      const overall = evaluation.overall_judgment || {};
+      const dimensions = evaluation.dimension_reports || [];
+      const risks = evaluation.risks || [];
+      const strengths = evaluation.strengths || [];
+      const weaknesses = evaluation.weaknesses || [];
 
+      const overlay = document.createElement('div');
+      overlay.className = 'report-modal-overlay';
+      overlay.id = 'report-modal-overlay';
       overlay.innerHTML = `
-        <div class="modal report-modal">
-          <div class="modal-header">
-            <div>
-              <div class="modal-title">整体评价报告</div>
-              <div class="modal-desc">${this._escapeHtml(data.report?.title || '面试评估结果')}</div>
+        <div class="report-modal report-modal-v2">
+          <div class="report-modal-header">
+            <div class="report-modal-title-group">
+              <h2>📋 面试评价报告</h2>
+              <div class="report-modal-meta">
+                <span>👤 ${this._escapeHtml(overview.candidate_name || '未知')}</span>
+                <span>💼 ${this._escapeHtml(overview.position_title || '未知岗位')}</span>
+                <span>⏱ ${overview.interview_duration_minutes || '--'} 分钟</span>
+              </div>
             </div>
-            <button class="panel-action-btn" id="btn-close-report">关闭</button>
+            <button class="report-modal-close" id="report-modal-close">×</button>
           </div>
-          <div class="modal-body report-modal-body">
-            <div class="report-modal-section">
-              <h4>摘要</h4>
-              <div class="report-modal-summary">${this._escapeHtml(data.report?.summary || '')}</div>
+
+          <div class="report-modal-body">
+            <!-- 整体结论 -->
+            <div class="report-v2-section report-overview-section">
+              <div class="report-v2-section-header">
+                <span class="report-v2-icon">🎯</span>
+                <span class="report-v2-title">整体结论</span>
+                <span class="report-v2-badge report-rec-${this._recClass(evaluation.recommendation)}">${this._escapeHtml(evaluation.recommendation || '待定')}</span>
+              </div>
+              <div class="report-overview-text">
+                ${this._escapeHtml(overall.bottom_line || overview.one_line_takeaway || report.summary || evaluation.ai_comment || '暂无整体结论')}
+              </div>
+              ${overall.most_exciting_signal ? `<div class="report-highlight report-highlight-positive">✨ 最亮眼信号：${this._escapeHtml(overall.most_exciting_signal)}</div>` : ''}
+              ${overall.most_concerning_signal ? `<div class="report-highlight report-highlight-negative">⚠️ 最大顾虑：${this._escapeHtml(overall.most_concerning_signal)}</div>` : ''}
             </div>
-            <div class="report-modal-section">
-              <h4>分析过程</h4>
-              <div class="report-steps">${analysisSteps || '<div class="report-step">暂无分析过程。</div>'}</div>
-            </div>
-            <div class="report-modal-section">
-              <h4>JD 差距与不足</h4>
-              <div class="report-gap-list">${gaps}</div>
-            </div>
-            <div class="report-modal-section">
-              <h4>完整报告</h4>
-              <pre class="report-markdown">${this._escapeHtml(data.report?.markdown || '暂无完整报告。')}</pre>
-            </div>
+
+            <!-- 维度评估 -->
+            ${dimensions.length > 0 ? `
+            <div class="report-v2-section">
+              <div class="report-v2-section-header">
+                <span class="report-v2-icon">📊</span>
+                <span class="report-v2-title">维度评估</span>
+              </div>
+              <div class="report-dim-grid">
+                ${dimensions.map(dim => this._renderDimensionCard(dim)).join('')}
+              </div>
+            </div>` : ''}
+
+            <!-- 优势 -->
+            ${strengths.length > 0 ? `
+            <div class="report-v2-section">
+              <div class="report-v2-section-header">
+                <span class="report-v2-icon">💪</span>
+                <span class="report-v2-title">核心优势</span>
+              </div>
+              <div class="report-tag-list">
+                ${strengths.map(s => `<span class="report-tag report-tag-strength">${this._escapeHtml(s)}</span>`).join('')}
+              </div>
+            </div>` : ''}
+
+            <!-- 风险 -->
+            ${risks.length > 0 || weaknesses.length > 0 ? `
+            <div class="report-v2-section">
+              <div class="report-v2-section-header">
+                <span class="report-v2-icon">🚨</span>
+                <span class="report-v2-title">风险信号</span>
+              </div>
+              ${risks.map(r => `
+                <div class="report-risk-card">
+                  <div class="report-risk-title">${this._escapeHtml(typeof r === 'string' ? r : (r.title || r.description || ''))}</div>
+                  ${typeof r === 'object' && r.description ? `<div class="report-risk-desc">${this._escapeHtml(r.description)}</div>` : ''}
+                </div>
+              `).join('')}
+              ${weaknesses.map(w => `
+                <div class="report-risk-card report-risk-mild">
+                  <div class="report-risk-title">${this._escapeHtml(w)}</div>
+                </div>
+              `).join('')}
+            </div>` : ''}
+
+            <!-- 综合评语 -->
+            ${evaluation.ai_comment ? `
+            <div class="report-v2-section">
+              <div class="report-v2-section-header">
+                <span class="report-v2-icon">💬</span>
+                <span class="report-v2-title">综合评语</span>
+              </div>
+              <div class="report-comment-text">${this._escapeHtml(evaluation.ai_comment)}</div>
+            </div>` : ''}
           </div>
-        </div>
-      `;
+        </div>`;
       document.body.appendChild(overlay);
-      overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) this._closeReportModal();
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.id === 'report-modal-close') this._closeReportModal();
       });
-      const closeBtn = overlay.querySelector('#btn-close-report');
-      if (closeBtn) closeBtn.addEventListener('click', () => this._closeReportModal());
     } catch (e) {
-      console.error('打开整体评价报告失败:', e);
+      console.error('报告加载失败:', e);
       showToast('整体评价报告加载失败: ' + e.message, 'error');
     }
+  }
+
+  _renderDimensionCard(dim) {
+    const level = dim.signal_level || '待验证';
+    const levelClass = {
+      '强信号': 'signal-strong',
+      '有信号': 'signal-medium',
+      '待验证': 'signal-weak',
+      '风险信号': 'signal-risk',
+    }[level] || 'signal-weak';
+    const evidence = dim.evidence || [];
+
+    return `
+      <div class="report-dim-card">
+        <div class="report-dim-header">
+          <span class="report-dim-name">${this._escapeHtml(dim.dimension_name || '未命名维度')}</span>
+          <span class="report-dim-badge ${levelClass}">${this._escapeHtml(level)}</span>
+        </div>
+        ${dim.judgment ? `<div class="report-dim-judgment">${this._escapeHtml(dim.judgment)}</div>` : ''}
+        ${dim.reasoning ? `<div class="report-dim-reasoning">${this._escapeHtml(dim.reasoning)}</div>` : ''}
+        ${evidence.length > 0 ? `
+          <div class="report-dim-evidence">
+            <div class="report-dim-evidence-title">证据链</div>
+            ${evidence.map(ev => `
+              <div class="report-evidence-item">
+                <span class="report-evidence-turn">回合 ${ev.turn_index || '?'}</span>
+                <span class="report-evidence-quote">${this._escapeHtml(ev.quote || ev.content || '')}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${dim.blind_spot ? `<div class="report-dim-blindspot">🕳 ${this._escapeHtml(dim.blind_spot)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  _recClass(rec) {
+    if (!rec) return 'pending';
+    if (rec.includes('强烈')) return 'strong';
+    if (rec.includes('推荐')) return 'good';
+    if (rec.includes('不推荐')) return 'bad';
+    return 'pending';
+  }
+
+  _listToText(value) {
+    if (Array.isArray(value)) return value.filter(Boolean).join('；');
+    if (typeof value === 'string') return value;
+    return '暂无';
   }
 
   _closeReportModal() {
     const existing = document.getElementById('report-modal-overlay');
     if (existing) existing.remove();
-  }
-
-  _setAnswerControlsDisabled(disabled) {
-    const input = document.getElementById('answer-input');
-    const sendBtn = document.getElementById('btn-send');
-    const voiceBtn = document.getElementById('btn-voice');
-    if (input) input.disabled = disabled;
-    if (sendBtn) sendBtn.disabled = disabled;
-    if (voiceBtn) voiceBtn.disabled = disabled;
   }
 
   _escapeHtml(text) {
@@ -738,94 +669,23 @@ class InterviewRoom {
     return div.innerHTML;
   }
 
-  // ── 后端 ASR 录音 ──
-
-  /**
-   * 开始录音（使用浏览器 MediaRecorder API）
-   * 录音结束后自动上传到后端阿里云 ASR 识别
-   */
-  async startRecording() {
-    if (this.isRecording) return;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
-      this.audioChunks = [];
-      this.isRecording = true;
-
-      this.mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) this.audioChunks.push(e.data);
-      };
-
-      this.mediaRecorder.onstop = async () => {
-        this.isRecording = false;
-        // 停止所有轨道
-        stream.getTracks().forEach(t => t.stop());
-
-        if (this.audioChunks.length === 0) return;
-
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-        this.audioChunks = [];
-
-        // 上传到后端 ASR
-        try {
-          const result = await api.speechToText(audioBlob);
-          if (result.success && result.text) {
-            const input = document.getElementById('answer-input');
-            if (input) {
-              input.value = input.value ? input.value + result.text : result.text;
-              // 触发输入事件
-              input.dispatchEvent(new Event('input'));
-            }
-            const status = document.getElementById('voice-status');
-            if (status) status.textContent = '✅ 识别完成: ' + result.text.substring(0, 20) + '...';
-          }
-        } catch (e) {
-          console.warn('后端 ASR 识别失败:', e.message);
-          const status = document.getElementById('voice-status');
-          if (status) status.textContent = '⚠️ ASR 识别失败';
-        }
-
-        // 如果仍在激活状态，继续下一轮录音
-        if (this.isVoiceActive && this.isWaitingForAnswer && !this.isInterviewEnding) {
-          await this.startRecording();
-        }
-      };
-
-      this.mediaRecorder.start();
-
-      // 每 5 秒切分一次录音（持续录制）
-      this._recordingInterval = setInterval(() => {
-        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-          this.mediaRecorder.stop();
-          // 启动新一轮录音
-          const newStream = null; // 会在 onstop 中重新获取
-          // 实际上在 onstop 中会重新调用 startRecording
-        }
-      }, 5000);
-
-    } catch (e) {
-      console.error('启动录音失败:', e);
-      this.isRecording = false;
-    }
-  }
-
-  stopRecording() {
-    if (this._recordingInterval) {
-      clearInterval(this._recordingInterval);
-      this._recordingInterval = null;
-    }
-    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-      this.mediaRecorder.stop();
-    }
-    this.isRecording = false;
-  }
-
   _cleanup() {
     if (this.timerInterval) clearInterval(this.timerInterval);
-    this.stopRecording();
-    this.deactivateVoice();
-    this._closeReportModal();
+    this._stopAnswerCapture();
+    if (this.activeAudio) {
+      this.activeAudio.pause();
+      this.activeAudio = null;
+    }
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    if (this.audioContext) {
+      this.audioContext.close().catch(() => {});
+      this.audioContext = null;
+    }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+    this._closeReportModal();
   }
 }
 

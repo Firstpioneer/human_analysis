@@ -73,16 +73,6 @@ class InterviewSetup {
               </section>
             </div>
 
-            <div class="form-section interview-basic-settings">
-              <h3><span class="section-icon">⚙️</span> 面试设置</h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>面试时长（分钟）</label>
-                  <input type="number" id="duration" value="45" min="15" max="120">
-                </div>
-              </div>
-            </div>
-
             <div id="selected-data-hint" class="selected-source-summary">
               请选择人才画像和简历分析结果后开始面试。
             </div>
@@ -469,7 +459,6 @@ class InterviewSetup {
     const body = {
       profile_id: this.selectedProfileId,
       candidate_id: this.selectedCandidateId,
-      duration: parseInt(container.querySelector('#duration').value, 10) || 45,
     };
 
     try {

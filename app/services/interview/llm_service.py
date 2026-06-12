@@ -180,7 +180,104 @@ class LLMService:
             return ""
         return None
 
+    def build_evidence_chain(self, interview: dict, dimension_states: dict,
+                             reasoning_log: list) -> Optional[dict]:
+        """用 LLM 构建证据链评估"""
+        dialogues = interview.get("dialogues", [])
+        if not dialogues:
+            return None
+
+        # 构建对话记录
+        transcript = []
+        for d in dialogues:
+            speaker = "面试官" if d.get("speaker") == "AI" else "候选人"
+            prefix = "[追问] " if d.get("is_follow_up") else ""
+            transcript.append(f"{speaker}：{prefix}{d.get('text', '')}")
+        transcript_text = "\n".join(transcript)
+
+        # 构建维度状态摘要
+        dim_lines = []
+        for dim_id, state in dimension_states.items():
+            dim_lines.append(
+                f"- [{dim_id}] {state.get('name', '')}："
+                f"状态={state.get('status', 'not_started')}, "
+                f"置信度={state.get('confidence', 0):.1f}, "
+                f"证据={state.get('evidence_count', 0)}条, "
+                f"摘要={state.get('evidence_summary', '无')}"
+            )
+        dim_text = "\n".join(dim_lines) if dim_lines else "（无维度状态）"
+
+        # 构建推理日志摘要
+        reasoning_lines = []
+        for entry in reasoning_log[-10:]:
+            reasoning_lines.append(
+                f"[回合{entry.get('turn', '?')}] "
+                f"动作={entry.get('action', '?')}, "
+                f"目标={entry.get('target_dimension', '?')}, "
+                f"推理={entry.get('reasoning', '')}"
+            )
+        reasoning_text = "\n".join(reasoning_lines) if reasoning_lines else "（无推理日志）"
+
+        system_prompt = """你是一位资深招聘专家。请根据面试记录、维度验证状态和推理日志，为每个验证维度构建完整的证据链。
+
+你必须严格按以下 JSON 格式返回：
+
+{
+  "dimension_evaluations": [
+    {
+      "dimension_id": "D001",
+      "dimension_name": "维度名称",
+      "conclusion": "已验证|部分验证|未验证|风险",
+      "confidence": 0.0到1.0,
+      "evidence_chain": [
+        {
+          "turn": 3,
+          "content": "候选人说了什么（摘要）",
+          "supporting_point": "这个证据支撑了什么结论"
+        }
+      ],
+      "risk_flags": ["发现的风险信号"],
+      "reasoning_trace": "为什么得出这个结论（一句话）"
+    }
+  ],
+  "overall_summary": "整体评价摘要（3-5句话）",
+  "key_strengths": ["核心优势1", "核心优势2"],
+  "key_risks": ["核心风险1"],
+  "recommendation": "strongly_recommend|recommend|pending|not_recommend"
+}
+
+评估原则：
+1. 每个结论必须有明确的证据支撑，不能凭空判断
+2. 证据链要体现"问→答→推理→结论"的完整逻辑
+3. 如果推理日志显示某维度被多次追问但回答仍模糊，应标记为风险
+4. 置信度要与证据数量和质量匹配
+5. 不要重复候选人原话，要提炼关键信息"""
+
+        position_name = interview.get('candidate', {}).get('profile_ref', '未知')
+
+        user_prompt = f"""岗位：{position_name}
+
+【面试对话记录】
+{transcript_text}
+
+【维度验证状态】
+{dim_text}
+
+【推理日志】
+{reasoning_text}
+
+请为每个维度构建证据链并给出整体评估。"""
+
+        result = self.chat_json(
+            messages=[{"role": "user", "content": user_prompt}],
+            system_prompt=system_prompt,
+            temperature=0.3,
+            max_tokens=4096,
+        )
+        return result
+
     def evaluate_interview(self, interview: dict) -> Optional[dict]:
+        """旧版评估方法（保留兼容，推荐使用 build_evidence_chain）"""
         dialogues = interview.get("dialogues", [])
         if not dialogues:
             return None

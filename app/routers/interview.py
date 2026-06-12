@@ -1,5 +1,6 @@
 """面试模块路由（Flask → FastAPI 迁移）"""
 import json
+import logging
 import os
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
@@ -11,10 +12,11 @@ from app.models.interview import (
     FollowUpRequest, StatusRequest, ProfileRequest, CandidateRequest, TTSRequest
 )
 from app.services.interview.interview_engine import InterviewEngine
-from app.services.interview.speech_service import AliyunNLSService, create_speech_service
+from app.services.interview.speech_service import create_speech_service
 from app.storage.interview_store import InterviewStorage, ProfileCandidateStorage
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _resolve_profile_from_source(profile_id: str) -> dict | None:
@@ -80,7 +82,7 @@ engine = InterviewEngine()
 storage = InterviewStorage()
 pc_storage = ProfileCandidateStorage()
 
-# 语音服务（阿里云 NLS）
+# 语音服务（MIMO TTS + 阿里云 ASR）
 speech_service = create_speech_service()
 
 _interview_state = {"active": False, "elapsed_minutes": 0, "current_question_idx": 0}
@@ -196,10 +198,16 @@ async def get_interview_report(interview_id: str):
     if not interview:
         raise HTTPException(status_code=404, detail="未找到")
     evaluation = interview.get("evaluation")
-    if not evaluation or not evaluation.get("overall_report"):
-        evaluation = engine.generate_assessment(interview)
-        interview["evaluation"] = evaluation
-        storage.save_interview(interview)
+    if not evaluation or not isinstance(evaluation, dict):
+        try:
+            evaluation = engine.generate_assessment(interview)
+            interview["evaluation"] = evaluation
+            storage.save_interview(interview)
+        except Exception as e:
+            logger.error("报告生成失败: %s", e)
+            raise HTTPException(status_code=500, detail=f"报告生成失败: {e}")
+    logger.info("报告返回: interview_id=%s has_evaluation=%s keys=%s",
+                interview_id, bool(evaluation), list(evaluation.keys()) if isinstance(evaluation, dict) else "N/A")
     return {
         "success": True,
         "report": evaluation.get("overall_report"),
@@ -245,27 +253,28 @@ async def revalidate_interview(interview_id: str):
     return {"success": True, "interview": interview}
 
 
-# ==================== 语音 API (阿里云 NLS) ====================
+# ==================== 语音 API ====================
 
 @router.post("/tts")
 async def text_to_speech(request: TTSRequest):
-    """
-    文字转语音 (TTS)
-    将文本合成为语音音频，前端可直接播放。
-    需先在 .env.json 中配置 aliyun_nls 凭证。
-    """
-    if not speech_service.is_configured:
-        raise HTTPException(status_code=400, detail="阿里云 NLS 未配置，请在 .env.json 中设置 aliyun_nls 凭证")
+    """文字转语音 (TTS) — 返回前端可直接播放的音频流。"""
+    if not speech_service.tts_configured:
+        raise HTTPException(status_code=400, detail="语音合成服务未配置，请在 .env.json 中配置 interview_tts 或 aliyun_nls")
     if not request.text or not request.text.strip():
         raise HTTPException(status_code=400, detail="文本不能为空")
     try:
+        output_format = speech_service.resolve_tts_format(request.format)
         audio_data = speech_service.text_to_speech(
-            text=request.text, voice=request.voice, format=request.format,
-            sample_rate=request.sample_rate, volume=request.volume,
-            speech_rate=request.speech_rate, pitch_rate=request.pitch_rate,
+            text=request.text,
+            voice=request.voice,
+            format=output_format,
+            sample_rate=request.sample_rate,
+            volume=request.volume,
+            speech_rate=request.speech_rate,
+            pitch_rate=request.pitch_rate,
         )
         if audio_data:
-            return Response(content=audio_data, media_type=f"audio/{request.format}")
+            return Response(content=audio_data, media_type=f"audio/{output_format}")
         raise HTTPException(status_code=500, detail="TTS 合成返回空数据")
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -273,9 +282,9 @@ async def text_to_speech(request: TTSRequest):
 
 @router.post("/asr")
 async def speech_to_text(file: UploadFile = File(...)):
-    """语音转文字 (ASR) — 上传音频文件，返回文字"""
-    if not speech_service.is_configured:
-        raise HTTPException(status_code=400, detail="阿里云 NLS 未配置，请在 .env.json 中设置 aliyun_nls 凭证")
+    """语音转文字 (ASR) — 上传音频文件，返回文字。"""
+    if not speech_service.asr_configured:
+        raise HTTPException(status_code=400, detail="语音识别服务未配置，请在 .env.json 中设置 aliyun_nls 凭证")
     try:
         audio_data = await file.read()
         if not audio_data:
@@ -292,11 +301,11 @@ async def speech_to_text(file: UploadFile = File(...)):
 
 @router.get("/voices")
 async def list_voices():
-    """获取阿里云 NLS 支持的发音人列表"""
+    """获取当前语音服务支持的发音人列表。"""
     return {
         "success": True,
         "voices": speech_service.configured_voices,
-        "configured": speech_service.is_configured,
+        "configured": speech_service.tts_configured,
     }
 
 

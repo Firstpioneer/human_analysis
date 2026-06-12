@@ -26,7 +26,7 @@ class ResumeModule {
             </div>
             <h3>拖拽文件到此处，或点击上传</h3>
             <p>支持 PDF、DOCX、图片型简历，最大 10MB</p>
-            <input type="file" id="file-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.bmp" style="display:none;">
+            <input type="file" id="file-input" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp" style="display:none;">
           </div>
           <div class="upload-progress" id="upload-progress">
             <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>

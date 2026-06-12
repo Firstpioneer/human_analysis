@@ -138,10 +138,16 @@ class ApiClient {
 
   // ---- 语音 API (阿里云 NLS) ----
   async textToSpeech(text, voice = 'xiaoyun', format = 'wav') {
-    return this._request('/api/interview/tts', {
+    const response = await fetch(`${this.baseUrl}/api/interview/tts`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, voice, format }),
     });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || 'TTS 请求失败');
+    }
+    return await response.blob();
   }
 
   /**
@@ -158,13 +164,14 @@ class ApiClient {
     const blob = await response.blob();
     const audioUrl = URL.createObjectURL(blob);
     const audio = new Audio(audioUrl);
-    audio.onended = () => URL.revokeObjectURL(audioUrl);
+    audio.addEventListener('ended', () => URL.revokeObjectURL(audioUrl), { once: true });
+    audio.addEventListener('error', () => URL.revokeObjectURL(audioUrl), { once: true });
     return audio;
   }
 
-  async speechToText(audioBlob) {
+  async speechToText(audioBlob, filename = 'recording.wav') {
     const formData = new FormData();
-    formData.append('file', audioBlob, 'recording.wav');
+    formData.append('file', audioBlob, filename);
     const response = await fetch(`${this.baseUrl}/api/interview/asr`, { method: 'POST', body: formData });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));

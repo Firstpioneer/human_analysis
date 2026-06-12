@@ -31,7 +31,7 @@ class ResumePipelineEngine:
             if ext == '.pdf':
                 raw_text = self.pdf_ext.extract(file_path)
                 stages.append({"name": "pdf_text_or_ocr", "status": "done"})
-            elif ext in ['.docx', '.doc']:
+            elif ext == '.docx':
                 raw_text = self.docx_ext.extract(file_path)
                 stages.append({"name": "word_text", "status": "done"})
             elif ext in ['.png', '.jpg', '.jpeg', '.webp', '.bmp']:

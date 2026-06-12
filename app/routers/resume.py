@@ -19,7 +19,7 @@ async def parse_resume(file: UploadFile = File(...)):
     os.makedirs(temp_dir, exist_ok=True)
     original_filename = os.path.basename(file.filename or "resume")
     ext = os.path.splitext(original_filename)[1].lower()
-    allowed_exts = {".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg", ".webp", ".bmp"}
+    allowed_exts = {".pdf", ".docx", ".png", ".jpg", ".jpeg", ".webp", ".bmp"}
     if ext not in allowed_exts:
         raise HTTPException(status_code=400, detail=f"不支持的简历格式: {ext or '未知'}")
     file_path = os.path.join(temp_dir, f"{uuid.uuid4().hex}{ext}")

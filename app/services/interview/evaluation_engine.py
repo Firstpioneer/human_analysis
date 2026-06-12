@@ -1,10 +1,13 @@
 """模块 D：综合评估引擎。"""
 from __future__ import annotations
 
-from datetime import datetime
+import logging
 import math
 import re
+from datetime import datetime
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from .llm_service import get_llm_service
 
@@ -25,6 +28,25 @@ class NarrativeEvaluationEngine:
         llm = get_llm_service()
 
         if llm.is_available:
+            # 优先使用证据链评估（如果有推理日志）
+            reasoning_log = interview.get("reasoning_log", [])
+            dimension_states = interview.get("dimension_states", {})
+            if reasoning_log and dimension_states:
+                try:
+                    chain_result = llm.build_evidence_chain(
+                        interview, dimension_states, reasoning_log
+                    )
+                    if chain_result and chain_result.get("dimension_evaluations"):
+                        evaluation = self._normalize_evidence_chain_result(
+                            chain_result, interview, transcript, dimensions
+                        )
+                        if self._is_usable_llm_evaluation(evaluation, transcript):
+                            merged = self._merge_llm_overlay(base_evaluation, evaluation)
+                            return self._finalize(merged, transcript)
+                except Exception as e:
+                    logger.warning("证据链评估失败，回退到旧版 LLM: %s", e)
+
+            # 回退到旧版 LLM 评估
             try:
                 llm_result = self._build_with_llm(interview, transcript, dimensions)
                 if llm_result:
@@ -32,8 +54,12 @@ class NarrativeEvaluationEngine:
                     if self._is_usable_llm_evaluation(evaluation, transcript):
                         merged = self._merge_llm_overlay(base_evaluation, evaluation)
                         return self._finalize(merged, transcript)
-            except Exception:
-                pass
+                    else:
+                        logger.warning("LLM 评估结果未通过可用性检查")
+                else:
+                    logger.warning("LLM 评估返回空结果")
+            except Exception as e:
+                logger.warning("LLM 评估异常: %s", e)
 
         return self._finalize(base_evaluation, transcript)
 
@@ -201,6 +227,112 @@ class NarrativeEvaluationEngine:
             "strengths": self._normalize_text_list(result.get("strengths") or []),
             "weaknesses": self._normalize_text_list(result.get("weaknesses") or []),
             "ai_comment": (result.get("ai_comment") or "").strip(),
+        }
+
+    def _normalize_evidence_chain_result(
+        self,
+        chain_result: dict,
+        interview: dict,
+        transcript: list[dict],
+        dimensions: list[dict],
+    ) -> dict:
+        """规范化证据链评估结果"""
+        dimension_lookup = {(dim["category"], dim["name"]): dim for dim in dimensions}
+        normalized_dimensions = []
+
+        for item in chain_result.get("dimension_evaluations") or []:
+            dim_name = (item.get("dimension_name") or "").strip()
+            dim_id = (item.get("dimension_id") or "").strip()
+
+            # 尝试从 lookup 中找到匹配的维度
+            base = None
+            for dim in dimensions:
+                if dim.get("name") == dim_name or dim.get("dimension_id") == dim_id:
+                    base = dim
+                    break
+            if not base:
+                base = {"name": dim_name, "category": "综合判断", "criteria": ""}
+
+            # 映射结论到信号级别
+            conclusion = (item.get("conclusion") or "").strip()
+            signal_map = {
+                "已验证": "强信号",
+                "部分验证": "有信号",
+                "未验证": "待验证",
+                "风险": "风险信号",
+            }
+            signal_level = signal_map.get(conclusion, "待验证")
+
+            # 构建证据列表
+            evidence_items = []
+            for ev in item.get("evidence_chain") or []:
+                evidence_items.append({
+                    "turn_index": ev.get("turn", 0),
+                    "question_text": "",
+                    "quote": (ev.get("content") or "")[:120],
+                    "source": "证据链",
+                })
+
+            risk_flags = item.get("risk_flags") or []
+            judgment = (item.get("reasoning_trace") or "").strip()
+
+            normalized_dimensions.append({
+                "dimension_name": base.get("name") or dim_name or "未命名维度",
+                "category": base.get("category") or "综合判断",
+                "criteria": base.get("criteria", ""),
+                "signal_level": signal_level,
+                "judgment": judgment,
+                "reasoning": judgment,
+                "blind_spot": "" if evidence_items else f"缺少能直接验证“{dim_name}”的行为案例。",
+                "evidence": evidence_items,
+            })
+
+        if not normalized_dimensions:
+            normalized_dimensions = self._build_with_rules(interview, transcript, dimensions)["dimension_reports"]
+
+        candidate_name = interview.get("candidate", {}).get("name", "未知")
+        position_title = interview.get("candidate", {}).get("profile_ref") or interview.get("_profile", {}).get("position", {}).get("title", "未知岗位")
+
+        recommendation_map = {
+            "strongly_recommend": "强烈推荐",
+            "recommend": "推荐",
+            "pending": "待定",
+            "not_recommend": "不推荐",
+        }
+
+        return {
+            "version": "D-1",
+            "mode": "narrative",
+            "generated_at": datetime.now().isoformat(),
+            "overview": {
+                "candidate_name": candidate_name,
+                "position_title": position_title,
+                "interview_duration_minutes": self._estimate_duration_minutes(interview, transcript),
+                "one_line_takeaway": (chain_result.get("overall_summary") or "")[:200],
+            },
+            "unexpected_signals": [],
+            "dimension_reports": normalized_dimensions,
+            "risks": [
+                {
+                    "title": risk,
+                    "severity": "中",
+                    "description": risk,
+                    "blind_spot": "",
+                    "evidence": [],
+                }
+                for risk in (chain_result.get("key_risks") or [])[:5]
+            ],
+            "overall_judgment": {
+                "bottom_line": (chain_result.get("overall_summary") or "").strip(),
+                "fit_assessment": recommendation_map.get(chain_result.get("recommendation"), "待定"),
+                "most_exciting_signal": (chain_result.get("key_strengths") or [""])[0] if chain_result.get("key_strengths") else "",
+                "most_concerning_signal": (chain_result.get("key_risks") or [""])[0] if chain_result.get("key_risks") else "",
+                "six_month_outlook": "",
+            },
+            "system_feedback": {"signal_sufficient_dimensions": [], "signal_insufficient_dimensions": [], "question_design_suggestions": []},
+            "strengths": self._normalize_text_list(chain_result.get("key_strengths") or []),
+            "weaknesses": self._normalize_text_list(chain_result.get("key_risks") or []),
+            "ai_comment": (chain_result.get("overall_summary") or "").strip(),
         }
 
     def _build_with_rules(self, interview: dict, transcript: list[dict], dimensions: list[dict]) -> dict:
