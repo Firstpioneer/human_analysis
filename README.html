@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 招聘评估系统 - 项目介绍</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .hero {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+      color: #fff;
+      padding: 64px 24px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,.12) 0%, transparent 60%);
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      position: relative;
+      letter-spacing: -.5px;
+    }
+    .hero h1 span { background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      opacity: .92;
+      max-width: 680px;
+      margin: 14px auto 0;
+      position: relative;
+    }
+    .hero .tags {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .hero .tags span {
+      background: rgba(255,255,255,.18);
+      backdrop-filter: blur(4px);
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 500;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 36px 20px 64px; }
+    section { margin-bottom: 44px; }
+    section h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      border-left: 4px solid var(--primary);
+      padding-left: 14px;
+      margin-bottom: 16px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .25s, transform .25s;
+    }
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .card .icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .card h3 { font-size: 1.05rem; color: var(--primary); margin-bottom: 8px; }
+    .card p, .card li { font-size: .9rem; color: var(--text-muted); }
+    .card ul { padding-left: 18px; margin-top: 6px; }
+    .card ul li { margin-bottom: 4px; }
+
+    .arch-box {
+      background: #1e293b;
+      color: #cbd5e1;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+      font-size: .82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .arch-box .hl { color: #a78bfa; }
+    .arch-box .cm { color: #64748b; }
+    .arch-box .gr { color: #34d399; }
+    .arch-box .pk { color: #f472b6; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th { background: #f1f5f9; font-weight: 600; }
+    td { color: var(--text-muted); }
+    tr:hover td { background: #f8fafc; }
+    code {
+      background: #f1f5f9;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: .85em;
+      color: var(--primary);
+      font-family: "JetBrains Mono", monospace;
+    }
+    .badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 999px;
+      color: #fff;
+      margin-right: 3px;
+    }
+    .badge.get { background: #3b82f6; }
+    .badge.post { background: #10b981; }
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0 4px;
+    }
+    .flow-steps .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .flow-steps .arrow { color: var(--primary-light); font-size: 1.2rem; }
+    footer {
+      text-align: center;
+      padding: 28px;
+      color: var(--text-muted);
+      font-size: .85rem;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.6rem; }
+      .container { padding: 24px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🤖 <span>AI 招聘评估系统</span></h1>
+  <p class="subtitle">不是"更好的招聘工具"——是把"标签筛选"替换为"理解"，让 AI 的招聘判断可追溯、可验证、可质疑。</p>
+  <div class="tags">
+    <span>FastAPI</span>
+    <span>LLM</span>
+    <span>语音交互</span>
+    <span>可验证</span>
+    <span>理解替代筛选</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 项目背景 -->
+  <section>
+    <h2>🎯 为什么招聘流程需要重构</h2>
+    <p style="color:var(--text-muted);margin-bottom:12px;">
+      传统招聘流程的问题不是效率低——是方向错了。
+    </p>
+    <div class="card-grid">
+      <div class="card">
+        <h3>📝 JD ≠ 需求</h3>
+        <p>JD 是写给外面看的文案，不是真正的人才需求。写 JD 的人和最终拍板的人对"要什么样的人"的理解经常不一致，这个问题通常到面试结束才暴露。</p>
+      </div>
+      <div class="card">
+        <h3>🏷️ 标签筛选丢失信息</h3>
+        <p>HR 不懂业务，只能看标签。一个人把自己压缩成一页纸的简历，然后被另一个不懂业务的人用关键词扫一遍——每一步都在丢信息。</p>
+      </div>
+      <div class="card">
+        <h3>🔍 判断不可追溯</h3>
+        <p>面试结论往往是一句"感觉不太合适"，说不出具体依据。如果换一个面试官，结论会不会不同？——无人能答。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心思路 -->
+  <section>
+    <h2>💡 核心思路：用理解替代筛选</h2>
+    <p style="color:var(--text-muted);margin-bottom:12px;">
+      不是用 AI 加速现有流程，而是重构流程本身——<strong>从理解需求开始，到理解人，再到做出可验证的匹配判断</strong>。
+    </p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="icon">🎯</div>
+        <h3>理解需求</h3>
+        <p>需求是内部的、结构化的、往往连提需求的人自己都没完全想清楚的东西。Agent 通过对话式追问，把模糊的招聘需求"逼"出来，生成结构化人才画像。</p>
+        <ul>
+          <li>JD 解析 + 对话澄清</li>
+          <li>信号维度与评估标准</li>
+          <li>必要条件 vs 加分项</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">👤</div>
+        <h3>理解人</h3>
+        <p>不是提取关键词、不是贴标签。从多种信号里读出这个人做过什么、擅长什么、信号强在哪里弱在哪里，并识别信息盲区。</p>
+        <ul>
+          <li>经历 vs 声明分离</li>
+          <li>多源信息融合</li>
+          <li>信息缺口自动标记</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">✅</div>
+        <h3>可验证的匹配</h3>
+        <p>叙事性判断——不打分、不出雷达图。每个结论绑定原始证据，逻辑链可追溯。三层验证框架确保判断质量。</p>
+        <ul>
+          <li>证据链完整性检查</li>
+          <li>判断稳定性测试</li>
+          <li>候选人区分度检验</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 对比 -->
+  <section>
+    <h2>⚖️ 与现有工具的对比</h2>
+    <table>
+      <thead>
+        <tr><th>维度</th><th>现有工具</th><th>本系统</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>核心思路</td><td>关键词匹配、标签筛选</td><td>深度理解、可验证判断</td></tr>
+        <tr><td>输出形式</td><td>评分 / 星级 / 排名</td><td>叙事性判断（自然语言评语）</td></tr>
+        <tr><td>可解释性</td><td>黑盒打分</td><td>每个结论可追溯到原始证据</td></tr>
+        <tr><td>质量度量</td><td>无</td><td>证据链验证 + 稳定性测试 + 区分度检验</td></tr>
+        <tr><td>对人的理解</td><td>看标签（985/3年经验）</td><td>还原行为模式和思维特征</td></tr>
+        <tr><td>需求理解</td><td>接受 JD 直接匹配</td><td>对话式深挖，暴露真实需求</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 三层验证 -->
+  <section>
+    <h2>🔬 核心创新：三层可验证性</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="icon">🔗</div>
+        <h3>证据链验证</h3>
+        <p>每条判断结论必须绑定至少一条原始证据。系统自动检查推理链是否成立，无法找到支撑证据的判断标记为"无依据"。</p>
+        <ul>
+          <li>判断："自驱力强"</li>
+          <li>依据："自己用 Python 写了自动化脚本处理社团报名表"</li>
+          <li>验证：✅ 主动发现问题 + 独立解决 + 实际影响</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>稳定性测试</h3>
+        <p>同一候选人多次面试，对比核心判断的一致性。区分"合理修正"和"随机波动"，输出稳定性报告。</p>
+      </div>
+      <div class="card">
+        <div class="icon">📈</div>
+        <h3>区分度检验</h3>
+        <p>检验系统对不同候选人的评估是否存在有意义的差异，识别"无效评估"维度。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 三大优化方向 -->
+  <section>
+    <h2>🎯 三大优化方向</h2>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3>🧬 从画像推理成长性——避免量化打分</h3>
+      <p style="color:var(--text-muted);font-size:.9rem;">
+        不量化、不打分，而是从五个维度进行叙事性成长性分析：
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px;">
+        <div style="background:#f0f4ff;padding:12px;border-radius:8px;text-align:center;">
+          <strong style="color:var(--primary);">📈 学习轨迹</strong>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:4px;">技能宽度vs深度的变化趋势</p>
+        </div>
+        <div style="background:#f0fdf4;padding:12px;border-radius:8px;text-align:center;">
+          <strong style="color:#10b981;">🔥 挑战偏好</strong>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:4px;">是否主动选择有难度的项目</p>
+        </div>
+        <div style="background:#fefce8;padding:12px;border-radius:8px;text-align:center;">
+          <strong style="color:#eab308;">🔄 适应能力</strong>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:4px;">跨技术栈/跨行业的迁移经验</p>
+        </div>
+        <div style="background:#fef2f2;padding:12px;border-radius:8px;text-align:center;">
+          <strong style="color:#ef4444;">⚡ 成长速度</strong>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:4px;">同等年限内的实际成长速率</p>
+        </div>
+        <div style="background:#f5f3ff;padding:12px;border-radius:8px;text-align:center;">
+          <strong style="color:#8b5cf6;">🚀 自驱力</strong>
+          <p style="font-size:.82rem;color:var(--text-muted);margin-top:4px;">开源贡献、技术博客等额外信号</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3>🔗 画像与简历结果对齐——双向验证</h3>
+      <p style="color:var(--text-muted);font-size:.9rem;">
+        画像的信号维度作为评估基准框架，简历分析结果按同一套维度组织。面试时对两者都存在的信息进行交叉验证——<strong>如果简历说"精通 Python"但面试中连基础问题都回答不清，系统标记为"声明与表现不一致"</strong>。最终报告对齐所有来源的判断，标注置信度。
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>🎯 需求场景驱动——以公司实际缺口为起点</h3>
+      <p style="color:var(--text-muted);font-size:.9rem;">
+        系统内置五个典型需求场景，贯穿整个面试闭环：
+      </p>
+      <table style="margin-top:10px;">
+        <thead><tr><th>场景</th><th>公司缺口</th><th>考察重点</th></tr></thead>
+        <tbody>
+          <tr><td>🔧 技术深耕</td><td>技术领域深度不足</td><td>技术深度与架构能力</td></tr>
+          <tr><td>🌐 技术拓展</td><td>需要拓展新技术栈</td><td>学习能力与技术广度</td></tr>
+          <tr><td>👥 团队管理</td><td>缺少技术 leader</td><td>领导力与团队协作</td></tr>
+          <tr><td>📐 质量提升</td><td>项目质量亟待提升</td><td>工程化与质量意识</td></tr>
+          <tr><td>💡 业务创新</td><td>需要开拓新业务方向</td><td>业务理解与创新能力</td></tr>
+        </tbody>
+      </table>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-top:10px;text-align:center;">
+        <strong>公司缺口 → 选择场景 → 场景化画像 → 场景化面试 → 场景化评估 → 是否匹配需求</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- 五大模块 -->
+  <section>
+    <h2>📦 五大模块</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="icon">🎯</div>
+        <h3>需求定义 Agent</h3>
+        <p>通过 LLM 对话式交互，把模糊的招聘需求"逼"出来。Agent 主动追问暴露矛盾，生成结构化人才画像。</p>
+        <ul>
+          <li>JD 解析与结构化提取</li>
+          <li>对话式澄清与追问</li>
+          <li>画像保存后同步面试库</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">📄</div>
+        <h3>简历分析</h3>
+        <p>上传 PDF/Word 简历，LLM 语义分析，分离"能力声明"与"客观经历"，识别信息盲区与外部足迹。</p>
+        <ul>
+          <li>支持 PDF、Word，图片 OCR</li>
+          <li>经历 vs 声明信号强度标注</li>
+          <li>自动抓取 GitHub、博客足迹</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">🎤</div>
+        <h3>AI 面试引擎</h3>
+        <p>语音优先交互：AI 语音提问 → 候选人语音回答 → LLM 动态追问。Web Audio API 实时采集，VAD 静默自动分段。</p>
+        <ul>
+          <li>阿里云 TTS 播报 + ASR 识别</li>
+          <li>PCM → WAV 实时编码上传</li>
+          <li>每问题最多追问 2 次</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">📋</div>
+        <h3>综合评估</h3>
+        <p>叙事性评估报告——不打分、不出雷达图。每个判断绑定原始证据，结论可跳转到面试原文。</p>
+        <ul>
+          <li>信号提取（按画像维度展开）</li>
+          <li>风险与顾虑标注</li>
+          <li>适合/不适合二分结论</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon">🔍</div>
+        <h3>判断质量验证</h3>
+        <p>三层验证框架：证据链完整性检查、判断稳定性测试、候选人区分度检验。输出质量报告。</p>
+        <ul>
+          <li>推理链自动验证</li>
+          <li>多次面试一致性对比</li>
+          <li>跨候选人区分度分析</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 五阶段流程 -->
+  <section>
+    <h2>🔄 完整流程</h2>
+    <div class="card" style="text-align:center;padding:24px;">
+      <div class="flow-steps">
+        <span class="step">① 理解需求</span>
+        <span class="arrow">→</span>
+        <span class="step">② 理解人</span>
+        <span class="arrow">→</span>
+        <span class="step">③ AI 初面</span>
+        <span class="arrow">→</span>
+        <span class="step">④ 叙事评估</span>
+        <span class="arrow">→</span>
+        <span class="step">⑤ 质量验证</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;text-align:left;font-size:.82rem;color:var(--text-muted);">
+        <div>Agent 对话澄清<br>生成人才画像<br>确认信号维度</div>
+        <div>简历解析<br>经历/声明分离<br>多源信息融合</div>
+        <div>语音问答<br>动态追问<br>录音转写</div>
+        <div>信号提取<br>叙事性判断<br>证据链绑定</div>
+        <div>证据链检查<br>稳定性测试<br>区分度检验</div>
+      </div>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-top:14px;background:#f1f5f9;padding:10px 16px;border-radius:8px;">
+        💡 ①②③ 是数据采集和判断生成，④ 是判断输出，<strong>⑤ 是对判断质量的验证</strong>——这是核心差异点，市面上没有工具做这一步。
+      </p>
+    </div>
+  </section>
+
+  <!-- 创新点 -->
+  <section>
+    <h2>⭐ 核心创新点</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>🧠 多 LLM 协同架构</h3>
+        <p>画像、简历、面试三个模块使用独立的 LLM 配置，各模块可独立切换模型和参数，互不干扰。面试模块支持在前端页面实时切换 LLM 配置。</p>
+      </div>
+      <div class="card">
+        <h3>🎙️ 语音优先面试</h3>
+        <p>区别于传统文本面试，实现了完整的语音问答流程——AI 语音提问、候选人语音回答、LLM 动态追问，更接近真实面试场景。</p>
+      </div>
+      <div class="card">
+        <h3>📋 数据驱动可追溯</h3>
+        <p>从画像生成到最终评估，每一步的数据都持久化保存。评估结果可追溯到具体的问答记录，每条判断绑定原始证据，确保可验证性。</p>
+      </div>
+      <div class="card">
+        <h3>🔍 判断质量验证</h3>
+        <p>三层验证框架（证据链/稳定性/区分度）自动检验 AI 判断的可靠性，输出质量报告。这是区别于所有现有工具的核心创新。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 系统架构 -->
+  <section>
+    <h2>🏗️ 系统架构</h2>
+    <div class="arch-box">human_analysis/
+├── <span class="pk">run.py</span>                    <span class="cm"># 启动入口</span>
+├── <span class="pk">config.py</span>                 <span class="cm"># 统一配置</span>
+├── <span class="pk">requirements.txt</span>
+│
+├── <span class="hl">app/</span>                      <span class="cm"># FastAPI 后端</span>
+│   ├── main.py               <span class="cm"># 应用工厂</span>
+│   ├── routers/               <span class="cm"># API 路由层</span>
+│   │   ├── portrait.py       <span class="cm"># /api/portrait/*</span>
+│   │   ├── resume.py         <span class="cm"># /api/resume/*</span>
+│   │   ├── interview.py      <span class="cm"># /api/interview/*</span>
+│   │   └── llm_config.py     <span class="cm"># /api/llm/*</span>
+│   ├── services/             <span class="cm"># 业务逻辑层</span>
+│   │   ├── portrait/         <span class="cm"># 画像生成</span>
+│   │   ├── resume/           <span class="cm"># 简历解析</span>
+│   │   └── interview/        <span class="cm"># 面试引擎</span>
+│   ├── models/               <span class="cm"># Pydantic 模型</span>
+│   ├── converters/           <span class="cm"># 数据格式转换</span>
+│   └── storage/              <span class="cm"># JSON 文件存储</span>
+│
+├── <span class="hl">frontend/</span>                 <span class="cm"># 前端 SPA</span>
+│   ├── index.html            <span class="cm"># 主页面（hash 路由）</span>
+│   ├── css/style.css
+│   └── js/
+│       ├── api.js            <span class="cm"># 统一 API 客户端</span>
+│       ├── router.js         <span class="cm"># hash 路由</span>
+│       ├── portrait/         <span class="cm"># 画像前端</span>
+│       ├── resume/           <span class="cm"># 简历前端</span>
+│       └── interview/        <span class="cm"># 面试前端</span>
+│
+└── <span class="hl">data/</span>                     <span class="cm"># 数据目录</span>
+    ├── conversations/        <span class="cm"># 画像对话历史</span>
+    ├── profiles/             <span class="cm"># 人才画像</span>
+    ├── candidates/           <span class="cm"># 候选人档案</span>
+    ├── resumes/              <span class="cm"># 简历解析结果</span>
+    ├── interviews/           <span class="cm"># 面试记录</span>
+    └── schemas/              <span class="cm"># JSON Schema</span>
+</div>
+  </section>
+
+  <!-- 技术栈 -->
+  <section>
+    <h2>⚡ 技术栈</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>🖥️ 后端</h3>
+        <ul>
+          <li><strong>FastAPI</strong> — 异步 Web 框架</li>
+          <li><strong>Uvicorn</strong> — ASGI 服务器</li>
+          <li><strong>Pydantic</strong> — 数据验证</li>
+          <li><strong>aliyun-python-sdk-core</strong> — 阿里云语音</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🌐 前端</h3>
+        <ul>
+          <li><strong>原生 JS</strong> — 无框架 SPA</li>
+          <li><strong>Hash 路由</strong> — 客户端路由</li>
+          <li><strong>Web Audio API</strong> — PCM 录音</li>
+          <li><strong>阿里云 TTS</strong> — 语音合成</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🧠 AI / LLM</h3>
+        <ul>
+          <li><strong>DeepSeek</strong> — 画像 & 面试引擎</li>
+          <li><strong>Qwen / DashScope</strong> — 简历分析</li>
+          <li><strong>OpenAI 兼容接口</strong> — 可切换网关</li>
+          <li><strong>阿里云 NLS</strong> — TTS / ASR</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>📦 数据处理</h3>
+        <ul>
+          <li><strong>pdfplumber</strong> — PDF 文本抽取</li>
+          <li><strong>python-docx</strong> — Word 解析</li>
+          <li><strong>PyMuPDF + PaddleOCR</strong> — 图片 OCR</li>
+          <li><strong>JSON 文件存储</strong> — 轻量持久化</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 前端路由 -->
+  <section>
+    <h2>🔗 前端页面</h2>
+    <table>
+      <thead>
+        <tr><th>路由</th><th>页面</th><th>功能</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>#/portrait</code></td><td>人才画像</td><td>对话式岗位画像生成与保存</td></tr>
+        <tr><td><code>#/resume</code></td><td>简历分析</td><td>上传简历，查看 LLM 解析结果</td></tr>
+        <tr><td><code>#/interview</code></td><td>面试设置</td><td>选择画像 + 简历，配置时长，开始面试</td></tr>
+        <tr><td><code>#/interview/:id</code></td><td>面试房间</td><td>语音问答交互，实时计时</td></tr>
+        <tr><td><code>#/records</code></td><td>面试记录</td><td>历史面试列表、详情、重新开始、删除</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- API 概览 -->
+  <section>
+    <h2>🔌 API 概览</h2>
+
+    <table style="margin-bottom:14px;">
+      <caption style="caption-side:top;text-align:left;font-weight:600;margin-bottom:6px;">画像 <code>/api/portrait</code></caption>
+      <thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge post">POST</span></td><td><code>/chat</code></td><td>与画像 Agent 对话</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/save-profile</code></td><td>保存画像（同步面试库）</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/profiles</code></td><td>画像列表</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/conversations</code></td><td>对话历史</td></tr>
+      </tbody>
+    </table>
+
+    <table style="margin-bottom:14px;">
+      <caption style="caption-side:top;text-align:left;font-weight:600;margin-bottom:6px;">简历 <code>/api/resume</code></caption>
+      <thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge post">POST</span></td><td><code>/parse</code></td><td>上传并解析简历</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/results</code></td><td>解析结果列表</td></tr>
+      </tbody>
+    </table>
+
+    <table style="margin-bottom:14px;">
+      <caption style="caption-side:top;text-align:left;font-weight:600;margin-bottom:6px;">面试 <code>/api/interview</code></caption>
+      <thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge post">POST</span></td><td><code>/start</code></td><td>开始面试</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/next-question</code></td><td>获取下一题</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/answer</code></td><td>提交回答</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/end</code></td><td>结束面试 + 生成评估</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/list</code></td><td>面试记录列表</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td><code>/detail/{id}</code></td><td>面试详情</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/restart/{id}</code></td><td>重新开始</td></tr>
+      </tbody>
+    </table>
+
+    <table>
+      <caption style="caption-side:top;text-align:left;font-weight:600;margin-bottom:6px;">LLM 配置 <code>/api/llm</code></caption>
+      <thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge get">GET</span></td><td><code>/config</code></td><td>获取 LLM 配置</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/config</code></td><td>更新 LLM 配置</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td><code>/test</code></td><td>测试 LLM 连接</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 总结 -->
+  <section>
+    <h2>📌 一句话总结</h2>
+    <div class="card" style="background:linear-gradient(135deg,#f0f4ff,#faf5ff);border-color:#c4b5fd;text-align:center;padding:28px;">
+      <p style="font-size:1.1rem;font-weight:600;color:var(--primary-dark);">
+        市面上的 AI 招聘工具做的是"帮 HR 省时间"，
+      </p>
+      <p style="font-size:1.1rem;font-weight:600;color:var(--primary-dark);">
+        我们做的是<strong>"重新设计这段流程"</strong>——用理解替代筛选，用可验证替代黑盒。
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  AI 招聘评估系统 &nbsp;·&nbsp; FastAPI + LLM 全流程智能化招聘评估平台 &nbsp;·&nbsp; 可验证的 AI 招聘判断
+</footer>
+
+</body>
+</html>

@@ -23,6 +23,7 @@ class InterviewRoom {
     this.hasDetectedSpeech = false;
     this.isMicMuted = false;
     this.activeAudio = null;
+    this.totalDuration = 45;
     this.vadConfig = { speechThreshold: 0.035, silenceMs: 2500, preSpeechSilenceMs: 10000, minAnswerMs: 1200, maxAnswerMs: 300000 };
   }
 
@@ -82,6 +83,32 @@ class InterviewRoom {
             </section>
           </main>
         </div>
+
+        <div class="interview-sidebar">
+          <div class="sidebar-card">
+            <h3>📊 面试进度</h3>
+            <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+            <div class="progress-details">
+              <span>已用: <strong id="elapsed-display">00:00</strong></span>
+              <span>剩余: <strong id="remaining-display">45:00</strong></span>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>📝 面试方案</h3>
+            <div class="plan-list" id="plan-list"></div>
+          </div>
+
+          <div class="sidebar-card" id="current-question-card">
+            <h3>❓ 当前问题</h3>
+            <div id="current-question-display" class="current-question"><p>等待开始...</p></div>
+          </div>
+
+          <div class="sidebar-card" id="follow-up-card" style="display:none;">
+            <h3>💡 AI 正在思考追问...</h3>
+            <div id="follow-up-display"></div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -105,6 +132,13 @@ class InterviewRoom {
       const title = interview.candidate?.profile_ref || interview._profile?.position?.title || 'AI 语音面试';
       const titleEl = document.getElementById('room-position-title');
       if (titleEl) titleEl.textContent = title;
+
+      // 设置面试总时长
+      this.totalDuration = interview._duration || 45;
+
+      // 渲染面试方案
+      this._renderPlan(interview);
+
       await this._checkVoiceConfig();
       if (interview.status === '已完成') {
         this._showCompleted();
@@ -115,6 +149,25 @@ class InterviewRoom {
       console.error('加载面试失败:', e);
       showToast('加载面试失败: ' + e.message, 'error');
     }
+  }
+
+  /** 渲染面试方案到侧边栏 */
+  _renderPlan(interview) {
+    const planList = document.getElementById('plan-list');
+    if (!planList) return;
+    const plan = interview._plan || interview.plan;
+    if (!plan || !plan.sections) {
+      planList.innerHTML = '<p style="color:#999;font-size:13px;">暂无面试方案</p>';
+      return;
+    }
+    let html = '';
+    for (const section of plan.sections) {
+      html += `<div class="plan-section">
+        <div class="plan-section-title">${this._escapeHtml(section.section_name)}</div>
+        <div class="plan-section-meta">${section.question_count || ''} 题 · ${section.duration_minutes || ''} 分钟</div>
+      </div>`;
+    }
+    planList.innerHTML = html;
   }
 
   async _checkVoiceConfig() {
@@ -160,14 +213,51 @@ class InterviewRoom {
     this.timerInterval = setInterval(() => {
       this.elapsedSeconds += 1;
       this._updateTimerDisplay();
+      // 每 30 秒检查一次时间状态
+      if (this.elapsedSeconds % 30 === 0) this._checkTimeStatus();
     }, 1000);
   }
 
   _updateTimerDisplay() {
     const min = Math.floor(this.elapsedSeconds / 60);
     const sec = this.elapsedSeconds % 60;
+    const timeStr = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+
     const timerDisplay = document.getElementById('timer-display');
-    if (timerDisplay) timerDisplay.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    if (timerDisplay) timerDisplay.textContent = timeStr;
+
+    const elapsedDisplay = document.getElementById('elapsed-display');
+    if (elapsedDisplay) elapsedDisplay.textContent = timeStr;
+
+    const remaining = Math.max(0, this.totalDuration * 60 - this.elapsedSeconds);
+    const rMins = Math.floor(remaining / 60);
+    const rSecs = remaining % 60;
+    const remainingDisplay = document.getElementById('remaining-display');
+    if (remainingDisplay) remainingDisplay.textContent = `${String(rMins).padStart(2, '0')}:${String(rSecs).padStart(2, '0')}`;
+
+    const progress = Math.min(100, (this.elapsedSeconds / (this.totalDuration * 60)) * 100);
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+      progressBar.style.width = progress + '%';
+      if (progress > 85) progressBar.style.background = '#e74c3c';
+      else if (progress > 65) progressBar.style.background = '#f39c12';
+    }
+  }
+
+  async _checkTimeStatus() {
+    const elapsed = this.elapsedSeconds / 60;
+    try {
+      const data = await api.getInterviewStatus(elapsed);
+      if (data.success && data.time_status) {
+        const ts = data.time_status;
+        if (ts.should_wrap_up && !this.isInterviewEnding) {
+          this._setVoiceStatus('⏰ 面试即将结束');
+        }
+        if (ts.suggested_action === '紧急收尾' && !this.isInterviewEnding) {
+          await this.endInterview();
+        }
+      }
+    } catch (e) {}
   }
 
   async askNextQuestion() {
@@ -177,6 +267,10 @@ class InterviewRoom {
       const data = await api.getNextQuestion(this.elapsedSeconds / 60);
       if (data.success && data.question) {
         this.currentQuestion = data.question;
+
+        // 更新侧边栏当前问题
+        this._updateCurrentQuestion(data.question.question_text);
+
         await this._speakInterviewerText(data.question.question_text);
         if (data.question.question_id === 'WRAP_UP') {
           await this._finishAfterSpokenWrapUp();
@@ -195,6 +289,12 @@ class InterviewRoom {
       this._setState('idle', '获取问题失败，请稍后重试。', '异常');
       showToast('获取下一题失败: ' + e.message, 'error');
     }
+  }
+
+  /** 更新侧边栏当前问题显示 */
+  _updateCurrentQuestion(text) {
+    const display = document.getElementById('current-question-display');
+    if (display) display.innerHTML = `<p>${this._escapeHtml(text)}</p>`;
   }
 
   async _speakInterviewerText(text) {
@@ -396,13 +496,20 @@ class InterviewRoom {
         return;
       }
       if (data.result?.follow_up) {
+        // 显示追问卡片
+        const followUpCard = document.getElementById('follow-up-card');
+        if (followUpCard) followUpCard.style.display = 'block';
+
         const followUpData = await api.askFollowUp(data.result.follow_up, { question_id: submittedQuestion.question_id });
         if (followUpData.success) {
           this.currentQuestion = { ...submittedQuestion, follow_up: true, question_text: data.result.follow_up };
+          this._updateCurrentQuestion(data.result.follow_up);
           await this._speakInterviewerText(data.result.follow_up);
+          if (followUpCard) followUpCard.style.display = 'none';
           await this._beginAnswerCapture();
           return;
         }
+        if (followUpCard) followUpCard.style.display = 'none';
       }
       await this.askNextQuestion();
     } catch (e) {
