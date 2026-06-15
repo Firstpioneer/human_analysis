@@ -105,6 +105,15 @@ class ApiClient {
   async listResumeResults() { return this._request('/api/resume/results'); }
   async getResumeResult(id) { return this._request(`/api/resume/results/${id}`); }
   async deleteResumeResult(id) { return this._request(`/api/resume/results/${id}`, { method: 'DELETE' }); }
+  async createCareerProfile(requirementText) {
+    return this._request('/api/resume/career-profiles', {
+      method: 'POST',
+      body: JSON.stringify({ requirement_text: requirementText }),
+    });
+  }
+  async listCareerProfiles() { return this._request('/api/resume/career-profiles'); }
+  async getCareerProfile(id) { return this._request(`/api/resume/career-profiles/${id}`); }
+  async deleteCareerProfile(id) { return this._request(`/api/resume/career-profiles/${id}`, { method: 'DELETE' }); }
 
   // ---- Interview API ----
   async startInterview(config) {

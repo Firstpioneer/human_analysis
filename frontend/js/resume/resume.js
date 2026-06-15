@@ -5,6 +5,7 @@
 class ResumeModule {
   constructor() {
     this.results = [];
+    this.careerProfiles = [];
   }
 
   init(container) {
@@ -13,6 +14,21 @@ class ResumeModule {
         <div class="resume-header">
           <h1>简历分析</h1>
           <p>上传简历文件，AI 自动解析并提取关键信息</p>
+        </div>
+
+        <div class="career-db-panel">
+          <div class="career-db-header">
+            <div>
+              <h3>职业画像库</h3>
+              <p>HR 输入岗位要求后，AI 会统一整理并用于简历岗位推荐</p>
+            </div>
+            <span class="career-db-count" id="career-db-count">0 个岗位</span>
+          </div>
+          <textarea class="form-textarea career-db-input" id="career-requirement-input" placeholder="粘贴岗位职责、任职要求、加分项和成长期待"></textarea>
+          <div class="career-db-actions">
+            <button class="resume-btn primary" id="save-career-profile-btn">写入职业库</button>
+          </div>
+          <div class="career-profile-list" id="career-profile-list"></div>
         </div>
 
         <div class="upload-card">
@@ -41,6 +57,7 @@ class ResumeModule {
     `;
 
     this._bindEvents(container);
+    this._loadCareerProfiles(container);
     this._loadResults(container);
 
     return () => {};
@@ -73,6 +90,66 @@ class ResumeModule {
       if (file) this._uploadFile(file, container);
       fileInput.value = '';
     });
+
+    const saveCareerBtn = container.querySelector('#save-career-profile-btn');
+    saveCareerBtn?.addEventListener('click', () => this._createCareerProfile(container));
+  }
+
+  async _createCareerProfile(container) {
+    const input = container.querySelector('#career-requirement-input');
+    const button = container.querySelector('#save-career-profile-btn');
+    const text = input?.value.trim() || '';
+    if (!text) {
+      showToast('请先填写职业要求', 'error');
+      return;
+    }
+    try {
+      if (button) {
+        button.disabled = true;
+        button.textContent = '写入中...';
+      }
+      await api.createCareerProfile(text);
+      if (input) input.value = '';
+      showToast('职业画像已写入', 'success');
+      await this._loadCareerProfiles(container);
+    } catch (err) {
+      showToast('职业画像写入失败: ' + err.message, 'error');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = '写入职业库';
+      }
+    }
+  }
+
+  async _loadCareerProfiles(container) {
+    const listEl = container.querySelector('#career-profile-list');
+    const countEl = container.querySelector('#career-db-count');
+    if (!listEl) return;
+    try {
+      const data = await api.listCareerProfiles();
+      this.careerProfiles = data.profiles || [];
+      if (countEl) countEl.textContent = `${this.careerProfiles.length} 个岗位`;
+      if (this.careerProfiles.length === 0) {
+        listEl.innerHTML = '<div class="career-profile-empty">暂无职业画像</div>';
+        return;
+      }
+      listEl.innerHTML = this.careerProfiles.slice(0, 5).map(profile => `
+        <div class="career-profile-card">
+          <div class="career-profile-main">
+            <div class="career-profile-title">${this._escape(profile.title || '未命名岗位')}</div>
+            <div class="career-profile-meta">
+              ${this._escape(profile.seniority || '不限')}
+              ${(profile.skill_keywords || []).length ? ` · ${(profile.skill_keywords || []).slice(0, 5).map(s => this._escape(s)).join('、')}` : ''}
+            </div>
+          </div>
+          <button class="resume-btn delete" onclick="window.resumeModule.deleteCareerProfile('${this._escapeAttr(profile.id)}')">删除</button>
+        </div>
+      `).join('');
+    } catch (err) {
+      listEl.innerHTML = '<div class="career-profile-empty">职业画像库加载失败</div>';
+      console.error('加载职业画像库失败:', err);
+    }
   }
 
   async _uploadFile(file, container) {
@@ -124,6 +201,7 @@ class ResumeModule {
     const claims = parsed.claims || [];
     const formattedClaims = parsed.formatted_claims || [];
     const multidimensionalProfile = parsed.multidimensional_profile || {};
+    const growthPotential = parsed.growth_potential || {};
     const roles = parsed.suitable_roles || [];
     const questions = parsed.interview_questions || [];
     const blindSpots = result.blind_spots || [];
@@ -138,6 +216,8 @@ class ResumeModule {
         </div>
 
         ${this._renderMultidimensionalProfile(multidimensionalProfile)}
+
+        ${this._renderGrowthPotential(growthPotential)}
 
         ${projects.length > 0 ? `
           <div class="parse-section">
@@ -229,6 +309,7 @@ class ResumeModule {
           const claims = (parsed.formatted_claims || []).length || (parsed.claims || []).length;
           const topRole = (parsed.suitable_roles || [])[0];
           const fitText = topRole?.fit_score ? ` · 最高契合 ${topRole.fit_score}%` : '';
+          const roleSource = topRole?.source_label ? ` · ${this._escape(topRole.source_label)}` : '';
           const github = parsed.digital_footprint?.github_url || '';
           const candidateId = r.candidate_id ? ` · 候选人 ${this._escape(r.candidate_id)}` : '';
           return `
@@ -239,6 +320,7 @@ class ResumeModule {
               </div>
               <div class="resume-result-info">
                 ${this._escape((parsed.project_experiences || []).slice(0, 2).map(p => p.name).join(' | ') || parsed.objective_experiences?.slice(0, 2).map(e => `${e.company} - ${e.title}`).join(' | ') || '暂无项目信息')}
+                ${roleSource ? `<br>${roleSource}` : ''}
                 ${github ? `<br>GitHub: ${this._escape(github)}` : ''}
                 ${candidateId ? `<br>已同步到面试候选人库${candidateId}` : ''}
               </div>
@@ -270,6 +352,8 @@ class ResumeModule {
           </div>
           <div class="resume-detail-content">
             ${this._renderMultidimensionalProfile(parsed.multidimensional_profile || {})}
+
+            ${this._renderGrowthPotential(parsed.growth_potential || {})}
 
             ${this._renderDetailSection('项目经历', (parsed.project_experiences || []).map(p =>
               this._renderProjectCard(p)
@@ -397,12 +481,14 @@ class ResumeModule {
 
   _renderRoleCard(role) {
     const fitScore = this._clampPercent(role.fit_score ?? 0);
+    const growthFitScore = this._clampPercent(role.growth_fit_score ?? fitScore);
     return `
       <div class="resume-role-card">
         <div class="resume-role-head">
           <div class="resume-role-title">${this._escape(role.title || '')}</div>
           ${role.fit_score !== undefined ? `<div class="resume-fit-score">${fitScore}%</div>` : ''}
         </div>
+        ${role.source_label ? `<div class="resume-role-source ${role.in_career_database ? 'in-db' : 'out-db'}">${this._escape(role.source_label)}</div>` : ''}
         ${role.fit_score !== undefined ? `
           <div class="resume-fit-meter" aria-label="岗位契合度 ${fitScore}%">
             <div class="resume-fit-fill" style="width:${fitScore}%"></div>
@@ -410,6 +496,12 @@ class ResumeModule {
         ` : ''}
         <div class="resume-role-reason">${this._escape(role.reason || '')}</div>
         ${role.fit_reason ? `<div class="resume-role-fit-reason">${this._escape(role.fit_reason)}</div>` : ''}
+        ${role.growth_fit_score !== undefined ? `
+          <div class="resume-growth-fit">
+            <span>成长适配 ${growthFitScore}%</span>
+            ${role.growth_fit_reason ? `<em>${this._escape(role.growth_fit_reason)}</em>` : ''}
+          </div>
+        ` : ''}
         ${(role.matching_skills || []).length > 0 ? `
           <div class="resume-tech-stack">
             ${role.matching_skills.map(s => `<span class="resume-tech-chip">${this._escape(s)}</span>`).join('')}
@@ -435,6 +527,39 @@ class ResumeModule {
         <div class="resume-dimension-list">
           ${dimensions.map(dim => this._renderDimensionAxis(dim)).join('')}
         </div>
+      </div>
+    `;
+  }
+
+  _renderGrowthPotential(growth) {
+    if (!growth || !growth.score) return '';
+    const score = this._clampPercent(growth.score);
+    const dimensions = growth.dimensions || [];
+    return `
+      <div class="parse-section resume-growth-section">
+        <div class="resume-growth-head">
+          <h4>成长性推理</h4>
+          <span class="resume-growth-score">${score}% · ${this._escape(growth.level || '-')}</span>
+        </div>
+        ${growth.summary ? `<div class="resume-profile-summary">${this._escape(growth.summary)}</div>` : ''}
+        ${(growth.evidence || []).length > 0 ? `
+          <div class="resume-growth-evidence">
+            ${(growth.evidence || []).map(item => `<span>${this._escape(item)}</span>`).join('')}
+          </div>
+        ` : ''}
+        ${dimensions.length > 0 ? `
+          <div class="resume-growth-dimensions">
+            ${dimensions.map(dim => `
+              <div class="resume-growth-dimension">
+                <div class="resume-growth-dimension-head">
+                  <span>${this._escape(dim.name || '')}</span>
+                  <strong>${this._clampPercent(dim.score ?? 0)}%</strong>
+                </div>
+                ${dim.summary ? `<div>${this._escape(dim.summary)}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -500,6 +625,18 @@ class ResumeModule {
       showToast('删除成功', 'success');
       const container = document.querySelector('.resume-container');
       if (container) this._loadResults(container);
+    } catch (err) {
+      showToast('删除失败: ' + err.message, 'error');
+    }
+  }
+
+  async deleteCareerProfile(id) {
+    if (!confirm('确定删除此职业画像？')) return;
+    try {
+      await api.deleteCareerProfile(id);
+      showToast('职业画像已删除', 'success');
+      const container = document.querySelector('.resume-container');
+      if (container) this._loadCareerProfiles(container);
     } catch (err) {
       showToast('删除失败: ' + err.message, 'error');
     }
