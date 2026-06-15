@@ -8,6 +8,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 
 class SemanticAnalyzerAgent:
+    MAX_PROJECTS = 4
+    PROJECT_LABELS = ["项目一", "项目二", "项目三", "项目四", "项目五", "项目六", "项目七", "项目八"]
+
     def __init__(self):
         self._api_key = config.RESUME_LLM_API_KEY
         if not self._api_key:
@@ -29,7 +32,7 @@ class SemanticAnalyzerAgent:
            - company, title, start_date, end_date, description
            - signal_strength (1-5): 数据指标越具体、事实越清晰，得分越高。
            - star_completeness: "high", "medium", "low"。
-        3. "project_experiences" (项目经历): 请通篇阅读简历后抽取真实项目/科研/竞赛/论文工程实践，不要只依赖"项目经历"标题。
+        3. "project_experiences" (项目经历): 请通篇阅读简历后抽取真实项目/科研/竞赛/论文工程实践，不要只依赖"项目经历"标题。最多抽取4个，宁可少提取也不要多提取，避免把课程、技能清单或零散职责误判为项目。
            抽取标准：必须能看出一个具体工作对象（项目/系统/平台/课题/论文/算法实验/竞赛作品/开源仓库等）以及候选人的动作、职责、技术方案、研究方法或成果之一。
            严格排除：姓名、电话、邮箱、学校、专业、学历、核心课程/相关课程、技能清单、证书、荣誉奖项、求职意向、自我评价、普通工作职责列表。
            如果某段只是"操作系统/数据库/Python"等课程或技能关键词，不得作为项目。无法确认是项目时不要编造，返回空数组也可以。
@@ -39,7 +42,7 @@ class SemanticAnalyzerAgent:
            - 同一个项目下的多条职责/研究目标/成果要合并为同一条 project_experiences。
            - role 只能来自"角色/职责/担任/职位"等明确表述；不要因为出现"测试用例"就输出"测试"。
            - tech_stack 只能总结工具、框架、语言、数据格式、评测基准和工程技术，如 SWE-bench、Parquet、Pytest、JSON Schema、LLM、SFT、虚拟沙箱、Git。
-           - name: 项目名称，无法判断时用业务/系统名称概括
+           - name: 项目原始/总结命名，不要输出"项目一/项目二"这类编号，系统会统一编号。若简历有明确项目名，使用简历中的项目名；若没有明确项目名，请根据业务对象、系统对象或研究对象总结一个8-18字名称。
            - summary: 80字以内的项目经历总结，说明候选人做了什么和产生了什么结果
            - role: 候选人在项目中的角色或责任，无法判断则为空字符串
            - tech_stack: 3-8个从项目内容推断出的技术关键词
@@ -57,19 +60,31 @@ class SemanticAnalyzerAgent:
              可按候选人经历增加：探索创新/流程执行、规划推进/灵活适应、内部平台/客户现场等维度。
            - overall_tags: 3-6个画像标签，如"软件工程型"、"数据驱动"、"跨部门协同"。
            - summary: 120字以内总结画像，不要做心理诊断，只描述履历证据呈现出的工作倾向。
-        6. "suitable_roles" (适合投递岗位): 根据项目、能力声明和多维画像推荐3-5个岗位。岗位池可由企业数据库替换，此处先输出通用岗位建议。
+        6. "growth_potential" (成长性推理): 根据简历内容推理候选人的成长性，不做心理诊断，只从履历证据判断。
+           推理框架必须覆盖：学习迁移、复杂问题处理、主动负责、复盘迭代、责任范围扩大/难度提升。
+           - score: 0-100总体成长性评分
+           - level: "高"、"中"、"低"
+           - summary: 120字以内总结
+           - evidence: 2-5条简历证据
+           - dimensions: 每项包含 name、score、summary、evidence、confidence
+        7. "suitable_roles" (适合投递岗位): 根据项目、能力声明、多维画像和成长性推荐3-5个岗位。若提供了职业画像库，优先从职业画像库中推荐并标注来源；若职业画像库为空或无合适岗位，可以自行推荐。
            - title: 岗位名称
            - reason: 60字以内推荐理由
            - matching_skills: 3-6个匹配技能
            - fit_score: 0-100契合度，综合技能证据、项目经历、多维画像和信息盲区得出
            - fit_reason: 40字以内说明契合度的主要依据
+           - in_career_database: true/false，表示该岗位是否存在于职业数据库
+           - career_profile_id: 若来自职业数据库则填写该画像id，否则为空字符串
+           - source_label: "职业数据库中存在" 或 "职业数据库中不存在，模型自行推荐"
+           - growth_fit_score: 0-100，成长性推理后对该岗位的成长适配程度
+           - growth_fit_reason: 80字以内说明成长性与该岗位的适配依据
            - risk: 需要面试确认的风险点，无法判断则为空字符串
-        7. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
+        8. "interview_questions" (AI面试辅助问题): 根据项目、岗位建议和盲区拟定6-10个问题。
            - question: 问题内容
            - purpose: 考察目的
            - based_on: 关联的项目/技能/盲区
            - difficulty: "easy", "medium", "hard"
-        7. "blind_spots" (信息盲区): 提出1-3个需要面试官在后续重点追问的漏洞（如"写了负责某系统，但未提及具体使用的技术栈或业务指标"）。
+        9. "blind_spots" (信息盲区): 提出1-3个需要面试官在后续重点追问的漏洞（如"写了负责某系统，但未提及具体使用的技术栈或业务指标"）。
 
         必须且只能输出纯 JSON 格式数据，不要带有 ```json 等 Markdown 标记，不要输出多余的解释。
         """
@@ -89,36 +104,59 @@ class SemanticAnalyzerAgent:
             return match.group(0)
         return text
 
-    def analyze(self, clean_text: str) -> dict:
+    def _format_career_profiles_for_prompt(self, career_profiles: list[dict]) -> str:
+        if not career_profiles:
+            return "【职业画像库】当前为空。岗位推荐可以由你根据简历自行生成，但必须标注 in_career_database=false。"
+        compact_profiles = []
+        for profile in career_profiles[:10]:
+            compact_profiles.append({
+                "id": profile.get("id", ""),
+                "title": profile.get("title", ""),
+                "seniority": profile.get("seniority", ""),
+                "must_have": profile.get("must_have", [])[:8],
+                "nice_to_have": profile.get("nice_to_have", [])[:6],
+                "skill_keywords": profile.get("skill_keywords", [])[:10],
+                "growth_expectations": profile.get("growth_expectations", [])[:5],
+                "summary": profile.get("summary", ""),
+            })
+        return (
+            "【职业画像库】以下是 HR 已写入并标准化的岗位画像。"
+            "如果推荐这些岗位，必须填写对应 career_profile_id 并标注 in_career_database=true；"
+            "如果推荐库外岗位，必须标注 in_career_database=false。\n"
+            + json.dumps(compact_profiles, ensure_ascii=False)
+        )
+
+    def analyze(self, clean_text: str, career_profiles: list[dict] | None = None) -> dict:
         if not self._api_key:
-            return self._heuristic_response(clean_text)
+            return self._heuristic_response(clean_text, career_profiles=career_profiles)
 
         logging.info("启动深度思考模型 (Qwen) 进行语义剖析...")
+        career_context = self._format_career_profiles_for_prompt(career_profiles or [])
         messages = [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": f"请解析以下简历文本：\n{clean_text}"}
+            {"role": "user", "content": f"{career_context}\n\n请解析以下简历文本：\n{clean_text}"}
         ]
         try:
             completion = self.client.chat.completions.create(
                 model=self._model,
                 messages=messages,
                 temperature=0.2,
-                max_tokens=3000,
+                max_tokens=4096,
             )
             final_content = completion.choices[0].message.content or ""
             json_str = self._extract_json(final_content)
             result = json.loads(json_str)
             logging.info("语义分析与结构化提取完成。")
-            return self._normalize_result(result, clean_text)
+            return self._normalize_result(result, clean_text, career_profiles=career_profiles)
         except json.JSONDecodeError as e:
             logging.error(f"大模型返回的数据无法被解析为 JSON: {e}\n原始文本: {final_content}")
-            return self._heuristic_response(clean_text)
+            return self._heuristic_response(clean_text, career_profiles=career_profiles)
         except Exception as e:
             logging.error(f"API 调用失败: {e}")
-            return self._heuristic_response(clean_text)
+            return self._heuristic_response(clean_text, career_profiles=career_profiles)
 
-    def _normalize_result(self, result: dict, clean_text: str) -> dict:
-        fallback = self._heuristic_response(clean_text)
+    def _normalize_result(self, result: dict, clean_text: str, career_profiles: list[dict] | None = None) -> dict:
+        fallback = self._heuristic_response(clean_text, career_profiles=career_profiles, finalize_projects=False)
         contact = fallback.get("contact", {})
         contact.update(result.get("contact") or {})
         heuristic_projects = fallback.get("project_experiences", [])
@@ -126,37 +164,67 @@ class SemanticAnalyzerAgent:
         projects = self._merge_projects(heuristic_projects, llm_projects)
         if not projects:
             projects = heuristic_projects
+        projects = self._finalize_project_names(projects)
+        formatted_claims = self._normalize_formatted_claims(
+            result.get("formatted_claims") or fallback.get("formatted_claims", [])
+        )
+        multidimensional_profile = self._normalize_multidimensional_profile(
+            result.get("multidimensional_profile") or fallback.get("multidimensional_profile", {})
+        )
+        growth_potential = self._normalize_growth_potential(
+            result.get("growth_potential") or fallback.get("growth_potential", {})
+        )
+        suitable_roles = self._compose_role_recommendations(
+            projects=projects,
+            formatted_claims=formatted_claims,
+            multidimensional_profile=multidimensional_profile,
+            growth_potential=growth_potential,
+            generic_roles=result.get("suitable_roles") or fallback.get("suitable_roles", []),
+            career_profiles=career_profiles or [],
+            clean_text=clean_text,
+        )
         return {
             "name": result.get("name") or fallback.get("name", ""),
             "contact": contact,
             "claims": result.get("claims") or fallback.get("claims", []),
-            "formatted_claims": self._normalize_formatted_claims(
-                result.get("formatted_claims") or fallback.get("formatted_claims", [])
-            ),
+            "formatted_claims": formatted_claims,
             "objective_experiences": result.get("objective_experiences") or fallback.get("objective_experiences", []),
             "project_experiences": projects,
-            "multidimensional_profile": self._normalize_multidimensional_profile(
-                result.get("multidimensional_profile") or fallback.get("multidimensional_profile", {})
-            ),
-            "suitable_roles": self._normalize_roles(
-                result.get("suitable_roles") or fallback.get("suitable_roles", [])
-            ),
+            "multidimensional_profile": multidimensional_profile,
+            "growth_potential": growth_potential,
+            "suitable_roles": suitable_roles,
             "interview_questions": self._normalize_questions(
                 result.get("interview_questions") or fallback.get("interview_questions", [])
             ),
             "blind_spots": result.get("blind_spots") or fallback.get("blind_spots", []),
         }
 
-    def _heuristic_response(self, clean_text: str) -> dict:
+    def _heuristic_response(
+        self,
+        clean_text: str,
+        career_profiles: list[dict] | None = None,
+        finalize_projects: bool = True,
+    ) -> dict:
         contact = self._extract_contact(clean_text)
         lines = [line.strip() for line in clean_text.splitlines() if line.strip()]
         name = self._guess_name(lines)
         claims = self._extract_claims(lines)
         experiences = self._extract_experiences(lines)
         projects = self._build_project_experiences(experiences, lines)
+        if finalize_projects:
+            projects = self._finalize_project_names(projects)
         formatted_claims = self._format_claims(claims)
         multidimensional_profile = self._build_multidimensional_profile(clean_text, projects, formatted_claims, experiences, claims)
-        roles = self._suggest_roles(projects, formatted_claims, multidimensional_profile)
+        growth_potential = self._build_growth_potential(clean_text, projects, experiences, claims)
+        roles = self._compose_role_recommendations(
+            projects=projects,
+            formatted_claims=formatted_claims,
+            multidimensional_profile=multidimensional_profile,
+            growth_potential=growth_potential,
+            generic_roles=self._suggest_roles(projects, formatted_claims, multidimensional_profile),
+            career_profiles=career_profiles or [],
+            clean_text=clean_text,
+        )
         blind_spots = self._build_blind_spots(experiences, claims)
         return {
             "name": name,
@@ -166,6 +234,7 @@ class SemanticAnalyzerAgent:
             "objective_experiences": experiences,
             "project_experiences": projects,
             "multidimensional_profile": multidimensional_profile,
+            "growth_potential": growth_potential,
             "suitable_roles": roles,
             "interview_questions": self._build_interview_questions(projects, roles, blind_spots),
             "blind_spots": blind_spots,
@@ -283,9 +352,11 @@ class SemanticAnalyzerAgent:
                 tech_stack = [item.strip() for item in re.split(r"[,，/、\s]+", tech_stack) if item.strip()]
             evidence = str(project.get("evidence") or "").strip()
             raw_name = str(project.get("name") or "").strip()
-            name = self._repair_project_name(raw_name, evidence, idx)
+            project_title, name_source = self._resolve_project_title(raw_name, evidence, idx)
             item = {
-                "name": name[:80],
+                "name": project_title[:80],
+                "project_title": project_title[:80],
+                "name_source": name_source,
                 "summary": str(project.get("summary") or "")[:180],
                 "role": str(project.get("role") or "")[:80],
                 "tech_stack": [str(item)[:30] for item in tech_stack[:8]],
@@ -300,7 +371,7 @@ class SemanticAnalyzerAgent:
                 item["impact"] = self._extract_impact(item["evidence"])
             if self._is_valid_project(item, clean_text):
                 normalized.append(item)
-        return normalized[:8]
+        return normalized[:self.MAX_PROJECTS]
 
     def _merge_projects(self, primary: list[dict], secondary: list[dict]) -> list[dict]:
         merged = []
@@ -333,17 +404,83 @@ class SemanticAnalyzerAgent:
                 self._fill_project_gaps(existing, project)
             else:
                 merged.append(dict(project))
-        return merged[:8]
+        return merged[:self.MAX_PROJECTS]
 
     def _fill_project_gaps(self, target: dict, source: dict) -> None:
-        for key in ("summary", "role", "impact", "evidence"):
+        for key in ("project_title", "summary", "role", "impact", "evidence"):
             if not target.get(key) and source.get(key):
                 target[key] = source[key]
+        if self._is_generic_project_name(target.get("name", "")) and source.get("name"):
+            target["name"] = source["name"]
         techs = target.get("tech_stack") or []
         for tech in source.get("tech_stack") or []:
             if tech not in techs:
                 techs.append(tech)
         target["tech_stack"] = techs[:8]
+
+    def _resolve_project_title(self, raw_name: str, evidence: str, idx: int) -> tuple[str, str]:
+        cleaned = self._clean_project_name(raw_name)
+        if cleaned and not self._is_generic_project_name(cleaned):
+            return cleaned, "resume"
+        guessed = self._guess_project_name(evidence, idx) if evidence else ""
+        if guessed and not self._is_generic_project_name(guessed):
+            return guessed, "resume"
+        summarized = self._summarize_project_title(evidence)
+        return summarized or f"候选项目{idx}", "auto_summary"
+
+    def _finalize_project_names(self, projects: list[dict]) -> list[dict]:
+        finalized = []
+        for idx, project in enumerate((projects or [])[:self.MAX_PROJECTS], start=1):
+            item = dict(project)
+            label = self._project_label(idx)
+            project_title = (
+                item.get("project_title")
+                or item.get("name")
+                or self._summarize_project_title(item.get("evidence", ""))
+                or f"候选项目{idx}"
+            )
+            project_title = self._clean_project_name(project_title) or project_title
+            item["project_index"] = idx
+            item["project_label"] = label
+            item["project_title"] = project_title[:80]
+            item["name"] = f"{label}: {project_title[:80]}"
+            item.setdefault("name_source", "auto_summary")
+            finalized.append(item)
+        return finalized
+
+    def _project_label(self, idx: int) -> str:
+        if 1 <= idx <= len(self.PROJECT_LABELS):
+            return self.PROJECT_LABELS[idx - 1]
+        return f"项目{idx}"
+
+    def _is_generic_project_name(self, name: str) -> bool:
+        compact = re.sub(r"\s+", "", str(name))
+        if not compact:
+            return True
+        return bool(re.fullmatch(r"(?:项目|项目经历|项目经验|未命名项目|项目[一二三四五六七八九十\d]+)", compact))
+
+    def _summarize_project_title(self, text: str) -> str:
+        if not text:
+            return ""
+        first_sentence = re.split(r"[。；;\n]", text.strip())[0]
+        first_sentence = re.sub(r"^[•\-*\d.、\s]+", "", first_sentence).strip()
+        first_sentence = re.sub(r"[（(]\s*(?:19|20)\d{2}[./年-]?.*?[）)]", "", first_sentence)
+        patterns = [
+            r"([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,40}(?:系统|平台|小程序|网站|应用|服务|课题|论文|竞赛|比赛|研究|算法|模型))",
+            r"(?:基于|围绕|开发|设计|实现|构建|搭建)([\u4e00-\u9fa5A-Za-z0-9_.+#/\-]{2,24})",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, first_sentence)
+            if match:
+                title = self._clean_project_name(match.group(1))
+                if title and not self._is_generic_project_name(title):
+                    return title[:30]
+        techs = self._extract_tech_stack(text)
+        if techs:
+            return f"{techs[0]}实践项目"
+        fallback = re.sub(r"\s+", "", first_sentence)
+        fallback = re.sub(r"(负责|参与|开发|设计|实现|优化|搭建|训练|部署|上线|完成|提出|构建|验证)", "", fallback)
+        return fallback[:18] if len(fallback) >= 4 else ""
 
     def _normalize_key(self, text: str) -> str:
         return re.sub(r"[\s:：，,。；;（）()\[\]【】《》<>「」\-—_/]+", "", str(text).lower())
@@ -379,12 +516,23 @@ class SemanticAnalyzerAgent:
             skills = role.get("matching_skills") or []
             if isinstance(skills, str):
                 skills = [item.strip() for item in re.split(r"[,，/、\s]+", skills) if item.strip()]
+            in_database = bool(role.get("in_career_database"))
+            source = role.get("source") or ("career_database" if in_database else "llm_suggestion")
             normalized.append({
                 "title": str(role.get("title") or "")[:60],
                 "reason": str(role.get("reason") or "")[:140],
                 "matching_skills": [str(item)[:30] for item in skills[:6]],
                 "fit_score": self._clamp_percent(role.get("fit_score", 70)),
                 "fit_reason": str(role.get("fit_reason") or "")[:80],
+                "in_career_database": in_database,
+                "career_profile_id": str(role.get("career_profile_id") or "")[:80],
+                "source": str(source)[:40],
+                "source_label": str(
+                    role.get("source_label")
+                    or ("职业数据库中存在" if in_database else "职业数据库中不存在，模型自行推荐")
+                )[:40],
+                "growth_fit_score": self._clamp_percent(role.get("growth_fit_score", role.get("fit_score", 70))),
+                "growth_fit_reason": str(role.get("growth_fit_reason") or "")[:120],
                 "risk": str(role.get("risk") or "")[:120],
             })
         return [role for role in normalized if role["title"]][:5]
@@ -418,6 +566,114 @@ class SemanticAnalyzerAgent:
             "summary": str(profile.get("summary") or "")[:160],
         }
         return normalized
+
+    def _normalize_growth_potential(self, growth: dict) -> dict:
+        if not isinstance(growth, dict):
+            growth = {}
+        dimensions = []
+        for dim in growth.get("dimensions", []) or []:
+            if not isinstance(dim, dict):
+                continue
+            dimensions.append({
+                "name": str(dim.get("name") or "")[:40],
+                "score": self._clamp_percent(dim.get("score", 50)),
+                "summary": str(dim.get("summary") or "")[:120],
+                "evidence": str(dim.get("evidence") or "")[:160],
+                "confidence": self._clamp_score(dim.get("confidence", 3)),
+            })
+        evidence = growth.get("evidence") or []
+        if isinstance(evidence, str):
+            evidence = [item.strip() for item in re.split(r"[；;\n]", evidence) if item.strip()]
+        score = self._clamp_percent(growth.get("score", 50))
+        level = str(growth.get("level") or self._growth_level(score))
+        if level not in ("高", "中", "低"):
+            level = self._growth_level(score)
+        return {
+            "score": score,
+            "level": level,
+            "summary": str(growth.get("summary") or "")[:160],
+            "evidence": [str(item)[:120] for item in evidence[:5]],
+            "dimensions": [dim for dim in dimensions if dim["name"]][:6],
+        }
+
+    def _build_growth_potential(
+        self,
+        clean_text: str,
+        projects: list[dict],
+        experiences: list[dict],
+        claims: list[dict],
+    ) -> dict:
+        text = clean_text.lower()
+        evidence = self._growth_evidence(projects, experiences, claims)
+
+        learning = self._growth_dimension_score(text, ["自学", "学习", "快速掌握", "迁移", "跨领域", "新技术", "研究", "探索", "调研"], len(projects))
+        complexity = self._growth_dimension_score(text, ["复杂", "难点", "架构", "性能", "优化", "算法", "模型", "分布式", "高并发", "论文", "实验"], len(projects))
+        ownership = self._growth_dimension_score(text, ["主导", "独立", "负责", "推进", "落地", "上线", "从0到1", "牵头"], len(projects))
+        iteration = self._growth_dimension_score(text, ["复盘", "迭代", "优化", "指标", "评估", "测试", "用户反馈", "a/b", "改进"], len(projects))
+        scope = self._growth_dimension_score(text, ["负责人", "带领", "协作", "跨部门", "管理", "多模块", "全流程", "端到端"], len(projects))
+
+        dims = [
+            self._growth_dimension("学习迁移", learning, evidence),
+            self._growth_dimension("复杂问题处理", complexity, evidence),
+            self._growth_dimension("主动负责", ownership, evidence),
+            self._growth_dimension("复盘迭代", iteration, evidence),
+            self._growth_dimension("责任范围扩大", scope, evidence),
+        ]
+        score = self._clamp_percent(round(sum(dim["score"] for dim in dims) / len(dims)))
+        level = self._growth_level(score)
+        summary = (
+            f"成长性{level}：依据项目难度、主动负责程度、学习迁移和迭代优化痕迹综合判断。"
+            "建议面试继续验证关键项目中的独立贡献和复盘细节。"
+        )
+        return self._normalize_growth_potential({
+            "score": score,
+            "level": level,
+            "summary": summary,
+            "evidence": evidence[:5],
+            "dimensions": dims,
+        })
+
+    def _growth_dimension_score(self, text: str, keywords: list[str], project_count: int) -> int:
+        hits = sum(1 for keyword in keywords if keyword.lower() in text)
+        metric_bonus = 8 if re.search(r"\d+%|\d+\s*(万|千|ms|秒|人|次|qps|tps)", text, re.I) else 0
+        project_bonus = min(project_count, 3) * 4
+        return self._clamp_percent(45 + hits * 8 + metric_bonus + project_bonus)
+
+    def _growth_dimension(self, name: str, score: int, evidence: list[str]) -> dict:
+        if score >= 75:
+            summary = f"{name}信号较强。"
+        elif score >= 60:
+            summary = f"{name}有一定证据。"
+        else:
+            summary = f"{name}证据偏弱，需要面试确认。"
+        return {
+            "name": name,
+            "score": score,
+            "summary": summary,
+            "evidence": evidence[0] if evidence else "",
+            "confidence": 4 if evidence and score >= 60 else (3 if evidence else 2),
+        }
+
+    def _growth_evidence(self, projects: list[dict], experiences: list[dict], claims: list[dict]) -> list[str]:
+        evidence = []
+        for project in projects[:3]:
+            text = project.get("impact") or project.get("summary") or project.get("evidence")
+            if text:
+                evidence.append(text[:120])
+        for exp in experiences[:2]:
+            if exp.get("description"):
+                evidence.append(exp["description"][:120])
+        for claim in claims[:2]:
+            if claim.get("content"):
+                evidence.append(claim["content"][:120])
+        return evidence[:5]
+
+    def _growth_level(self, score: int) -> str:
+        if score >= 75:
+            return "高"
+        if score >= 60:
+            return "中"
+        return "低"
 
     def _normalize_questions(self, questions: list[dict]) -> list[dict]:
         normalized = []
@@ -458,7 +714,7 @@ class SemanticAnalyzerAgent:
         ]
         if not source_experiences:
             source_experiences = self._extract_project_blocks(lines)
-        for idx, exp in enumerate(source_experiences[:8], start=1):
+        for idx, exp in enumerate(source_experiences[:self.MAX_PROJECTS], start=1):
             desc = exp.get("description", "")
             if not desc:
                 continue
@@ -513,7 +769,7 @@ class SemanticAnalyzerAgent:
         flush()
 
         if blocks:
-            return blocks[:8]
+            return blocks[:self.MAX_PROJECTS]
 
         # 没有显式项目标题时，通篇扫描包含项目/科研动作的相邻短块，适配标题缺失的简历。
         for idx, line in enumerate(lines):
@@ -528,7 +784,7 @@ class SemanticAnalyzerAgent:
             text = " ".join(window)
             if self._looks_like_project_block(text):
                 blocks.append({"description": text, "title": self._guess_title(text)})
-        return blocks[:8]
+        return blocks[:self.MAX_PROJECTS]
 
     def _is_section_heading(self, compact_line: str, headings: tuple[str, ...]) -> bool:
         if not compact_line:
@@ -610,7 +866,7 @@ class SemanticAnalyzerAgent:
                 name = self._clean_project_name(match.group(1))
                 if name:
                     return name
-        return f"项目 {idx}"
+        return ""
 
     def _extract_project_heading_name(self, text: str) -> str:
         first_sentence = re.split(r"[。；;\n]", text.strip())[0]
@@ -622,6 +878,7 @@ class SemanticAnalyzerAgent:
         return ""
 
     def _clean_project_name(self, name: str) -> str:
+        name = re.sub(r"^\s*项目\s*[一二三四五六七八九十\d]+\s*[:：\-—]?\s*", "", name)
         name = re.sub(r"^\s*(?:项目名称|项目|课题|论文|研究)[:：]\s*", "", name)
         name = re.sub(r"[（(]\s*(?:19|20)\d{2}[./年-]?.*?[）)]", "", name)
         name = re.split(r"\s+(?:研究目标|项目背景|主要工作|职责|技术栈|个人贡献)[:：]", name)[0]
@@ -642,7 +899,7 @@ class SemanticAnalyzerAgent:
             guessed = self._guess_project_name(evidence, idx)
             if guessed:
                 return guessed
-        return cleaned or f"项目 {idx}"
+        return cleaned or self._summarize_project_title(evidence)
 
     def _summarize_project(self, text: str) -> str:
         text = re.sub(r"\s+", " ", text).strip()
@@ -880,6 +1137,214 @@ class SemanticAnalyzerAgent:
             if dim.get("key") == key:
                 return self._clamp_percent(dim.get("score", default))
         return default
+
+    def _compose_role_recommendations(
+        self,
+        projects: list[dict],
+        formatted_claims: list[dict],
+        multidimensional_profile: dict,
+        growth_potential: dict,
+        generic_roles: list[dict],
+        career_profiles: list[dict],
+        clean_text: str,
+    ) -> list[dict]:
+        career_roles = self._recommend_from_career_database(
+            projects=projects,
+            formatted_claims=formatted_claims,
+            multidimensional_profile=multidimensional_profile,
+            growth_potential=growth_potential,
+            career_profiles=career_profiles,
+            clean_text=clean_text,
+        )
+        generic = [
+            self._attach_role_source_and_growth(role, growth_potential, None, in_database=False)
+            for role in self._normalize_roles(generic_roles)
+        ]
+        generic = self._normalize_roles(generic)
+        generic.sort(key=lambda item: (item.get("fit_score", 0), item.get("growth_fit_score", 0)), reverse=True)
+        if career_roles:
+            roles = career_roles[:]
+            existing_titles = {role.get("title") for role in roles}
+            roles.extend(role for role in generic if role.get("title") not in existing_titles)
+        else:
+            roles = generic
+        roles = self._normalize_roles(roles)
+        if not career_roles:
+            roles.sort(key=lambda item: (item.get("fit_score", 0), item.get("growth_fit_score", 0)), reverse=True)
+        for idx, role in enumerate(roles, start=1):
+            role["recommendation_rank"] = idx
+        return roles[:5]
+
+    def _recommend_from_career_database(
+        self,
+        projects: list[dict],
+        formatted_claims: list[dict],
+        multidimensional_profile: dict,
+        growth_potential: dict,
+        career_profiles: list[dict],
+        clean_text: str,
+    ) -> list[dict]:
+        if not career_profiles:
+            return []
+        candidate_text = self._candidate_text(clean_text, projects, formatted_claims, multidimensional_profile)
+        candidate_skills = self._candidate_skills(projects, formatted_claims)
+        recommendations = []
+        for profile in career_profiles[:20]:
+            title = str(profile.get("title") or "").strip()
+            if not title:
+                continue
+            profile_keywords = self._profile_keywords(profile)
+            must_have = [str(item) for item in profile.get("must_have", []) if str(item).strip()]
+            nice_to_have = [str(item) for item in profile.get("nice_to_have", []) if str(item).strip()]
+            keyword_hits = self._count_hits(profile_keywords, candidate_text, candidate_skills)
+            must_hits = self._count_hits(must_have, candidate_text, candidate_skills)
+            nice_hits = self._count_hits(nice_to_have, candidate_text, candidate_skills)
+
+            keyword_ratio = keyword_hits / max(1, len(profile_keywords))
+            must_ratio = must_hits / max(1, len(must_have))
+            nice_ratio = nice_hits / max(1, len(nice_to_have))
+            growth_score = self._clamp_percent((growth_potential or {}).get("score", 50))
+            score = self._clamp_percent(42 + keyword_ratio * 28 + must_ratio * 18 + nice_ratio * 6 + max(0, growth_score - 55) * 0.18)
+            matching_skills = self._matching_terms(profile_keywords + must_have + nice_to_have, candidate_text, candidate_skills)[:6]
+            missing_must = [
+                item for item in must_have
+                if not self._term_matches_candidate(item, candidate_text, candidate_skills)
+            ][:2]
+            role = {
+                "title": title,
+                "reason": self._career_role_reason(profile, matching_skills, score),
+                "matching_skills": matching_skills or list(candidate_skills)[:6] or ["简历项目证据"],
+                "fit_score": score,
+                "fit_reason": "职业画像要求与简历技能、项目和成长性综合匹配。",
+                "risk": f"需确认：{'、'.join(missing_must)}" if missing_must else "需要面试确认岗位关键场景中的个人贡献深度。",
+            }
+            recommendations.append(
+                self._attach_role_source_and_growth(role, growth_potential, profile, in_database=True)
+            )
+        recommendations = self._normalize_roles(recommendations)
+        recommendations.sort(key=lambda item: (item.get("fit_score", 0), item.get("growth_fit_score", 0)), reverse=True)
+        return recommendations[:5]
+
+    def _attach_role_source_and_growth(
+        self,
+        role: dict,
+        growth_potential: dict,
+        career_profile: dict | None,
+        in_database: bool,
+    ) -> dict:
+        item = dict(role)
+        growth_score = self._clamp_percent((growth_potential or {}).get("score", 50))
+        fit_score = self._clamp_percent(item.get("fit_score", 70))
+        expectation_bonus = self._growth_expectation_bonus(growth_potential, career_profile)
+        growth_fit = self._clamp_percent(round(fit_score * 0.65 + growth_score * 0.35 + expectation_bonus))
+        item["in_career_database"] = in_database
+        item["career_profile_id"] = (career_profile or {}).get("id", "") if in_database else ""
+        item["source"] = "career_database" if in_database else "llm_suggestion"
+        item["source_label"] = "职业数据库中存在" if in_database else "职业数据库中不存在，模型自行推荐"
+        item["growth_fit_score"] = growth_fit
+        item["growth_fit_reason"] = self._role_growth_reason(growth_potential, career_profile, growth_fit)
+        return item
+
+    def _growth_expectation_bonus(self, growth_potential: dict, career_profile: dict | None) -> int:
+        if not career_profile:
+            return 0
+        growth_text = " ".join(
+            [str((growth_potential or {}).get("summary", ""))]
+            + [str(item) for item in (growth_potential or {}).get("evidence", [])]
+            + [str(dim.get("summary", "")) for dim in (growth_potential or {}).get("dimensions", []) if isinstance(dim, dict)]
+        )
+        expectations = career_profile.get("growth_expectations") or []
+        hits = sum(1 for item in expectations if item and self._term_matches_candidate(str(item), growth_text.lower(), set()))
+        return min(8, hits * 3)
+
+    def _role_growth_reason(self, growth_potential: dict, career_profile: dict | None, growth_fit: int) -> str:
+        level = (growth_potential or {}).get("level") or self._growth_level((growth_potential or {}).get("score", 50))
+        if career_profile and career_profile.get("growth_expectations"):
+            expectation = "、".join(career_profile.get("growth_expectations", [])[:2])
+            return f"成长性{level}，与岗位期待的{expectation}匹配，成长适配度{growth_fit}%。"
+        return f"成长性{level}，结合项目难度、主动负责和迭代证据推断，成长适配度{growth_fit}%。"
+
+    def _candidate_text(
+        self,
+        clean_text: str,
+        projects: list[dict],
+        formatted_claims: list[dict],
+        multidimensional_profile: dict,
+    ) -> str:
+        parts = [clean_text]
+        for project in projects:
+            parts.extend(str(project.get(key, "")) for key in ("name", "project_title", "summary", "impact", "evidence"))
+            parts.extend(project.get("tech_stack") or [])
+        for claim in formatted_claims:
+            parts.append(str(claim.get("category", "")))
+            parts.extend(claim.get("items") or [])
+            parts.append(str(claim.get("evidence", "")))
+        parts.extend((multidimensional_profile or {}).get("overall_tags", []) or [])
+        return " ".join(parts).lower()
+
+    def _candidate_skills(self, projects: list[dict], formatted_claims: list[dict]) -> set[str]:
+        skills = {str(tech).lower() for project in projects for tech in project.get("tech_stack", [])}
+        for claim in formatted_claims:
+            skills.add(str(claim.get("category", "")).lower())
+            skills.update(str(item).lower() for item in claim.get("items", []))
+        return {skill for skill in skills if skill}
+
+    def _profile_keywords(self, profile: dict) -> list[str]:
+        fields = []
+        for key in ("skill_keywords", "must_have", "nice_to_have", "responsibilities"):
+            value = profile.get(key) or []
+            if isinstance(value, str):
+                value = [value]
+            fields.extend(str(item) for item in value if str(item).strip())
+        return fields[:24]
+
+    def _count_hits(self, terms: list[str], candidate_text: str, candidate_skills: set[str]) -> int:
+        return sum(1 for term in terms if self._term_matches_candidate(term, candidate_text, candidate_skills))
+
+    def _matching_terms(self, terms: list[str], candidate_text: str, candidate_skills: set[str]) -> list[str]:
+        matched = []
+        for term in terms:
+            term = str(term).strip()
+            if term and self._term_matches_candidate(term, candidate_text, candidate_skills) and term not in matched:
+                matched.append(term[:30])
+        return matched
+
+    def _term_matches_candidate(self, term: str, candidate_text: str, candidate_skills: set[str]) -> bool:
+        compact = re.sub(r"\s+", "", str(term).lower())
+        if not compact:
+            return False
+        if compact in candidate_text.replace(" ", ""):
+            return True
+        for token in self._term_tokens(term):
+            if token in candidate_text.replace(" ", ""):
+                return True
+            if any(token in re.sub(r"\s+", "", skill.lower()) for skill in candidate_skills):
+                return True
+        for skill in candidate_skills:
+            skill_compact = re.sub(r"\s+", "", skill.lower())
+            if skill_compact and (skill_compact in compact or compact in skill_compact):
+                return True
+        return False
+
+    def _term_tokens(self, term: str) -> list[str]:
+        stopwords = {
+            "熟悉", "掌握", "了解", "具备", "负责", "参与", "能力", "经验", "优先", "相关",
+            "岗位", "要求", "开发", "设计", "实现", "以及", "或者", "并且", "以上",
+        }
+        raw_tokens = re.split(r"[,，、/；;\s]+", str(term))
+        tokens = []
+        for token in raw_tokens:
+            token = re.sub(r"^[^\u4e00-\u9fa5A-Za-z0-9+#.]+|[^\u4e00-\u9fa5A-Za-z0-9+#.]+$", "", token.lower())
+            if len(token) < 2 or token in stopwords:
+                continue
+            tokens.append(token)
+        return tokens[:8]
+
+    def _career_role_reason(self, profile: dict, matching_skills: list[str], score: int) -> str:
+        if matching_skills:
+            return f"职业库画像命中{', '.join(matching_skills[:3])}等信号，综合推荐度{score}%。"
+        summary = profile.get("summary") or "职业库画像与简历存在部分匹配信号"
+        return str(summary)[:70]
 
     def _suggest_roles(self, projects: list[dict], formatted_claims: list[dict], multidimensional_profile: dict | None = None) -> list[dict]:
         techs = {tech for project in projects for tech in project.get("tech_stack", [])}

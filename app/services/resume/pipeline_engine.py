@@ -9,6 +9,7 @@ from app.services.resume.extractors import PDFExtractor, DocxExtractor, ImageExt
 from app.services.resume.cleaner import TextCleaner
 from app.services.resume.llm_agent import SemanticAnalyzerAgent
 from app.services.resume.github_crawler import DigitalFootprintMiner
+from app.storage.career_profile_store import list_career_profiles
 
 
 class ResumePipelineEngine:
@@ -48,7 +49,8 @@ class ResumePipelineEngine:
 
         clean_text = self.cleaner.clean(raw_text)
         stages.append({"name": "clean_text", "status": "done", "chars": len(clean_text)})
-        semantic_data = self.llm_agent.analyze(clean_text)
+        career_profiles = list_career_profiles()
+        semantic_data = self.llm_agent.analyze(clean_text, career_profiles=career_profiles)
         stages.append({"name": "semantic_analysis", "status": "done"})
         footprint_data = self.miner.mine_data(clean_text)
         stages.append({"name": "digital_footprint", "status": footprint_data.get("status", "done")})
@@ -65,6 +67,7 @@ class ResumePipelineEngine:
                 "objective_experiences": semantic_data.get("objective_experiences", []),
                 "project_experiences": semantic_data.get("project_experiences", []),
                 "multidimensional_profile": semantic_data.get("multidimensional_profile", {}),
+                "growth_potential": semantic_data.get("growth_potential", {}),
                 "suitable_roles": semantic_data.get("suitable_roles", []),
                 "interview_questions": semantic_data.get("interview_questions", []),
                 "digital_footprint": footprint_data
@@ -92,6 +95,7 @@ class ResumePipelineEngine:
                 "objective_experiences": [],
                 "project_experiences": [],
                 "multidimensional_profile": {},
+                "growth_potential": {},
                 "suitable_roles": [],
                 "interview_questions": [],
                 "digital_footprint": {},
