@@ -302,6 +302,10 @@
       background: var(--amber);
     }
 
+    .flow-step[data-kind="reasoning"] .step-icon {
+      background: var(--red);
+    }
+
     .flow-step h3,
     .card h3,
     .detail h3,
@@ -556,6 +560,111 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .capability-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .capability-card {
+      min-height: 214px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 32px rgba(15, 61, 89, 0.08);
+    }
+
+    .capability-card:nth-child(2) {
+      border-top-color: var(--cyan);
+    }
+
+    .capability-card:nth-child(3) {
+      border-top-color: var(--green);
+    }
+
+    .capability-card:nth-child(4) {
+      border-top-color: var(--amber);
+    }
+
+    .capability-card:nth-child(5),
+    .capability-card:nth-child(6) {
+      border-top-color: var(--red);
+    }
+
+    .capability-card h3,
+    .trace-panel h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .capability-card p,
+    .trace-panel p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .capability-code {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 4px 7px;
+      color: #075985;
+      background: #e0f2fe;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .trace-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.62fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .trace-panel {
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 32px rgba(15, 61, 89, 0.08);
+    }
+
+    .trace-list {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: trace;
+    }
+
+    .trace-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .trace-list li::before {
+      counter-increment: trace;
+      content: counter(trace);
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--blue-dark);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
     .flow-board {
       padding: 18px;
       overflow-x: auto;
@@ -563,9 +672,9 @@
 
     .data-flow {
       display: grid;
-      grid-template-columns: repeat(5, minmax(188px, 1fr));
+      grid-template-columns: repeat(6, minmax(188px, 1fr));
       gap: 14px;
-      min-width: 980px;
+      min-width: 1180px;
       align-items: stretch;
     }
 
@@ -742,6 +851,11 @@
       .cards-row.cols-4 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      .capability-grid,
+      .trace-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 720px) {
@@ -770,7 +884,9 @@
       .tabs,
       .grid-2,
       .cards-row,
-      .cards-row.cols-4 {
+      .cards-row.cols-4,
+      .capability-grid,
+      .trace-layout {
         grid-template-columns: 1fr;
       }
 
@@ -844,6 +960,7 @@
         进入系统
       </a>
       <a class="text-btn" href="#data-flow">数据流</a>
+      <a class="text-btn" href="#advanced">增强能力</a>
       <a class="text-btn" href="#modules">模块</a>
       <button class="icon-btn" id="focusBtn" title="聚焦模块讲解" aria-label="聚焦模块讲解">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -943,6 +1060,21 @@
               <p>画像和简历结果经转换器写入面试画像库、候选人库和记录目录。</p>
             </div>
           </article>
+          <article class="flow-step" data-kind="reasoning">
+            <div class="step-icon">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3v18"/>
+                <path d="M5 8h14"/>
+                <path d="M7 16h10"/>
+                <path d="m16 5 3 3-3 3"/>
+                <path d="m8 13-3 3 3 3"/>
+              </svg>
+            </div>
+            <div>
+              <h3>推理增强：场景、成长性与证据链</h3>
+              <p>需求场景决定考察重点，成长性推理补充发展判断，实时推理链控制追问。</p>
+            </div>
+          </article>
           <article class="flow-step" data-kind="interview">
             <div class="step-icon">
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1003,6 +1135,17 @@
             </article>
           </div>
           <div class="flow-column">
+            <div class="flow-column-title">推理增强</div>
+            <article class="flow-node green">
+              <h3>需求场景引擎</h3>
+              <p>把技术深耕、技术拓展、团队管理、质量提升等招聘场景转成面试关注点。</p>
+            </article>
+            <article class="flow-node red">
+              <h3>成长性推理</h3>
+              <p>从学习迁移、复杂问题、主动负责、复盘迭代和责任扩大判断发展潜力。</p>
+            </article>
+          </div>
+          <div class="flow-column">
             <div class="flow-column-title">转换与存储</div>
             <article class="flow-node amber">
               <h3>画像转换器</h3>
@@ -1017,17 +1160,76 @@
             <div class="flow-column-title">面试输出</div>
             <article class="flow-node green">
               <h3>动态面试</h3>
-              <p>基于 profile_id 和 candidate_id 生成问题，执行语音/文字交互。</p>
+              <p>基于 profile_id 和 candidate_id 生成问题，结合实时推理决定推进、深挖或风险验证。</p>
             </article>
             <article class="flow-node red">
-              <h3>评估记录</h3>
-              <p>保存问题、回答、追问、评分、推荐结论和原始快照。</p>
+              <h3>评估记录与质量验证</h3>
+              <p>保存问答、推理日志、维度状态、证据链健康度、稳定性和区分度报告。</p>
             </article>
           </div>
         </div>
         <p class="flow-note">
-          关键闭环：画像提供“评价标准”，简历提供“候选人证据”，转换器保证两个上游结果能被面试引擎消费，面试记录再把过程和结论沉淀为可复盘数据。
+          关键闭环：画像提供“评价标准”，简历提供“候选人证据”，场景与成长性推理决定“先验证什么”，实时推理链决定“继续深挖还是推进”，质量验证再判断最终结论是否有证据支撑。
         </p>
+      </div>
+    </section>
+
+    <section class="section" id="advanced">
+      <div class="section-title">
+        <div>
+          <h2>答辩新增能力</h2>
+          <p>这些能力已经能在当前代码中找到对应实现，适合在答辩时用来说明系统不只是“生成题目”，而是在做场景化、可追溯、可复核的招聘评估。</p>
+        </div>
+      </div>
+
+      <div class="capability-grid">
+        <article class="capability-card">
+          <h3>需求场景引擎</h3>
+          <p>把“团队缺什么人”显式建模为技术深耕、技术拓展、团队管理、质量提升、业务创新等场景，面试问题不再只按岗位名称生成。</p>
+          <span class="capability-code">scenario_engine.py</span>
+        </article>
+        <article class="capability-card">
+          <h3>成长性推理</h3>
+          <p>简历解析输出 <code>growth_potential</code>，从学习迁移、复杂问题处理、主动负责、复盘迭代、责任范围扩大判断候选人的发展潜力和岗位成长适配。</p>
+          <span class="capability-code">llm_agent.py / growth_analyzer.py</span>
+        </article>
+        <article class="capability-card">
+          <h3>多维履历画像</h3>
+          <p>用职业倾向坐标展示候选人的履历特征，例如软件实现/硬件工程、技术深耕/业务管理、独立产出/协作沟通，辅助解释推荐岗位来源。</p>
+          <span class="capability-code">multidimensional_profile</span>
+        </article>
+        <article class="capability-card">
+          <h3>实时推理链</h3>
+          <p>每轮回答后更新验证维度状态，检查回答质量和跨轮一致性，再决定下一步是深挖、推进、风险探查、真实性验证还是收尾。</p>
+          <span class="capability-code">reasoning_engine.py</span>
+        </article>
+        <article class="capability-card">
+          <h3>叙事化评估</h3>
+          <p>评估报告强调“证据如何支撑判断”，避免只给抽象分数；信息不足时标注待验证，让结论可以被老师追问和复核。</p>
+          <span class="capability-code">evaluation_engine.py</span>
+        </article>
+        <article class="capability-card">
+          <h3>判断质量验证</h3>
+          <p>对最终评估做证据链、稳定性和区分度三层检查，发现无依据判断、跨次波动或维度失效时触发人工复核提示。</p>
+          <span class="capability-code">quality_validator.py</span>
+        </article>
+      </div>
+
+      <div class="trace-layout" aria-label="推理链示例">
+        <article class="trace-panel">
+          <h3>从回答到下一问的推理过程</h3>
+          <ol class="trace-list">
+            <li><span>候选人回答进入面试引擎，系统绑定当前问题、岗位维度和已用时间。</span></li>
+            <li><span>实时推理引擎抽取证据，评估逻辑性、具体性、反思性和主动展开程度。</span></li>
+            <li><span>如果回答缺细节或出现前后不一致，系统把动作标记为深挖、风险探查或真实性验证。</span></li>
+            <li><span>追问策略根据推理提示生成短追问，并把推理日志与维度状态写入面试记录。</span></li>
+            <li><span>面试结束后，叙事化评估和质量验证共同输出可复盘结论。</span></li>
+          </ol>
+        </article>
+        <article class="trace-panel">
+          <h3>答辩讲法</h3>
+          <p>可以把这一段概括为：系统不是“问完题再总结”，而是每轮都在判断证据是否足够、风险是否暴露、时间是否允许继续深挖。这样最终评价不是黑盒结论，而是由问题、回答、追问、推理日志和证据链验证共同支撑。</p>
+        </article>
       </div>
     </section>
 
@@ -1281,7 +1483,7 @@
           },
           {
             title: "结构化输出",
-            points: ["核心角色与职责边界", "能力信号维度及权重", "任职条件、加分项和风险项"]
+            points: ["核心角色与职责边界", "能力信号维度及权重", "任职条件、加分项和风险项", "需求场景可转成面试关注点"]
           },
           {
             title: "工程实现",
@@ -1289,16 +1491,18 @@
           },
           {
             title: "对面试的贡献",
-            points: ["明确每轮面试要验证的能力", "为问题生成提供评价维度", "降低不同面试官之间的标准偏差"]
+            points: ["明确每轮面试要验证的能力", "为问题生成提供评价维度", "让技术深耕、团队管理等场景进入问题排序", "降低不同面试官之间的标准偏差"]
           }
         ],
         signals: [
           ["岗位匹配度", 92],
           ["核心技能权重", 86],
+          ["场景化程度", 80],
           ["风险识别完整度", 74]
         ],
         questions: [
           ["岗位信号", "针对“复杂问题拆解能力”，请候选人讲一个需求不明确但最终落地的项目，并说明如何拆分任务和验证结果。"],
+          ["需求场景", "如果当前招聘场景是“质量提升”，优先追问候选人是否推动过测试、CI/CD、代码规范或线上质量治理。"],
           ["排除画像", "如果候选人在协作中只关注个人产出，请追问一次跨团队推进的具体冲突和解决方式。"],
           ["权重说明", "把岗位最关键的三个能力维度用于第一轮问题排序，优先验证高权重能力。"]
         ]
@@ -1315,24 +1519,26 @@
           },
           {
             title: "结构化输出",
-            points: ["候选人基础档案", "项目经历与技能证据", "信息盲区、可疑泛化表述和待追问点"]
+            points: ["候选人基础档案", "项目经历与技能证据", "多维履历画像和成长性推理", "信息盲区、可疑泛化表述和待追问点"]
           },
           {
             title: "工程实现",
-            points: ["pipeline_engine.py 编排解析阶段", "extractors.py 负责 PDF/Word/OCR 文本抽取", "llm_agent.py 输出语义分析结果"]
+            points: ["pipeline_engine.py 编排解析阶段", "extractors.py 负责 PDF/Word/OCR 文本抽取", "llm_agent.py 输出 growth_potential 和 suitable_roles", "前端解析预览展示成长性维度"]
           },
           {
             title: "对面试的贡献",
-            points: ["把简历亮点转成验证问题", "针对信息缺口自动补问", "避免面试只围绕泛泛技能清单展开"]
+            points: ["把简历亮点转成验证问题", "针对信息缺口自动补问", "用成长性证据解释岗位推荐", "避免面试只围绕泛泛技能清单展开"]
           }
         ],
         signals: [
           ["经历可验证性", 88],
+          ["成长性推理", 86],
           ["技能证据密度", 79],
           ["信息盲区识别", 83]
         ],
         questions: [
           ["项目证据", "简历中提到“负责性能优化”，请候选人说明优化前后的指标、定位方法和自己实际负责的部分。"],
+          ["成长性", "候选人项目从工具脚本扩展到完整系统，请追问学习迁移、责任范围扩大和复盘迭代的具体证据。"],
           ["技能核验", "候选人列出了 FastAPI 和 LLM 调用经验，请让其解释一次接口设计、异常处理和超时重试策略。"],
           ["信息盲区", "简历未说明团队规模和协作方式，请追问项目中如何分工、如何处理评审意见。"]
         ]
@@ -1349,25 +1555,28 @@
           },
           {
             title: "运行逻辑",
-            points: ["按画像维度生成主问题", "结合简历证据指定追问方向", "根据回答质量限制追问次数"]
+            points: ["按画像维度生成主问题", "结合简历证据指定追问方向", "每轮回答后更新 reasoning_log 和 dimension_states", "根据回答质量限制追问次数"]
           },
           {
             title: "工程实现",
-            points: ["interview_engine.py 管理面试生命周期", "question_generator.py 生成面试方案", "follow_up_strategy.py 控制追问逻辑"]
+            points: ["interview_engine.py 管理面试生命周期", "question_generator.py 生成面试方案", "reasoning_engine.py 决定深挖、推进、风险探查或收尾", "quality_validator.py 校验证据链、稳定性和区分度"]
           },
           {
             title: "输出结果",
-            points: ["问题、回答与追问记录", "候选人表现证据", "综合评分、推荐结论和复盘数据"]
+            points: ["问题、回答与追问记录", "候选人表现证据", "叙事化评估、证据链报告和人工复核提示", "推荐结论和复盘数据"]
           }
         ],
         signals: [
           ["问题针对性", 90],
+          ["推理链完整度", 84],
           ["追问有效性", 82],
+          ["质量验证覆盖", 78],
           ["记录可复盘性", 87]
         ],
         questions: [
           ["综合提问", "根据岗位画像的“系统设计能力”和简历中的“招聘评估系统项目”，请候选人讲解后端模块边界设计。"],
           ["动态追问", "如果回答只描述功能，请追问数据如何在画像、简历和面试之间转换，以及如何保证结构一致。"],
+          ["真实性验证", "如果候选人声称主导项目但缺少个人贡献细节，请要求其说明一次关键决策、替代方案和上线后的反馈。"],
           ["结束复盘", "面试结束后，把回答证据映射回画像维度，标注强证据、弱证据和未验证项。"]
         ]
       }
@@ -1402,7 +1611,8 @@
       });
 
       flowSteps.forEach((step) => {
-        step.classList.toggle("active", step.dataset.kind === key);
+        const activeKinds = key === "interview" ? ["reasoning", "interview"] : [key];
+        step.classList.toggle("active", activeKinds.includes(step.dataset.kind));
       });
 
       detail.innerHTML = `
